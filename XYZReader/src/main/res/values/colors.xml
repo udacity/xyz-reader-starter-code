@@ -22,4 +22,12 @@
     <color name="theme_primary_dark">#04561A</color>
     <color name="theme_accent">#04561A</color>
     <color name="ltgray">#ffe0e0e0</color>
+
+    <color name="green_200">#c5e1a5</color>
+    <color name="green_500">#8bc34a</color>
+    <color name="green_800">#558b2f</color>
+    <color name="violet_a400">#d500f9</color>
+
+
+
 </resources>
