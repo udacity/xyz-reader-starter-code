@@ -25,4 +25,14 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
+    <!-- My new application theme -->
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/green_500</item>
+        <item name="colorPrimaryDark">@color/green_800</item>
+        <item name="android:colorAccent">@color/violet_a400</item>
+
+        <item name="actionBarSize">@dimen/actionBarSize</item>
+
+    </style>
+
 </resources>
