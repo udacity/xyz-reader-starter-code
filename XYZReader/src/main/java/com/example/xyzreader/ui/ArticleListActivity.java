@@ -145,8 +145,16 @@ public class ArticleListActivity extends ActionBarActivity implements
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+                    // TODO: get position from click and pass it into the new activity
+                    Intent startDetailIntent = new Intent(
+                            Intent.ACTION_VIEW,
+                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))
+                    );
+
+                    int position = Integer.parseInt(vh.positionHolderTextView.getText().toString());
+                    startDetailIntent.putExtra(Intent.EXTRA_TEXT, position);
+
+                    startActivity(startDetailIntent);
                 }
             });
             return vh;
@@ -187,6 +195,9 @@ public class ArticleListActivity extends ActionBarActivity implements
                     mCursor.getString(ArticleLoader.Query.THUMB_URL),
                     ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
             holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+
+            // set position info to hidden ("gone") textview for optimized pageview loading
+            holder.positionHolderTextView.setText(String.valueOf(position));
         }
 
         @Override
@@ -199,12 +210,14 @@ public class ArticleListActivity extends ActionBarActivity implements
         public DynamicHeightNetworkImageView thumbnailView;
         public TextView titleView;
         public TextView subtitleView;
+        public TextView positionHolderTextView;
 
         public ViewHolder(View view) {
             super(view);
             thumbnailView = (DynamicHeightNetworkImageView) view.findViewById(R.id.thumbnail);
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
+            positionHolderTextView = (TextView) view.findViewById(R.id.position_holder_text_view);
         }
     }
 }
