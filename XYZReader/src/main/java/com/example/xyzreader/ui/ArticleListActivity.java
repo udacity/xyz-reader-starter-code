@@ -160,13 +160,13 @@ public class ArticleListActivity extends ActionBarActivity implements
                     int position = Integer.parseInt(vh.positionHolderTextView.getText().toString());
                     startDetailIntent.putExtra(Intent.EXTRA_TEXT, position);
 
-                    // TODO: Figure out why there is on transition animation!
+                    // TODO: Figure out why there is no transition animation!
                     DynamicHeightNetworkImageView imageView = (DynamicHeightNetworkImageView) findViewById(R.id.thumbnail);
                     String transitionName = getString(R.string.transitionImage);
                     ActivityOptionsCompat options = ActivityOptionsCompat.
                             makeSceneTransitionAnimation(mActivity, (View)imageView, transitionName);
 
-                    startActivity(startDetailIntent, options.toBundle());
+                    startActivity(startDetailIntent /*, options.toBundle()*/ );
                 }
             });
             return vh;
