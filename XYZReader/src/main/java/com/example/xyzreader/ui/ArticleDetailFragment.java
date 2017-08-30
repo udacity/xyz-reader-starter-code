@@ -230,7 +230,6 @@ public class ArticleDetailFragment extends Fragment implements
 
             }
 
-            Log.d(TAG, "******* BEGIN SLOW PART *******");
             String bodyText = mCursor.getString(ArticleLoader.Query.BODY);
 //            String formattedBodyText = bodyText.replaceAll("(\r\n|\n)", "<br />");
 //            String textToSet = Html.fromHtml(formattedBodyText).toString();
@@ -255,8 +254,6 @@ public class ArticleDetailFragment extends Fragment implements
 
                         }
                     });
-            Log.d(TAG, "*******  END  SLOW PART *******");
-
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");

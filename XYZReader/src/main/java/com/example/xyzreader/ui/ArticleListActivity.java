@@ -70,7 +70,7 @@ public class ArticleListActivity extends ActionBarActivity implements
         getLoaderManager().initLoader(0, null, this);
 
         if (savedInstanceState == null) {
-            // refresh();
+             refresh();
         }
         mActivity = this;
     }

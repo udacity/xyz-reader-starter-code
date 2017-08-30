@@ -3,12 +3,14 @@ package com.example.xyzreader.data;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Helper for loading a list of articles or a single article.
  */
 public class ArticleLoader extends CursorLoader {
     private static final String LOG_TAG = ArticleLoader.class.getSimpleName();
+    private static final String TAG = ArticleLoader.class.getSimpleName();
 
     public static ArticleLoader newAllArticlesInstance(Context context) {
         return new ArticleLoader(context, ItemsContract.Items.buildDirUri());
@@ -20,6 +22,7 @@ public class ArticleLoader extends CursorLoader {
 
     private ArticleLoader(Context context, Uri uri) {
         super(context, uri, Query.PROJECTION, null, null, ItemsContract.Items.DEFAULT_SORT);
+        Log.d(TAG, "Uri: " + uri.toString());
     }
 
     public interface Query {
