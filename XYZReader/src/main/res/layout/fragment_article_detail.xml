@@ -16,21 +16,20 @@
             <FrameLayout
                 android:id="@+id/photo_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="300dp"
                 android:background="@color/photo_placeholder">
 
                 <ImageView
                     android:id="@+id/photo"
-                    android:src="@drawable/testimag"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:contentDescription="@string/a11y_article_detail_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    />
+                    android:src="@drawable/testimag"
+                    android:contentDescription="@string/a11y_article_detail_image" />
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="112dp"
+                    android:layout_height="match_parent"
                     android:background="@drawable/photo_background_protection" />
 
             </FrameLayout>
@@ -99,7 +98,7 @@
         android:stateListAnimator="@anim/fab_state_list_anim"
         android:background="@drawable/add_fab_background"
         android:layout_gravity="bottom|end"
-        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
         android:layout_width="56dp"
         android:layout_height="56dp"
