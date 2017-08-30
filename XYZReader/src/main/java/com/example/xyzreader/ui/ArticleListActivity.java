@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.RecyclerView;
@@ -40,10 +42,11 @@ import java.util.Locale;
 public class ArticleListActivity extends ActionBarActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String TAG = ArticleListActivity.class.toString();
+    private static final String TAG = ArticleListActivity.class.getSimpleName();
     private Toolbar mToolbar;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
+    private Activity mActivity;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss", Locale.US);
     // Use default locale format
@@ -69,6 +72,7 @@ public class ArticleListActivity extends ActionBarActivity implements
         if (savedInstanceState == null) {
             // refresh();
         }
+        mActivity = this;
     }
 
     private void refresh() {
@@ -106,11 +110,14 @@ public class ArticleListActivity extends ActionBarActivity implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        Log.d(TAG, "Loader started for all articles");
         return ArticleLoader.newAllArticlesInstance(this);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        Log.d(TAG, "Loader finished.");
+
         Adapter adapter = new Adapter(cursor);
         adapter.setHasStableIds(true);
         mRecyclerView.setAdapter(adapter);
@@ -145,7 +152,6 @@ public class ArticleListActivity extends ActionBarActivity implements
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // TODO: get position from click and pass it into the new activity
                     Intent startDetailIntent = new Intent(
                             Intent.ACTION_VIEW,
                             ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))
@@ -154,7 +160,13 @@ public class ArticleListActivity extends ActionBarActivity implements
                     int position = Integer.parseInt(vh.positionHolderTextView.getText().toString());
                     startDetailIntent.putExtra(Intent.EXTRA_TEXT, position);
 
-                    startActivity(startDetailIntent);
+                    // TODO: Figure out why there is on transition animation!
+                    DynamicHeightNetworkImageView imageView = (DynamicHeightNetworkImageView) findViewById(R.id.thumbnail);
+                    String transitionName = getString(R.string.transitionImage);
+                    ActivityOptionsCompat options = ActivityOptionsCompat.
+                            makeSceneTransitionAnimation(mActivity, (View)imageView, transitionName);
+
+                    startActivity(startDetailIntent, options.toBundle());
                 }
             });
             return vh;

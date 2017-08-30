@@ -4,6 +4,8 @@
         <item name="android:colorAccent">@color/accent</item>
         <item name="android:colorPrimary">@color/primary_light</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        
+        <item name="android:windowContentTransitions">true</item>
     </style>
     <style name="AppTheme.Detail">
         <item name="android:statusBarColor">@android:color/transparent</item>

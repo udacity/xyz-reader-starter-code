@@ -25,6 +25,7 @@
                     android:layout_height="100dp"
                     android:contentDescription="@string/a11y_article_detail_image"
                     android:scaleType="centerCrop"
+                    android:transitionName="@string/transitionImage"
                     />
 
                 <View

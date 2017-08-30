@@ -9,5 +9,6 @@
 
     <string name="up">Up</string>
     <string name="a11y_article_detail_image">Article Thumbnail Image</string>
+    <string name="transitionImage">transition_image</string>
 
 </resources>

@@ -83,6 +83,7 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "creating fragment");
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
@@ -204,8 +205,6 @@ public class ArticleDetailFragment extends Fragment implements
         TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
 
 
-//        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
-
         if (mCursor != null) {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
@@ -231,7 +230,11 @@ public class ArticleDetailFragment extends Fragment implements
 
             }
 
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
+            Log.d(TAG, "******* BEGIN SLOW PART *******");
+            String bodyText = mCursor.getString(ArticleLoader.Query.BODY);
+//            String formattedBodyText = bodyText.replaceAll("(\r\n|\n)", "<br />");
+//            String textToSet = Html.fromHtml(formattedBodyText).toString();
+            bodyView.setText(bodyText);
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
                         @Override
@@ -252,6 +255,8 @@ public class ArticleDetailFragment extends Fragment implements
 
                         }
                     });
+            Log.d(TAG, "*******  END  SLOW PART *******");
+
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
@@ -262,11 +267,14 @@ public class ArticleDetailFragment extends Fragment implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        Log.d(TAG, "loader started for specific Id");
         return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        Log.d(TAG, "Loader finished.");
+
         if (!isAdded()) {
             if (cursor != null) {
                 cursor.close();
