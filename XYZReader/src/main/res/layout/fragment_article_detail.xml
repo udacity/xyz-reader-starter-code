@@ -21,6 +21,7 @@
 
                 <ImageView
                     android:id="@+id/photo"
+                    android:src="@drawable/testimag"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:contentDescription="@string/a11y_article_detail_image"
