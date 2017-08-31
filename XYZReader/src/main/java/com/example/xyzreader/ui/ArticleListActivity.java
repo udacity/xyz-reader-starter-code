@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -20,11 +22,11 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 
 import java.text.ParseException;
@@ -39,7 +41,7 @@ import java.util.Locale;
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
  */
-public class ArticleListActivity extends ActionBarActivity implements
+public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = ArticleListActivity.class.getSimpleName();
@@ -47,6 +49,12 @@ public class ArticleListActivity extends ActionBarActivity implements
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
     private Activity mActivity;
+    private Context mContext;
+    private FrameLayout mToolbarContainer;
+
+    public final static String EXTRA_POSITION = "extra_position";
+    public final static String EXTRA_ID = "extra_id";
+    public final static String EXTRA_PHOTO_URL = "extra_photo_url";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss", Locale.US);
     // Use default locale format
@@ -61,9 +69,6 @@ public class ArticleListActivity extends ActionBarActivity implements
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
-
-        final View toolbarContainerView = findViewById(R.id.toolbar_container);
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -72,7 +77,10 @@ public class ArticleListActivity extends ActionBarActivity implements
         if (savedInstanceState == null) {
              refresh();
         }
+
         mActivity = this;
+        mContext = this;
+        mToolbarContainer = (FrameLayout) findViewById(R.id.toolbar_container);
     }
 
     private void refresh() {
@@ -149,26 +157,41 @@ public class ArticleListActivity extends ActionBarActivity implements
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
             final ViewHolder vh = new ViewHolder(view);
+
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent startDetailIntent = new Intent(
-                            Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))
-                    );
 
+                    // TODO: slide the actionbar up and and nav bar down
+
+                    // pass position into intent
                     int position = Integer.parseInt(vh.positionHolderTextView.getText().toString());
-                    startDetailIntent.putExtra(Intent.EXTRA_TEXT, position);
+                    long id = getItemId(vh.getAdapterPosition());
 
-                    // TODO: Figure out why there is no transition animation!
-                    DynamicHeightNetworkImageView imageView = (DynamicHeightNetworkImageView) findViewById(R.id.thumbnail);
-                    String transitionName = getString(R.string.transitionImage);
-                    ActivityOptionsCompat options = ActivityOptionsCompat.
-                            makeSceneTransitionAnimation(mActivity, (View)imageView, transitionName);
+                    // start the loading activity
+                    Intent startLoadingActivityIntent = new Intent(mContext, DetailLoadingActivity.class);
+                    startLoadingActivityIntent.putExtra(EXTRA_POSITION, position);
+                    startLoadingActivityIntent.putExtra(EXTRA_ID, id);
+                    startLoadingActivityIntent.putExtra(EXTRA_PHOTO_URL, mCursor.getString(ArticleLoader.Query.THUMB_URL));
 
-                    startActivity(startDetailIntent /*, options.toBundle()*/ );
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+                        // Dynamically set transition name on Click
+                        final String transitionName = getString(R.string.transitionImage);
+                        final DynamicHeightNetworkImageView imageView = vh.thumbnailView;
+                        ViewCompat.setTransitionName(imageView, transitionName);
+
+                        // add scene transition options
+                        ActivityOptionsCompat options = ActivityOptionsCompat.
+                                makeSceneTransitionAnimation(mActivity, imageView, transitionName);
+
+                        startActivity(startLoadingActivityIntent, options.toBundle());
+                    } else {
+                        startActivity(startLoadingActivityIntent);
+                    }
                 }
             });
+
             return vh;
         }
 
