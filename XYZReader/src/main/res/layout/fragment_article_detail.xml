@@ -1,6 +1,6 @@
-<com.example.xyzreader.ui.DrawInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/draw_insets_frame_layout"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/article_detail_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -17,7 +17,7 @@
                 android:id="@+id/photo_container"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/detail_photo_height"
-                android:background="@color/photo_placeholder">
+                android:background="@color/photo_placeholder" >
 
                 <ImageView
                     android:id="@+id/photo"
@@ -41,6 +41,7 @@
                 android:layout_gravity="center_horizontal"
                 android:maxWidth="@dimen/detail_card_max_width"
                 android:background="#fff"
+                android:elevation="2dp"
                 android:layout_marginTop="@dimen/detail_card_top_margin">
 
                 <LinearLayout
@@ -94,6 +95,7 @@
     </com.example.xyzreader.ui.ObservableScrollView>
 
     <ImageButton android:id="@+id/share_fab"
+        android:stateListAnimator="@anim/fab_state_list_anim"
         android:background="@drawable/add_fab_background"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margin"
@@ -104,4 +106,4 @@
         android:elevation="@dimen/fab_elevation"
         android:contentDescription="@string/action_share" />
 
-</com.example.xyzreader.ui.DrawInsetsFrameLayout>
+</FrameLayout>
