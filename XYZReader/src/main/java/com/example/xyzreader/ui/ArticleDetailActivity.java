@@ -6,13 +6,13 @@ import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v13.app.FragmentStatePagerAdapter;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -56,9 +56,40 @@ public class ArticleDetailActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_article_detail);
 
-        ActivityCompat.postponeEnterTransition(this);
-
         getLoaderManager().initLoader(0, null, this);
+
+        // Grab data from received intent
+        Intent receivedIntent = getIntent();
+        if (savedInstanceState == null) {
+            if (receivedIntent != null && receivedIntent.getData() != null) {
+                // COMPLETED: assign mStartPosition to position
+                mStartPosition = receivedIntent.getIntExtra(EXTRA_POSITION, 0);
+                mSelectedItemId = ItemsContract.Items.getItemId(receivedIntent.getData());
+            }
+        }
+
+        mUpButtonContainer = findViewById(R.id.up_container);
+
+        mUpButton = findViewById(R.id.action_up);
+        mUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSupportNavigateUp();
+            }
+        });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
+                    view.onApplyWindowInsets(windowInsets);
+                    mTopInset = windowInsets.getSystemWindowInsetTop();
+                    mUpButtonContainer.setTranslationY(mTopInset);
+                    updateUpButtonPosition();
+                    return windowInsets;
+                }
+            });
+        }
 
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -85,40 +116,6 @@ public class ArticleDetailActivity extends AppCompatActivity
                 updateUpButtonPosition();
             }
         });
-
-        mUpButtonContainer = findViewById(R.id.up_container);
-
-        mUpButton = findViewById(R.id.action_up);
-        mUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSupportNavigateUp();
-            }
-        });
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                    view.onApplyWindowInsets(windowInsets);
-                    mTopInset = windowInsets.getSystemWindowInsetTop();
-                    mUpButtonContainer.setTranslationY(mTopInset);
-                    updateUpButtonPosition();
-                    return windowInsets;
-                }
-            });
-        }
-
-        if (savedInstanceState == null) {
-            if (getIntent() != null && getIntent().getData() != null) {
-                // COMPLETED: assign mStartPosition to position
-                mStartPosition = getIntent().getIntExtra(EXTRA_POSITION, 0);
-//                mStartId = ItemsContract.Items.getItemId(getIntent().getData());
-//                mSelectedItemId = mStartId;
-
-                mSelectedItemId = ItemsContract.Items.getItemId(getIntent().getData());
-            }
-        }
     }
 
     @Override
@@ -133,23 +130,7 @@ public class ArticleDetailActivity extends AppCompatActivity
 
         mCursor = cursor;
         mPagerAdapter.notifyDataSetChanged();
-        // COMPLETED: optimized
-        // Gets the position from the selected view and scrolls the pager to it
         mPager.setCurrentItem(mStartPosition, false);
-
-        // Select the start ID
-//        if (mStartId > 0) {
-//            mCursor.moveToFirst();
-//            while (!mCursor.isAfterLast()) {
-//                if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
-//                    final int position = mCursor.getPosition();
-//                    mPager.setCurrentItem(position, false);
-//                    break;
-//                }
-//                mCursor.moveToNext();
-//            }
-//            mStartId = 0;
-//        }
     }
 
     @Override
@@ -177,18 +158,23 @@ public class ArticleDetailActivity extends AppCompatActivity
 
         @Override
         public void setPrimaryItem(ViewGroup container, int position, Object object) {
+            Log.d(TAG, "set primary item Detail Activity BEGIN");
             super.setPrimaryItem(container, position, object);
             ArticleDetailFragment fragment = (ArticleDetailFragment) object;
             if (fragment != null) {
                 mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
                 updateUpButtonPosition();
             }
+            Log.d(TAG, "set primary item Detail Activity END");
         }
 
         @Override
         public Fragment getItem(int position) {
+            Log.d(TAG, "create Frag from Detail Activity BEGIN");
             mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
+            ArticleDetailFragment articleDetailFragment = ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
+            Log.d(TAG, "create Frag from Detail Activity END");
+            return articleDetailFragment;
         }
 
         @Override

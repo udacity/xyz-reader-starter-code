@@ -8,10 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +24,7 @@ import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
+import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 
 import java.text.ParseException;
@@ -162,33 +160,36 @@ public class ArticleListActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(View view) {
 
-                    // TODO: slide the actionbar up and and nav bar down
-
                     // pass position into intent
                     int position = Integer.parseInt(vh.positionHolderTextView.getText().toString());
-                    long id = getItemId(vh.getAdapterPosition());
+                    mCursor.moveToPosition(position);
 
                     // start the loading activity
-                    Intent startLoadingActivityIntent = new Intent(mContext, DetailLoadingActivity.class);
-                    startLoadingActivityIntent.putExtra(EXTRA_POSITION, position);
-                    startLoadingActivityIntent.putExtra(EXTRA_ID, id);
-                    startLoadingActivityIntent.putExtra(EXTRA_PHOTO_URL, mCursor.getString(ArticleLoader.Query.THUMB_URL));
+                    Intent startDetailIntent = new Intent(
+                            Intent.ACTION_VIEW,
+                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))
+                    );
+                    startDetailIntent.putExtra(EXTRA_POSITION, position);
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    startActivity(startDetailIntent);
 
-                        // Dynamically set transition name on Click
-                        final String transitionName = getString(R.string.transitionImage);
-                        final DynamicHeightNetworkImageView imageView = vh.thumbnailView;
-                        ViewCompat.setTransitionName(imageView, transitionName);
+                    // TODO: Add shared element transition
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//
+//                        // Dynamically set transition name on Click
+//                        final String transitionName = getString(R.string.transitionImage);
+//                        final DynamicHeightNetworkImageView imageView = vh.thumbnailView;
+//                        ViewCompat.setTransitionName(imageView, transitionName);
+//
+//                        // add scene transition options
+//                        ActivityOptionsCompat options = ActivityOptionsCompat.
+//                                makeSceneTransitionAnimation(mActivity, imageView, transitionName);
+//
+//                        startActivity(startDetailIntent, options.toBundle());
+//                    } else {
+//                        startActivity(startDetailIntent);
+//                    }
 
-                        // add scene transition options
-                        ActivityOptionsCompat options = ActivityOptionsCompat.
-                                makeSceneTransitionAnimation(mActivity, imageView, transitionName);
-
-                        startActivity(startLoadingActivityIntent, options.toBundle());
-                    } else {
-                        startActivity(startLoadingActivityIntent);
-                    }
                 }
             });
 

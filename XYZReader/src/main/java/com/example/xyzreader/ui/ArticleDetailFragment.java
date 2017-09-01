@@ -40,6 +40,7 @@ import java.util.GregorianCalendar;
 public class ArticleDetailFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ArticleDetailFragment";
+    private static final String FRAME_TAG = "frame";
 
     public static final String ARG_ITEM_ID = "item_id";
     private static final float PARALLAX_FACTOR = 1.25f;
@@ -82,8 +83,9 @@ public class ArticleDetailFragment extends Fragment implements
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(FRAME_TAG, "onCreate START");
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "creating fragment");
+        Log.d(FRAME_TAG, "creating fragment");
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
@@ -93,6 +95,7 @@ public class ArticleDetailFragment extends Fragment implements
         mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
                 R.dimen.detail_card_top_margin);
         setHasOptionsMenu(true);
+        Log.d(FRAME_TAG, "onCreate END");
     }
 
     public ArticleDetailActivity getActivityCast() {
@@ -113,6 +116,7 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        Log.d(FRAME_TAG, "onCreateView START");
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
                 mRootView.findViewById(R.id.draw_insets_frame_layout);
@@ -151,10 +155,12 @@ public class ArticleDetailFragment extends Fragment implements
 
         bindViews();
         updateStatusBar();
+        Log.d(FRAME_TAG, "onCreateView END");
         return mRootView;
     }
 
     private void updateStatusBar() {
+        Log.d(FRAME_TAG, "updateStatusBar START");
         int color = 0;
         if (mPhotoView != null && mTopInset != 0 && mScrollY > 0) {
             float f = progress(mScrollY,
@@ -167,6 +173,7 @@ public class ArticleDetailFragment extends Fragment implements
         }
         mStatusBarColorDrawable.setColor(color);
         mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
+        Log.d(FRAME_TAG, "updateStatusBar END");
     }
 
     static float progress(float v, float min, float max) {
@@ -184,6 +191,7 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     private Date parsePublishedDate() {
+        Log.d(FRAME_TAG, "parsePublishedDate START");
         try {
             String date = mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
             return dateFormat.parse(date);
@@ -191,10 +199,13 @@ public class ArticleDetailFragment extends Fragment implements
             Log.e(TAG, ex.getMessage());
             Log.i(TAG, "passing today's date");
             return new Date();
+        } finally {
+            Log.d(FRAME_TAG, "parsePublishedDate END");
         }
     }
 
     private void bindViews() {
+        Log.d(FRAME_TAG, "bindViews START");
         if (mRootView == null) {
             return;
         }
@@ -260,17 +271,18 @@ public class ArticleDetailFragment extends Fragment implements
             bylineView.setText("N/A" );
             bodyView.setText("N/A");
         }
+        Log.d(FRAME_TAG, "bindViews END");
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Log.d(TAG, "loader started for specific Id");
+        Log.d(FRAME_TAG, "fragment loader started");
         return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        Log.d(TAG, "Loader finished.");
+        Log.d(FRAME_TAG, "fragment loader finished.");
 
         if (!isAdded()) {
             if (cursor != null) {
