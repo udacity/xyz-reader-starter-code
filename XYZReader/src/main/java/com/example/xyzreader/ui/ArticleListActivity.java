@@ -8,14 +8,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +26,12 @@ import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
+import com.example.xyzreader.data.ArticleUtils;
 import com.example.xyzreader.data.UpdaterService;
+import com.example.xyzreader.pojo.Article;
 import com.squareup.picasso.Picasso;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import java.util.ArrayList;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -44,7 +42,10 @@ import java.util.Locale;
 public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    // Log tag
     private static final String TAG = ArticleListActivity.class.getSimpleName();
+
+    // Views
     private Toolbar mToolbar;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
@@ -52,13 +53,12 @@ public class ArticleListActivity extends AppCompatActivity implements
     private Context mContext;
     private FrameLayout mToolbarContainer;
 
-    public final static String EXTRA_POSITION = "extra_position";
+    // Bundle args
+    public final static String EXTRA_INITIAL_POSITION = "extra_initial_position";
+    public final static String EXTRA_ARTICLES = "extra_articles";
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss", Locale.US);
-    // Use default locale format
-    private SimpleDateFormat outputFormat = new SimpleDateFormat();
-    // Most time functions can only handle 1902 - 2037
-    private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
+    // class member variable for articles
+    private ArrayList<Article> mArticles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +73,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         getLoaderManager().initLoader(0, null, this);
 
         if (savedInstanceState == null) {
+            // TODO: Why does this always get called?
              refresh();
         }
 
@@ -124,7 +125,10 @@ public class ArticleListActivity extends AppCompatActivity implements
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         Log.d(TAG, "Loader finished.");
 
-        Adapter adapter = new Adapter(cursor);
+        // store articles in arraylist
+        mArticles = ArticleUtils.generateArticlesFromCursor(cursor);
+
+        Adapter adapter = new Adapter(mArticles);
         adapter.setHasStableIds(true);
         mRecyclerView.setAdapter(adapter);
         int columnCount = getResources().getInteger(R.integer.list_column_count);
@@ -139,16 +143,9 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
-        private Cursor mCursor;
-
-        public Adapter(Cursor cursor) {
-            mCursor = cursor;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            mCursor.moveToPosition(position);
-            return mCursor.getLong(ArticleLoader.Query._ID);
+        ArrayList<Article> mArticles;
+        public Adapter(ArrayList<Article> articles) {
+            mArticles = articles;
         }
 
         @Override
@@ -160,35 +157,30 @@ public class ArticleListActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(View view) {
 
-                    // pass position into intent
-                    int position = Integer.parseInt(vh.positionHolderTextView.getText().toString());
-                    mCursor.moveToPosition(position);
+                    /* START DETAIL ACTIVITY WITH INITIAL POSITION AND LIST OF ARTICLES */
+                    Intent startDetailIntent = new Intent(mContext, ArticleDetailActivity.class);
 
-                    // start the loading activity
-                    Intent startDetailIntent = new Intent(
-                            Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))
-                    );
-                    startDetailIntent.putExtra(EXTRA_POSITION, position);
-
-                    startActivity(startDetailIntent);
+                    int initialPosition = vh.getAdapterPosition();
+                    startDetailIntent.putExtra(EXTRA_INITIAL_POSITION, initialPosition);
+                    startDetailIntent.putParcelableArrayListExtra(EXTRA_ARTICLES, mArticles);
 
                     // TODO: Add shared element transition
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//
-//                        // Dynamically set transition name on Click
-//                        final String transitionName = getString(R.string.transitionImage);
-//                        final DynamicHeightNetworkImageView imageView = vh.thumbnailView;
-//                        ViewCompat.setTransitionName(imageView, transitionName);
-//
-//                        // add scene transition options
-//                        ActivityOptionsCompat options = ActivityOptionsCompat.
-//                                makeSceneTransitionAnimation(mActivity, imageView, transitionName);
-//
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+                        // Dynamically set transition name of list item on Click
+                        final String transitionName = getString(R.string.transitionImage);
+                        final ImageView imageView = vh.thumbnailView;
+                        ViewCompat.setTransitionName(imageView, transitionName);
+
+                        // add scene transition options
+                        ActivityOptionsCompat options = ActivityOptionsCompat.
+                                makeSceneTransitionAnimation(mActivity, imageView, transitionName);
+
 //                        startActivity(startDetailIntent, options.toBundle());
-//                    } else {
-//                        startActivity(startDetailIntent);
-//                    }
+                        startActivity(startDetailIntent);
+                    } else {
+                        startActivity(startDetailIntent);
+                    }
 
                 }
             });
@@ -196,64 +188,38 @@ public class ArticleListActivity extends AppCompatActivity implements
             return vh;
         }
 
-        private Date parsePublishedDate() {
-            try {
-                String date = mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
-                return dateFormat.parse(date);
-            } catch (ParseException ex) {
-                Log.e(TAG, ex.getMessage());
-                Log.i(TAG, "passing today's date");
-                return new Date();
-            }
-        }
-
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            mCursor.moveToPosition(position);
-            holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
-            Date publishedDate = parsePublishedDate();
-            if (!publishedDate.before(START_OF_EPOCH.getTime())) {
+            Article currentArticle = mArticles.get(position);
 
-                holder.subtitleView.setText(Html.fromHtml(
-                        DateUtils.getRelativeTimeSpanString(
-                                publishedDate.getTime(),
-                                System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
-                                DateUtils.FORMAT_ABBREV_ALL).toString()
-                                + "<br/>" + " by "
-                                + mCursor.getString(ArticleLoader.Query.AUTHOR)));
-            } else {
-                holder.subtitleView.setText(Html.fromHtml(
-                        outputFormat.format(publishedDate)
-                        + "<br/>" + " by "
-                        + mCursor.getString(ArticleLoader.Query.AUTHOR)));
-            }
-
-            String imageUrl = mCursor.getString(ArticleLoader.Query.THUMB_URL);
+            // TODO: set image to some default image so initial loading doesn't look weird
+            String imageUrl = currentArticle.getThumbnailUrl();
             if (imageUrl != null) {
                 Picasso.with(mContext).load(imageUrl).into(holder.thumbnailView);
             }
 
-            holder.positionHolderTextView.setText(String.valueOf(position));
+            holder.titleView.setText(currentArticle.getTitle());
+
+            String subtitleText = currentArticle.getDate() + "\nby " + currentArticle.getAuthor();
+            holder.subtitleView.setText(subtitleText);
         }
 
         @Override
         public int getItemCount() {
-            return mCursor.getCount();
+            return mArticles.size();
         }
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView thumbnailView;
-        public TextView titleView;
-        public TextView subtitleView;
-        public TextView positionHolderTextView;
+    private static class ViewHolder extends RecyclerView.ViewHolder {
+        private ImageView thumbnailView;
+        private TextView titleView;
+        private TextView subtitleView;
 
-        public ViewHolder(View view) {
+        private ViewHolder(View view) {
             super(view);
             thumbnailView = (ImageView) view.findViewById(R.id.thumbnail);
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
-            positionHolderTextView = (TextView) view.findViewById(R.id.position_holder_text_view);
         }
     }
 }

@@ -1,6 +1,5 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/article_detail_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -17,7 +16,7 @@
                 android:id="@+id/photo_container"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/detail_photo_height"
-                android:background="@color/photo_placeholder" >
+                android:background="@color/photo_placeholder">
 
                 <ImageView
                     android:id="@+id/photo"
@@ -30,19 +29,20 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/photo_background_protection" />
+                    android:background="@drawable/photo_background_protection_top" />
 
             </FrameLayout>
 
             <com.example.xyzreader.ui.MaxWidthLinearLayout
+                android:id="@+id/detail_text_view"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:maxWidth="@dimen/detail_card_max_width"
                 android:background="#fff"
-                android:elevation="2dp"
-                android:layout_marginTop="@dimen/detail_card_top_margin">
+                android:layout_marginTop="@dimen/detail_card_top_margin"
+                android:visibility="invisible">
 
                 <LinearLayout
                     android:id="@+id/meta_bar"
@@ -91,11 +91,24 @@
                     android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier" />
 
             </com.example.xyzreader.ui.MaxWidthLinearLayout>
+
+            <FrameLayout
+                android:id="@+id/spinner_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/detail_photo_height" >
+
+                <ProgressBar
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_gravity="center"/>
+
+            </FrameLayout>
+
         </FrameLayout>
     </com.example.xyzreader.ui.ObservableScrollView>
 
     <ImageButton android:id="@+id/share_fab"
-        android:stateListAnimator="@anim/fab_state_list_anim"
         android:background="@drawable/add_fab_background"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margin"

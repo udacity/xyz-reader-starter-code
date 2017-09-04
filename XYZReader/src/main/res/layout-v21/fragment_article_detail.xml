@@ -1,13 +1,13 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/article_detail_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.example.xyzreader.ui.ObservableScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="#FFFFFF">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -18,57 +18,59 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/detail_photo_height"
                 android:background="@color/photo_placeholder"
-                android:transitionName="@string/transitionImage" >
+                android:transitionName="@string/transitionImage">
 
                 <ImageView
                     android:id="@+id/photo"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:contentDescription="@string/a11y_article_detail_image"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/testimag"
-                    android:contentDescription="@string/a11y_article_detail_image" />
+                    android:src="@drawable/testimag" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/photo_background_protection" />
+                    android:background="@drawable/photo_background_protection_top" />
 
             </FrameLayout>
 
             <com.example.xyzreader.ui.MaxWidthLinearLayout
-                android:orientation="vertical"
+                android:id="@+id/detail_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:maxWidth="@dimen/detail_card_max_width"
+                android:layout_marginTop="@dimen/detail_card_top_margin"
                 android:background="#fff"
                 android:elevation="2dp"
-                android:layout_marginTop="@dimen/detail_card_top_margin">
+                android:maxWidth="@dimen/detail_card_max_width"
+                android:orientation="vertical"
+                android:visibility="invisible">
 
                 <LinearLayout
                     android:id="@+id/meta_bar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#333"
                     android:layout_gravity="bottom"
+                    android:layout_marginBottom="@dimen/detail_metabar_vert_padding"
+                    android:background="#333"
                     android:orientation="vertical"
+                    android:paddingBottom="@dimen/detail_metabar_vert_padding"
                     android:paddingLeft="@dimen/detail_inner_horiz_margin"
                     android:paddingRight="@dimen/detail_inner_horiz_margin"
-                    android:paddingTop="@dimen/detail_metabar_vert_padding"
-                    android:paddingBottom="@dimen/detail_metabar_vert_padding"
-                    android:layout_marginBottom="@dimen/detail_metabar_vert_padding">
+                    android:paddingTop="@dimen/detail_metabar_vert_padding">
 
                     <TextView
                         android:id="@+id/article_title"
                         style="?android:attr/textAppearanceLarge"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
                         android:fontFamily="sans-serif-condensed"
+                        android:lineSpacingMultiplier="0.9"
+                        android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
                         android:textColor="#fff"
-                        android:textStyle="bold"
                         android:textSize="@dimen/detail_title_text_size"
-                        android:lineSpacingMultiplier="0.9" />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/article_byline"
@@ -85,13 +87,27 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/detail_inner_horiz_margin"
                     android:layout_marginRight="@dimen/detail_inner_horiz_margin"
+                    android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier"
                     android:paddingBottom="@dimen/detail_body_bottom_margin"
                     android:textColor="@color/secondary_text"
                     android:textColorLink="@color/accent"
-                    android:textSize="@dimen/detail_body_text_size"
-                    android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier" />
+                    android:textSize="@dimen/detail_body_text_size" />
 
             </com.example.xyzreader.ui.MaxWidthLinearLayout>
+
+            <FrameLayout
+                android:id="@+id/spinner_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/detail_photo_height">
+
+                <ProgressBar
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_gravity="center" />
+
+            </FrameLayout>
+
         </FrameLayout>
     </com.example.xyzreader.ui.ObservableScrollView>
 

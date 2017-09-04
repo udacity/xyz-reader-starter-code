@@ -1,44 +1,36 @@
 package com.example.xyzreader.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.LoaderManager;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowInsets;
 
 import com.example.xyzreader.R;
-import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
+import com.example.xyzreader.pojo.Article;
 
-import static com.example.xyzreader.ui.ArticleListActivity.EXTRA_POSITION;
+import java.util.ArrayList;
+
+import static com.example.xyzreader.ui.ArticleListActivity.EXTRA_ARTICLES;
+import static com.example.xyzreader.ui.ArticleListActivity.EXTRA_INITIAL_POSITION;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
-public class ArticleDetailActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ArticleDetailActivity extends AppCompatActivity {
 
+    // Log tag
     private static final String TAG = ArticleDetailActivity.class.getSimpleName();
-    private Cursor mCursor;
-    private int mStartPosition;
 
-    private long mSelectedItemId;
-    private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
-    private int mTopInset;
+    // Member variables
+    private int mInitialPosition;
+    private ArrayList<Article> mArticles;
 
+    // views
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
     private View mUpButtonContainer;
@@ -55,20 +47,15 @@ public class ArticleDetailActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_article_detail);
 
-        getLoaderManager().initLoader(0, null, this);
-
         // Grab data from received intent
-        Intent receivedIntent = getIntent();
         if (savedInstanceState == null) {
-            if (receivedIntent != null && receivedIntent.getData() != null) {
-                // COMPLETED: assign mStartPosition to position
-                mStartPosition = receivedIntent.getIntExtra(EXTRA_POSITION, 0);
-                mSelectedItemId = ItemsContract.Items.getItemId(receivedIntent.getData());
-            }
+            Intent receivedIntent = getIntent();
+            mInitialPosition = receivedIntent.getIntExtra(EXTRA_INITIAL_POSITION, 0);
+            mArticles = receivedIntent.getParcelableArrayListExtra(EXTRA_ARTICLES);
         }
 
+        // TODO: Hide top status bar
         mUpButtonContainer = findViewById(R.id.up_container);
-
         mUpButton = findViewById(R.id.action_up);
         mUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,109 +64,47 @@ public class ArticleDetailActivity extends AppCompatActivity
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @SuppressLint("NewApi")
-                @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                    view.onApplyWindowInsets(windowInsets);
-                    mTopInset = windowInsets.getSystemWindowInsetTop();
-                    mUpButtonContainer.setTranslationY(mTopInset);
-                    updateUpButtonPosition();
-                    return windowInsets;
-                }
-            });
-        }
-
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
-        mPager.setPageMargin((int) TypedValue
-                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
-        mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
+        // TODO: Do I need an onpagechangelistener to change the item..?
+//        mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//                super.onPageScrollStateChanged(state);
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                if (mCursor != null) {
+//                    mCursor.moveToPosition(position);
+//                }
+//            }
+//        });
+        mPager.setCurrentItem(mInitialPosition);
 
-        mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-                mUpButton.animate()
-                        .alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
-                        .setDuration(300);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (mCursor != null) {
-                    mCursor.moveToPosition(position);
-                }
-                mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
-                updateUpButtonPosition();
-            }
-        });
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Log.d(TAG, "loader started for all articles");
-        return ArticleLoader.newAllArticlesInstance(this);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        Log.d(TAG, "Loader finished.");
-
-        mCursor = cursor;
+        // TODO: Do I need to notify that the dataset changed initially?
         mPagerAdapter.notifyDataSetChanged();
-        mPager.setCurrentItem(mStartPosition, false);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        mCursor = null;
-        mPagerAdapter.notifyDataSetChanged();
-    }
-
-    public void onUpButtonFloorChanged(long itemId, ArticleDetailFragment fragment) {
-        if (itemId == mSelectedItemId) {
-            mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-            updateUpButtonPosition();
-        }
-    }
-
-    private void updateUpButtonPosition() {
-        int upButtonNormalBottom = mTopInset + mUpButton.getHeight();
-        mUpButton.setTranslationY(Math.min(mSelectedItemUpButtonFloor - upButtonNormalBottom, 0));
     }
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
+
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
-        public void setPrimaryItem(ViewGroup container, int position, Object object) {
-            Log.d(TAG, "set primary item Detail Activity BEGIN");
-            super.setPrimaryItem(container, position, object);
-            ArticleDetailFragment fragment = (ArticleDetailFragment) object;
-            if (fragment != null) {
-                mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-                updateUpButtonPosition();
-            }
-            Log.d(TAG, "set primary item Detail Activity END");
+        public int getCount() {
+            if (mArticles != null) { return mArticles.size(); }
+            else return 0;
         }
 
         @Override
         public Fragment getItem(int position) {
-            Log.d(TAG, "create Frag from Detail Activity BEGIN");
-            mCursor.moveToPosition(position);
-            ArticleDetailFragment articleDetailFragment = ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
-            Log.d(TAG, "create Frag from Detail Activity END");
-            return articleDetailFragment;
+            // TODO: get article object
+            ArticleDetailFragment fragment = ArticleDetailFragment.newInstance(mArticles.get(position));
+            return fragment;
         }
 
-        @Override
-        public int getCount() {
-            return (mCursor != null) ? mCursor.getCount() : 0;
-        }
     }
 }
