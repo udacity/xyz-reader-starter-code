@@ -37,7 +37,7 @@ public class ObservableScrollView extends ScrollView {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (t != 0) {
-                setElevation(16);
+                setElevation(2);
             }
         }
 
