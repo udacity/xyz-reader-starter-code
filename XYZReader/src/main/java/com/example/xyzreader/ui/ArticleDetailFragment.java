@@ -126,6 +126,7 @@ public class ArticleDetailFragment extends Fragment {
             mBylineView.setText(byLine);
 
             // set the body
+            // TODO: Change body view to recyclerview of paragraph textviews list with adapter
             mBodyView.setText(mArticle.getBody());
 
             // set the image

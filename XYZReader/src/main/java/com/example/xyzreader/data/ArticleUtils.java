@@ -44,8 +44,8 @@ public class ArticleUtils {
             String title = cursor.getString(ArticleLoader.Query.TITLE);
             // body
             // TODO: Format body correctly
-//            String body = cursor.getString(ArticleLoader.Query.BODY);
-            String body = "test bod";
+            String body = cursor.getString(ArticleLoader.Query.BODY);
+//            String body = "test bod";
             // date
             String date;
             Date publishedDate = parsePublishedDate(cursor);
