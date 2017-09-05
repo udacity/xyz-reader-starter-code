@@ -22,6 +22,7 @@
             android:background="@color/photo_placeholder"
             android:contentDescription="@string/a11y_article_detail_image"
             android:scaleType="centerCrop"
+            android:transitionName="@string/transitionImage"
             tools:src="@drawable/testimag" />
 
         <View
@@ -31,8 +32,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
             android:orientation="vertical"
             android:padding="8dp">
 

@@ -39,16 +39,19 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <!-- Scrollview padding to scroll over image -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/detail_photo_height" />
 
+                <!-- metabar for title and author and date -->
                 <LinearLayout
                     android:id="@+id/meta_bar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="#333"
                     android:orientation="vertical"
+                    android:elevation="4dp"
                     android:paddingBottom="@dimen/detail_metabar_vert_padding"
                     android:paddingLeft="@dimen/detail_inner_horiz_margin"
                     android:paddingRight="@dimen/detail_inner_horiz_margin"
@@ -71,13 +74,15 @@
                         style="?android:attr/textAppearanceSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#8fff" />
+                        android:textColor="@color/primary_light" />
                 </LinearLayout>
 
+                <!-- body text -->
                 <com.example.xyzreader.ui.MaxWidthLinearLayout
                     android:id="@+id/detail_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/detail_metabar_title_bottom_padding"
                     android:layout_gravity="center_horizontal"
                     android:background="#fff"
                     android:elevation="2dp"
