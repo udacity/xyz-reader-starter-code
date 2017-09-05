@@ -2,32 +2,40 @@ package com.example.xyzreader.ui;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.LoaderManager;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.example.xyzreader.R;
+import com.example.xyzreader.data.ArticleLoader;
+import com.example.xyzreader.data.ArticleUtils;
 import com.example.xyzreader.pojo.Article;
 
 import java.util.ArrayList;
 
-import static com.example.xyzreader.ui.ArticleListActivity.EXTRA_ARTICLES;
+import static com.example.xyzreader.ui.ArticleListActivity.EXTRA_CLICKED_IMAGE_URL;
 import static com.example.xyzreader.ui.ArticleListActivity.EXTRA_INITIAL_POSITION;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
-public class ArticleDetailActivity extends AppCompatActivity {
+public class ArticleDetailActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
     // Log tag
     private static final String TAG = ArticleDetailActivity.class.getSimpleName();
 
     // Member variables
     private int mInitialPosition;
+    private String mInitialPhotoUrl;
     private ArrayList<Article> mArticles;
 
     // views
@@ -47,14 +55,21 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_article_detail);
 
+        // start loader to grab all article data
+        getLoaderManager().initLoader(0, null, this);
+
         // Grab data from received intent
         if (savedInstanceState == null) {
             Intent receivedIntent = getIntent();
             mInitialPosition = receivedIntent.getIntExtra(EXTRA_INITIAL_POSITION, 0);
-            mArticles = receivedIntent.getParcelableArrayListExtra(EXTRA_ARTICLES);
+            // mArticles = receivedIntent.getParcelableArrayListExtra(EXTRA_ARTICLES);
+            mInitialPhotoUrl = receivedIntent.getStringExtra(EXTRA_CLICKED_IMAGE_URL);
         }
 
+        // TODO: Update initial photo src
+
         // TODO: Hide top status bar
+
         mUpButtonContainer = findViewById(R.id.up_container);
         mUpButton = findViewById(R.id.action_up);
         mUpButton.setOnClickListener(new View.OnClickListener() {
@@ -82,8 +97,28 @@ public class ArticleDetailActivity extends AppCompatActivity {
 //            }
 //        });
         mPager.setCurrentItem(mInitialPosition);
+    }
 
-        // TODO: Do I need to notify that the dataset changed initially?
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        Log.d(TAG, "Loader started for all articles");
+        return ArticleLoader.newAllArticlesInstance(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        Log.d(TAG, "Loader finished.");
+
+        // store articles in arraylist
+        mArticles = ArticleUtils.generateArticlesFromCursor(cursor);
+
+        mPagerAdapter.notifyDataSetChanged();
+
+        mPager.setCurrentItem(mInitialPosition, false);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
         mPagerAdapter.notifyDataSetChanged();
     }
 
@@ -101,7 +136,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // TODO: get article object
+            // COMPLETED: get article object
             ArticleDetailFragment fragment = ArticleDetailFragment.newInstance(mArticles.get(position));
             return fragment;
         }

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.example.xyzreader.ui.ObservableScrollView
+    <ScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -109,7 +109,7 @@
             </FrameLayout>
 
         </FrameLayout>
-    </com.example.xyzreader.ui.ObservableScrollView>
+    </ScrollView>
 
     <ImageButton android:id="@+id/share_fab"
         android:stateListAnimator="@anim/fab_state_list_anim"

@@ -55,7 +55,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     // Bundle args
     public final static String EXTRA_INITIAL_POSITION = "extra_initial_position";
-    public final static String EXTRA_ARTICLES = "extra_articles";
+    public final static String EXTRA_CLICKED_IMAGE_URL = "extra_clicked_image_url";
 
     // class member variable for articles
     private ArrayList<Article> mArticles;
@@ -65,17 +65,17 @@ public class ArticleListActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
 
+        if (savedInstanceState == null) {
+            // TODO: Why does this always get called? Why does is cause the UI to scroll to top?
+            refresh();
+        }
+
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         getLoaderManager().initLoader(0, null, this);
-
-        if (savedInstanceState == null) {
-            // TODO: Why does this always get called?
-             refresh();
-        }
 
         mActivity = this;
         mContext = this;
@@ -118,6 +118,8 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         Log.d(TAG, "Loader started for all articles");
+
+        // TODO: create this loader so it loads everything except the body stuff... too big & unnecessary
         return ArticleLoader.newAllArticlesInstance(this);
     }
 
@@ -162,7 +164,13 @@ public class ArticleListActivity extends AppCompatActivity implements
 
                     int initialPosition = vh.getAdapterPosition();
                     startDetailIntent.putExtra(EXTRA_INITIAL_POSITION, initialPosition);
-                    startDetailIntent.putParcelableArrayListExtra(EXTRA_ARTICLES, mArticles);
+                    // instead of passing articles as intent data (too big)
+                    // just create a loader for all articles in detail activity
+                    // startDetailIntent.putParcelableArrayListExtra(EXTRA_ARTICLES, mArticles);
+                    // COMPLETED: Pass url as stringExtra so loading screen can show it as default image
+                    String clickedImageUrl = mArticles.get(initialPosition).getPhotoUrl();
+                    startDetailIntent.putExtra(EXTRA_CLICKED_IMAGE_URL, clickedImageUrl);
+
 
                     // TODO: Add shared element transition
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
