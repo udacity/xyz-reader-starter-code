@@ -84,7 +84,6 @@
                     android:paddingBottom="@dimen/detail_body_bottom_margin"
                     android:textColor="@color/color_primary_text"
                     android:textColorLink="@color/color_accent"
-                    android:fontFamily="sans-serif-normal"
                     android:textSize="@dimen/detail_body_text_size"
                     android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier" />
 
@@ -93,6 +92,7 @@
     </com.example.xyzreader.ui.ObservableScrollView>
 
     <ImageButton android:id="@+id/share_fab"
+        android:stateListAnimator="@anim/fab_state_list_anim"
         android:background="@drawable/add_fab_background"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
@@ -100,6 +100,7 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:src="@drawable/ic_share"
+        android:elevation="@dimen/fab_elevation"
         android:contentDescription="@string/action_share" />
 
 </com.example.xyzreader.ui.DrawInsetsFrameLayout>

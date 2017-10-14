@@ -57,7 +57,6 @@ public class ArticleListActivity extends AppCompatActivity implements
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
-
         final View toolbarContainerView = findViewById(R.id.toolbar_container);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
@@ -70,8 +69,12 @@ public class ArticleListActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Method to call UpdaterService to update the article list when necessary
+     */
     private void refresh() {
-        startService(new Intent(this, UpdaterService.class));
+        Intent updaterServiceIntent = new Intent(this, UpdaterService.class);
+        startService(updaterServiceIntent);
     }
 
     @Override

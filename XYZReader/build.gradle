@@ -1,17 +1,5 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
-    }
-}
-
+// TODO [Gradle] Removed redundant buildScript and repo declarations
 apply plugin: 'com.android.application'
-
-repositories {
-    mavenCentral()
-}
 
 android {
     compileSdkVersion 26
