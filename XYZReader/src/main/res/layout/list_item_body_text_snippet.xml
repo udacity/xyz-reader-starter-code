@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView
-    android:id="@+id/list_item_body_text_snippet"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_item_body_text_snippet"
+    style="?android:attr/textAppearanceMedium"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:fontFamily="sans-serif-normal"
+    android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier"
     android:paddingBottom="@dimen/detail_body_paragraph_bottom_margin"
-    style="?android:attr/textAppearanceMedium"
     android:textColor="@color/color_primary_text"
     android:textColorLink="@color/color_accent"
-    android:fontFamily="sans-serif-normal"
-    android:textSize="@dimen/detail_body_text_size"
-    android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier">
-
+    android:textSize="@dimen/detail_body_text_size">
 </TextView>

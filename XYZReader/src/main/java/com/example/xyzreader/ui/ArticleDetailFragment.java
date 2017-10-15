@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
@@ -74,7 +75,6 @@ public class ArticleDetailFragment extends Fragment implements
     /**
      * Body Text Pagination Views
      */
-    private StringBuilder mBodyTextSb;
     private RecyclerView mBodyTextRv;
     private BodyTextAdapter mBodyTextAdapter;
     private LinearLayoutManager mBodyTextRvLayoutManager;
@@ -176,7 +176,7 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        // TODO [Pagination Scroll] Create a new recyclerView and related component to allow for smooth scrolling
+        // TODO [Pagination Scroll] Body Text recyclerView and related component to prevent ui freeze
         mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
         mBodyTextAdapter = new BodyTextAdapter(mBodyTextRv);
         mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
@@ -254,34 +254,11 @@ public class ArticleDetailFragment extends Fragment implements
             }
 
             // TODO [Pagination Scroll] ! Performance issue: Body Text is GIGANTIC and freezes UI
-            mBodyTextSb = new StringBuilder(
-                    Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)
-                            .replaceAll("(\r\n\r\n)", "\\$"))
-            );
+            String mBodyTextStr = Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)
+                            .replaceAll("(\r\n\r\n)", "\\$")).toString();
             // thread with setting all the text at once, implemented methods to
             // offload the html parsing into spanned in the background with asyncTask
-            fetchBodyTextSnippet();
-
-            // TODO [Pagination Scroll] Add OnScrollListener to fetch more text when near bottom
-            mBodyTextRv.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    switch (newState)
-                    {
-                        case RecyclerView.SCROLL_STATE_IDLE:
-                            if (!mBodyTextRvLayoutManager.canScrollVertically())
-                            fetchBodyTextSnippet();
-                            break;
-                    }
-                }
-
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                }
-            });
+            mBodyTextAdapter.setBodyText(mBodyTextStr);
 
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
@@ -308,47 +285,6 @@ public class ArticleDetailFragment extends Fragment implements
             titleView.setText("N/A");
             bylineView.setText("N/A");
         }
-    }
-
-
-    /**
-     * AsyncTask method to load the body text in snippets
-     */
-    private int mStartingPosition;
-    private void fetchBodyTextSnippet() {
-        // No more bodyText to fetch, return early
-        if (mStartingPosition >= mBodyTextSb.length()) return;
-
-        new AsyncTask<Void, Void, String[]>() {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
-
-            @Override
-            protected String[] doInBackground(Void... voids) {
-                // Get the substring that is with at least n chars and ends with \\$
-                int mEndingPosition = mBodyTextSb.indexOf("$",mStartingPosition + 1000);
-                if (mEndingPosition >= mBodyTextSb.length() || mEndingPosition == -1) // if not found
-                    mEndingPosition = mBodyTextSb.length();
-
-                // Get the substring with the starting and ending position
-                String mBodyTextStr = mBodyTextSb.substring(mStartingPosition,mEndingPosition);
-
-                // Assign the endingPosition as the next starting position
-                mStartingPosition = mEndingPosition;
-
-                // return an array of sub-strings for the recyclerView adapter
-                return mBodyTextStr.split("\\$");
-            }
-
-            @Override
-            protected void onPostExecute(String[] snippets) {
-                super.onPostExecute(snippets);
-                mBodyTextAdapter.addSnippets(snippets);
-            }
-
-        }.execute();
     }
 
     @Override
@@ -396,20 +332,40 @@ public class ArticleDetailFragment extends Fragment implements
      * Pagination for the BodyText to avoid freezing UI in the setText
      * RecyclerView Adapter and a single TextView viewHolder
      */
-    private class BodyTextAdapter extends RecyclerView.Adapter<ViewHolder> {
+    private class BodyTextAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private String mBodyText;
+        private int startPosition;
+        private final int snippetLength = 250;
+        private boolean isLoading;
         private ArrayList<String> mSnippets;
 
+        // Using footer for the recyclerView to show loading progress bar
+        private static final int TYPE_ITEM = 1;
+        private static final int TYPE_FOOTER = 2;
+
         BodyTextAdapter(RecyclerView recyclerView) {
+            // Respond to recyclerView scroll event, when idle load more bodyText
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE)
+                    switch (newState)
                     {
-                        if (!recyclerView.canScrollVertically(1)) fetchBodyTextSnippet();
+                        case RecyclerView.SCROLL_STATE_IDLE:
+                        case RecyclerView.SCROLL_STATE_SETTLING:
+                            fetchBodyTextSnippet();
+                            isLoading = true;
+                            break;
                     }
                 }
             });
+        }
+
+        void setBodyText(String mBodyText)
+        {
+            this.mBodyText = mBodyText;
+            // fire off method to split the bodyText into snippets
+            fetchBodyTextSnippet();
         }
 
         void addSnippets(String[] snippetsArray)
@@ -418,33 +374,109 @@ public class ArticleDetailFragment extends Fragment implements
             int currentPosition = getItemCount();
             Collections.addAll(mSnippets,snippetsArray);
             notifyItemRangeInserted(currentPosition,mSnippets.size());
+            // set loading flag to off
+            isLoading = false;
+        }
+
+        /**
+         * AsyncTask method to load the body text into the adapter in chucks of chars
+         * instead of all at once
+         */
+        private void fetchBodyTextSnippet() {
+            // No or no more bodyText to fetch, terminate
+            if (mBodyText == null || startPosition >= mBodyText.length()) return;
+
+            new AsyncTask<Void, Void, String[]>() {
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                }
+
+                @Override
+                protected String[] doInBackground(Void... voids) {
+                    // Get the substring that is with at least n chars and ends with \\$
+                    int endPosition = mBodyText.indexOf("$", startPosition + snippetLength);
+                    if (endPosition >= mBodyText.length() || endPosition == -1) // if not found
+                        endPosition = mBodyText.length();
+
+                    // Get the substring with the starting and ending position
+                    String mBodyTextStr = mBodyText.substring(startPosition,endPosition);
+
+                    // Assign the endingPosition as the next starting position
+                    startPosition = endPosition;
+
+                    // return an array of sub-strings for the recyclerView adapter
+                    return mBodyTextStr.split("\\$");
+                }
+
+                @Override
+                protected void onPostExecute(String[] snippets) {
+                    super.onPostExecute(snippets);
+                    addSnippets(snippets);
+                }
+
+            }.execute();
         }
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getLayoutInflater().inflate(R.layout.list_item_body_text_snippet, parent, false);
-            return new ViewHolder(view);
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            if(viewType == TYPE_FOOTER) {
+                View view = getLayoutInflater().inflate(R.layout.footer_item_loading_indicator, parent, false);
+                return new FooterViewHolder(view);
+            } else if(viewType == TYPE_ITEM) {
+                View view = getLayoutInflater().inflate(R.layout.list_item_body_text_snippet, parent, false);
+                return new SnippetViewHolder(view);
+            }
+            return null;
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            String snippet = mSnippets.get(position);
-            holder.snippetView.setText(snippet);
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            if (holder instanceof SnippetViewHolder) {
+                SnippetViewHolder viewHolder = (SnippetViewHolder) holder;
+                String snippet = mSnippets.get(position);
+                viewHolder.snippetTv.setText(snippet);
+            }else if (holder instanceof FooterViewHolder)
+            {
+                FooterViewHolder viewHolder = (FooterViewHolder) holder;
+                // If adapter state is loading more data, set to visible
+                viewHolder.loadingPb.setVisibility(isLoading? View.VISIBLE: View.GONE);
+            }
         }
 
         @Override
         public int getItemCount() {
-            if (mSnippets == null) return 0;
-            return mSnippets.size();
+            return mSnippets.size() + 1;
+        }
+
+        @Override
+        public int getItemViewType (int position) {
+            if(isPositionFooter (position)) {
+                return TYPE_FOOTER;
+            }
+            return TYPE_ITEM;
+        }
+
+        private boolean isPositionFooter (int position) {
+            return position == mSnippets.size() + 1;
         }
     }
 
-    private static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView snippetView;
+    private static class SnippetViewHolder extends RecyclerView.ViewHolder {
+        private TextView snippetTv;
 
-        ViewHolder(View view) {
+        SnippetViewHolder(View view) {
             super(view);
-            snippetView = view.findViewById(R.id.list_item_body_text_snippet);
+            snippetTv = view.findViewById(R.id.list_item_body_text_snippet);
+        }
+    }
+
+    private static class FooterViewHolder extends RecyclerView.ViewHolder {
+        private ProgressBar loadingPb;
+
+        FooterViewHolder(View view) {
+            super(view);
+            loadingPb = view.findViewById(R.id.list_item_loading_indicator);
         }
     }
 }
