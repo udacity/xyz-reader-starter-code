@@ -16,13 +16,25 @@
 -->
 
 <resources>
-
-    <style name="Theme.Bacon" parent="@style/Theme.AppCompat.Light.NoActionBar">
-
+    <!--Apps theme extends from AppCompat variant-->
+    <style name="Theme.Bacon" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/theme_primary</item>
+        <item name="colorPrimaryDark">@color/theme_primary_dark</item>
+        <item name="colorAccent">@color/theme_accent</item>
     </style>
 
     <style name="Theme.Bacon.Detail">
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
+    <style name="ThemeOverlay.Bacon.ActionBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="expandedTitleMarginStart">@dimen/expanded_title_margin_start</item>
+        <item name="expandedTitleMarginEnd">@dimen/expanded_title_margin_end</item>
+
+    </style>
+
+    <style name="Theme.Bacon.Toolbar">
+        <item name="actionBarSize">@dimen/toolbar_size</item>
+        <item name="elevation">@dimen/toolbar_elevation</item>
+    </style>
 </resources>
