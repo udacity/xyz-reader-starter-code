@@ -14,4 +14,5 @@
     <dimen name="detail_metabar_title_bottom_padding">4dp</dimen>
     <dimen name="detail_body_top_margin">16dp</dimen>
     <dimen name="detail_body_bottom_margin">88dp</dimen>
+    <dimen name="detail_body_paragraph_bottom_margin">16dp</dimen>
 </resources>

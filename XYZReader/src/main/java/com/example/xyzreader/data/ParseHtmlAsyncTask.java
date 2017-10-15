@@ -46,6 +46,10 @@ public class ParseHtmlAsyncTask extends AsyncTask<Void, Void, Spanned> {
     /* String of the html from the database */
     private String mRawHtmlBodyText;
 
+    /* Starting position to output the text*/
+    private int mStartingPos;
+    private int mEndingPos;
+
     /* No-args default constructor */
     public ParseHtmlAsyncTask() {
     }
@@ -58,6 +62,13 @@ public class ParseHtmlAsyncTask extends AsyncTask<Void, Void, Spanned> {
 
     public ParseHtmlAsyncTask setDataHtmlString (String rawHtmlBodyText) {
         this.mRawHtmlBodyText = rawHtmlBodyText;
+        return this;
+    }
+
+    public ParseHtmlAsyncTask setSnippetRange(int startingPos, int numChar)
+    {
+        this.mStartingPos = startingPos;
+        this.mEndingPos = startingPos + numChar;
         return this;
     }
 
@@ -88,8 +99,13 @@ public class ParseHtmlAsyncTask extends AsyncTask<Void, Void, Spanned> {
     }
 
     @Override
-    protected Spanned doInBackground(Void... voids) {
+    protected Spanned doInBackground(Void... Void) {
+
         mRawHtmlBodyText = mRawHtmlBodyText.replaceAll("(\r\n|\n)", "<br />");
+        if (mEndingPos >= mRawHtmlBodyText.length()) {
+            mEndingPos = mRawHtmlBodyText.length();
+            mRawHtmlBodyText = mRawHtmlBodyText.substring(mStartingPos, mEndingPos);
+        }
 
         Spanned bodyText;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -106,7 +122,7 @@ public class ParseHtmlAsyncTask extends AsyncTask<Void, Void, Spanned> {
     @Override
     protected void onPostExecute(Spanned bodyText) {
         super.onPostExecute(bodyText);
-        if (mListener != null) mListener.onBodyTextReady(bodyText);
+        if (mListener != null) mListener.onBodyTextReady(bodyText, this.mEndingPos);
     }
 
     /**
@@ -114,6 +130,6 @@ public class ParseHtmlAsyncTask extends AsyncTask<Void, Void, Spanned> {
      * in preExecute and postExecute.
      */
     public interface onTaskCompleteListener {
-        void onBodyTextReady(Spanned bodyText);
+        void onBodyTextReady(Spanned bodyText, int endPos);
     }
 }

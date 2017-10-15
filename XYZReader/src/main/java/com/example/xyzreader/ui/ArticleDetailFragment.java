@@ -1,19 +1,21 @@
 package com.example.xyzreader.ui;
 
-import android.app.Fragment;
-import android.app.LoaderManager;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -27,12 +29,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ParseHtmlAsyncTask;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
+import static android.view.View.GONE;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -65,6 +70,24 @@ public class ArticleDetailFragment extends Fragment implements
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
+
+    /**
+     * Body Text Pagination Views
+     */
+    private StringBuilder mBodyTextSb;
+    private RecyclerView mBodyTextRv;
+    private BodyTextAdapter mBodyTextAdapter;
+    private LinearLayoutManager mBodyTextRvLayoutManager;
+
+    /**
+     * For determining whether the user is near the bottom of the currently loaded body text
+     */
+    private boolean mBodyTextLoading;
+    private int visibleItemCount;
+    private int currentTotalItemCount;
+    private int previousTotalItemCount;
+    private int firstVisibleItemPosition;
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -148,6 +171,14 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
+        // TODO [Pagination Scroll] Create a new recyclerView and related component to allow for smooth scrolling
+        mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
+        mBodyTextAdapter = new BodyTextAdapter();
+        mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL,false);
+        mBodyTextRv.setAdapter(mBodyTextAdapter);
+        mBodyTextRv.setLayoutManager(mBodyTextRvLayoutManager);
+
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
         mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
 
@@ -202,8 +233,6 @@ public class ArticleDetailFragment extends Fragment implements
         TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
         TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
-        // TODO [Load optimization] - Change to Webview to better support HTML parsing
-        final TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
 
         // TODO [Font] - Use standard Roboto font family in XML instead to keep font consistent and code clean
         // bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
@@ -212,6 +241,7 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
+
             titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
@@ -233,16 +263,32 @@ public class ArticleDetailFragment extends Fragment implements
 
             }
 
-            // Todo Whip a new asyncTask to do create the bodyText
-            final String rawHtmlBody = mCursor.getString(ArticleLoader.Query.BODY);
+            // TODO [Pagination Scroll] ! Performance issue: Body Text is GIGANTIC and freezes UI
+            mBodyTextSb = new StringBuilder(
+                    Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)
+                            .replaceAll("(\r\n\r\n)", "\\$"))
+            );
+            // thread with setting all the text at once, implemented methods to
+            // offload the html parsing into spanned in the background with asyncTask
+            fetchBodyTextSnippet();
 
-            new ParseHtmlAsyncTask().setDataHtmlString(rawHtmlBody).setListener(
-                    new ParseHtmlAsyncTask.onTaskCompleteListener() {
+            // TODO [Pagination Scroll] Add OnScrollListener to fetch more text when near bottom
+            // Credit @Kushal https://stackoverflow.com/questions/26543131/how-to-implement-
+            // endless-list-with-recyclerview
+
+            mBodyTextRv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
                 @Override
-                public void onBodyTextReady(Spanned bodyText) {
-                    bodyView.setText(bodyText, TextView.BufferType.SPANNABLE);
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    switch (newState)
+                    {
+                        case RecyclerView.SCROLL_STATE_SETTLING:
+                            fetchBodyTextSnippet();
+                            break;
+                    }
                 }
-            }).execute();
+            });
 
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
@@ -265,11 +311,52 @@ public class ArticleDetailFragment extends Fragment implements
                         }
                     });
         } else {
-            mRootView.setVisibility(View.GONE);
+            mRootView.setVisibility(GONE);
             titleView.setText("N/A");
             bylineView.setText("N/A");
-//            bodyView.setText("N/A");
         }
+    }
+
+
+    /**
+     * AsyncTask method to load the body text in snippets
+     */
+    private int mStartingPosition;
+    private void fetchBodyTextSnippet() {
+        // No more bodyText to fetch, return early
+        if (mStartingPosition >= mBodyTextSb.length()) return;
+
+        new AsyncTask<Void, Void, String[]>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected String[] doInBackground(Void... voids) {
+                // Get the substring that is with at least n chars and ends with \\$
+                int mEndingPosition = mBodyTextSb.indexOf("$",mStartingPosition + 1000);
+                if (mEndingPosition >= mBodyTextSb.length() || mEndingPosition == -1) // if not found
+                    mEndingPosition = mBodyTextSb.length();
+
+                // Get the substring with the starting and ending position
+                String substring = mBodyTextSb.substring(mStartingPosition,mEndingPosition);
+
+                // Assign the endingPosition as the next starting position
+                mStartingPosition = mEndingPosition;
+
+                // return an array of sub-strings for the recyclerView adapter
+                return substring.split("\\$");
+            }
+
+            @Override
+            protected void onPostExecute(String[] snippets) {
+                super.onPostExecute(snippets);
+                mBodyTextAdapter.addSnippets(snippets);
+                mBodyTextLoading = false;
+            }
+
+        }.execute();
     }
 
     @Override
@@ -311,5 +398,51 @@ public class ArticleDetailFragment extends Fragment implements
         return mIsCard
                 ? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
                 : mPhotoView.getHeight() - mScrollY;
+    }
+
+    /**
+     * Pagination for the BodyText to avoid freezing UI in the setText
+     * RecyclerView Adapter and a single TextView viewHolder
+     */
+    private class BodyTextAdapter extends RecyclerView.Adapter<ViewHolder> {
+        private ArrayList<String> mSnippets;
+
+        public BodyTextAdapter() {
+            mSnippets = new ArrayList<>();
+        }
+
+        public void addSnippets(String[] snippetsArray)
+        {
+            int currentPosition = getItemCount();
+            Collections.addAll(mSnippets,snippetsArray);
+            notifyItemRangeInserted(currentPosition,mSnippets.size());
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = getLayoutInflater().inflate(R.layout.list_item_body_text_snippet, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            String snippet = mSnippets.get(position);
+            holder.snippetView.setText(snippet);
+        }
+
+        @Override
+        public int getItemCount() {
+            if (mSnippets == null) return 0;
+            return mSnippets.size();
+        }
+    }
+
+    private static class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView snippetView;
+
+        public ViewHolder(View view) {
+            super(view);
+            snippetView = view.findViewById(R.id.list_item_body_text_snippet);
+        }
     }
 }
