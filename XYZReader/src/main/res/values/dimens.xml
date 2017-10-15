@@ -8,4 +8,15 @@
     <dimen name="fab_press_translation_z">6dp</dimen>
     <dimen name="fab_margin">24dp</dimen>
 
+    <dimen name="toolbar_elevation">4dp</dimen>
+    <dimen name="toolbar_size">56dp</dimen>
+
+    <!--app bar -->
+    <dimen name="appbar_height">124dp</dimen>
+
+    <!--collapsing toolbar layout-->
+    <dimen name="expanded_title_margin_start">48dp</dimen>
+    <dimen name="expanded_title_margin_end">64dp</dimen>
+
+
 </resources>
