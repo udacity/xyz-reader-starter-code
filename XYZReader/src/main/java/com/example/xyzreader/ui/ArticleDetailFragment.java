@@ -178,7 +178,7 @@ public class ArticleDetailFragment extends Fragment implements
 
         // TODO [Pagination Scroll] Create a new recyclerView and related component to allow for smooth scrolling
         mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
-        mBodyTextAdapter = new BodyTextAdapter();
+        mBodyTextAdapter = new BodyTextAdapter(mBodyTextRv);
         mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL,false);
         mBodyTextRv.setAdapter(mBodyTextAdapter);
@@ -399,7 +399,18 @@ public class ArticleDetailFragment extends Fragment implements
     private class BodyTextAdapter extends RecyclerView.Adapter<ViewHolder> {
         private ArrayList<String> mSnippets;
 
-        BodyTextAdapter() {}
+        BodyTextAdapter(RecyclerView recyclerView) {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE)
+                    {
+                        if (!recyclerView.canScrollVertically(1)) fetchBodyTextSnippet();
+                    }
+                }
+            });
+        }
 
         void addSnippets(String[] snippetsArray)
         {
