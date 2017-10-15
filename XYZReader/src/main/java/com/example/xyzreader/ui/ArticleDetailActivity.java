@@ -116,21 +116,22 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        // TODO: optimize
+        mCursor = cursor;
+        mPagerAdapter.notifyDataSetChanged();
+
         // Select the start ID
         if (mStartId > 0) {
-            cursor.moveToFirst();
-
-            while (!cursor.isAfterLast()) {
-                if (cursor.getLong(ArticleLoader.Query._ID) == mStartId) {
-                    final int position = cursor.getPosition();
-                    mCursor = cursor;
-                    mPagerAdapter.notifyDataSetChanged();
+            mCursor.moveToFirst();
+            // TODO: optimize
+            while (!mCursor.isAfterLast()) {
+                if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
+                    final int position = mCursor.getPosition();
                     mPager.setCurrentItem(position, false);
                     break;
                 }
-                cursor.moveToNext();
+                mCursor.moveToNext();
             }
+            mStartId = 0;
         }
     }
 

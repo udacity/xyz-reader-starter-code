@@ -80,16 +80,6 @@ public class ArticleDetailFragment extends Fragment implements
     private LinearLayoutManager mBodyTextRvLayoutManager;
 
     /**
-     * For determining whether the user is near the bottom of the currently loaded body text
-     */
-    private boolean mBodyTextLoading;
-    private int visibleItemCount;
-    private int currentTotalItemCount;
-    private int previousTotalItemCount;
-    private int firstVisibleItemPosition;
-
-
-    /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
@@ -171,14 +161,6 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        // TODO [Pagination Scroll] Create a new recyclerView and related component to allow for smooth scrolling
-        mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
-        mBodyTextAdapter = new BodyTextAdapter();
-        mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
-                LinearLayoutManager.VERTICAL,false);
-        mBodyTextRv.setAdapter(mBodyTextAdapter);
-        mBodyTextRv.setLayoutManager(mBodyTextRvLayoutManager);
-
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
         mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
 
@@ -193,6 +175,14 @@ public class ArticleDetailFragment extends Fragment implements
                         .getIntent(), getString(R.string.action_share)));
             }
         });
+
+        // TODO [Pagination Scroll] Create a new recyclerView and related component to allow for smooth scrolling
+        mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
+        mBodyTextAdapter = new BodyTextAdapter();
+        mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL,false);
+        mBodyTextRv.setAdapter(mBodyTextAdapter);
+        mBodyTextRv.setLayoutManager(mBodyTextRvLayoutManager);
 
         bindViews();
         updateStatusBar();
@@ -230,8 +220,8 @@ public class ArticleDetailFragment extends Fragment implements
             return;
         }
 
-        TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
-        TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
+        TextView titleView = mRootView.findViewById(R.id.article_title);
+        TextView bylineView = mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
 
         // TODO [Font] - Use standard Roboto font family in XML instead to keep font consistent and code clean
@@ -273,9 +263,6 @@ public class ArticleDetailFragment extends Fragment implements
             fetchBodyTextSnippet();
 
             // TODO [Pagination Scroll] Add OnScrollListener to fetch more text when near bottom
-            // Credit @Kushal https://stackoverflow.com/questions/26543131/how-to-implement-
-            // endless-list-with-recyclerview
-
             mBodyTextRv.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
                 @Override
@@ -283,10 +270,16 @@ public class ArticleDetailFragment extends Fragment implements
                     super.onScrollStateChanged(recyclerView, newState);
                     switch (newState)
                     {
-                        case RecyclerView.SCROLL_STATE_SETTLING:
+                        case RecyclerView.SCROLL_STATE_IDLE:
+                            if (!mBodyTextRvLayoutManager.canScrollVertically())
                             fetchBodyTextSnippet();
                             break;
                     }
+                }
+
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
                 }
             });
 
@@ -340,20 +333,19 @@ public class ArticleDetailFragment extends Fragment implements
                     mEndingPosition = mBodyTextSb.length();
 
                 // Get the substring with the starting and ending position
-                String substring = mBodyTextSb.substring(mStartingPosition,mEndingPosition);
+                String mBodyTextStr = mBodyTextSb.substring(mStartingPosition,mEndingPosition);
 
                 // Assign the endingPosition as the next starting position
                 mStartingPosition = mEndingPosition;
 
                 // return an array of sub-strings for the recyclerView adapter
-                return substring.split("\\$");
+                return mBodyTextStr.split("\\$");
             }
 
             @Override
             protected void onPostExecute(String[] snippets) {
                 super.onPostExecute(snippets);
                 mBodyTextAdapter.addSnippets(snippets);
-                mBodyTextLoading = false;
             }
 
         }.execute();
@@ -407,12 +399,11 @@ public class ArticleDetailFragment extends Fragment implements
     private class BodyTextAdapter extends RecyclerView.Adapter<ViewHolder> {
         private ArrayList<String> mSnippets;
 
-        public BodyTextAdapter() {
-            mSnippets = new ArrayList<>();
-        }
+        BodyTextAdapter() {}
 
-        public void addSnippets(String[] snippetsArray)
+        void addSnippets(String[] snippetsArray)
         {
+            if (mSnippets == null) mSnippets = new ArrayList<>();
             int currentPosition = getItemCount();
             Collections.addAll(mSnippets,snippetsArray);
             notifyItemRangeInserted(currentPosition,mSnippets.size());
@@ -438,9 +429,9 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     private static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView snippetView;
+        private TextView snippetView;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             snippetView = view.findViewById(R.id.list_item_body_text_snippet);
         }
