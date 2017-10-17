@@ -22,8 +22,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
@@ -176,9 +176,9 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        // TODO [Pagination Scroll] Body Text recyclerView and related component to prevent ui freeze
+        // TODO [Read More] Body Text recyclerView and related components
         mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
-        mBodyTextAdapter = new BodyTextAdapter(mBodyTextRv);
+        mBodyTextAdapter = new BodyTextAdapter();
         mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL,false);
         mBodyTextRv.setAdapter(mBodyTextAdapter);
@@ -335,30 +335,15 @@ public class ArticleDetailFragment extends Fragment implements
     private class BodyTextAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private String mBodyText;
         private int startPosition;
-        private final int snippetLength = 250;
-        private boolean isLoading;
+        private final int snippetLength = 1000;
         private ArrayList<String> mSnippets;
 
         // Using footer for the recyclerView to show loading progress bar
         private static final int TYPE_ITEM = 1;
         private static final int TYPE_FOOTER = 2;
 
-        BodyTextAdapter(RecyclerView recyclerView) {
-            // Respond to recyclerView scroll event, when idle load more bodyText
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    switch (newState)
-                    {
-                        case RecyclerView.SCROLL_STATE_IDLE:
-                        case RecyclerView.SCROLL_STATE_SETTLING:
-                            fetchBodyTextSnippet();
-                            isLoading = true;
-                            break;
-                    }
-                }
-            });
+        BodyTextAdapter() {
+            mSnippets = new ArrayList<>();
         }
 
         void setBodyText(String mBodyText)
@@ -370,12 +355,9 @@ public class ArticleDetailFragment extends Fragment implements
 
         void addSnippets(String[] snippetsArray)
         {
-            if (mSnippets == null) mSnippets = new ArrayList<>();
             int currentPosition = getItemCount();
             Collections.addAll(mSnippets,snippetsArray);
             notifyItemRangeInserted(currentPosition,mSnippets.size());
-            // set loading flag to off
-            isLoading = false;
         }
 
         /**
@@ -421,7 +403,7 @@ public class ArticleDetailFragment extends Fragment implements
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if(viewType == TYPE_FOOTER) {
-                View view = getLayoutInflater().inflate(R.layout.footer_item_loading_indicator, parent, false);
+                View view = getLayoutInflater().inflate(R.layout.footer_item_read_more, parent, false);
                 return new FooterViewHolder(view);
             } else if(viewType == TYPE_ITEM) {
                 View view = getLayoutInflater().inflate(R.layout.list_item_body_text_snippet, parent, false);
@@ -432,6 +414,7 @@ public class ArticleDetailFragment extends Fragment implements
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            if (mSnippets.size() == 0) return;
             if (holder instanceof SnippetViewHolder) {
                 SnippetViewHolder viewHolder = (SnippetViewHolder) holder;
                 String snippet = mSnippets.get(position);
@@ -439,8 +422,15 @@ public class ArticleDetailFragment extends Fragment implements
             }else if (holder instanceof FooterViewHolder)
             {
                 FooterViewHolder viewHolder = (FooterViewHolder) holder;
-                // If adapter state is loading more data, set to visible
-                viewHolder.loadingPb.setVisibility(isLoading? View.VISIBLE: View.GONE);
+                // Hide the readMoreBtn when the user finishes
+                viewHolder.readMoreBtn.setVisibility(startPosition == mBodyText.length()? View.GONE: View.VISIBLE);
+                viewHolder.readMoreBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // load more text for user to read
+                        fetchBodyTextSnippet();
+                    }
+                });
             }
         }
 
@@ -458,7 +448,7 @@ public class ArticleDetailFragment extends Fragment implements
         }
 
         private boolean isPositionFooter (int position) {
-            return position == mSnippets.size() + 1;
+            return position == mSnippets.size();
         }
     }
 
@@ -472,11 +462,11 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     private static class FooterViewHolder extends RecyclerView.ViewHolder {
-        private ProgressBar loadingPb;
+        private Button readMoreBtn;
 
         FooterViewHolder(View view) {
             super(view);
-            loadingPb = view.findViewById(R.id.list_item_loading_indicator);
+            readMoreBtn = view.findViewById(R.id.read_more_btn);
         }
     }
 }
