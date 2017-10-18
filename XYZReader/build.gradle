@@ -1,4 +1,4 @@
-// TODO [Gradle] Removed redundant buildScript and repo declarations
+// TODO [FIXED] Removed redundant buildScript and repo declarations
 apply plugin: 'com.android.application'
 
 android {

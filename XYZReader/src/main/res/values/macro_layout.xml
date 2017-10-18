@@ -1,7 +1,8 @@
 <resources>
     <!-- list -->
     <dimen name="list_side_margin">4dp</dimen>
-    <!-- TODO [App Bar Keyline] align the logo to the left starting from 72dp -->
+
+    <!-- TODO [FIXED] align the logo to the left starting from 64dp -->
     <dimen name="list_toolbar_side_margin">52dp</dimen> <!-- minus 64 - 12 -->
     <dimen name="list_top_margin">8dp</dimen>
     <dimen name="list_bottom_margin">24dp</dimen>

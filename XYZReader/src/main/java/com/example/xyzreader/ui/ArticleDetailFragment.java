@@ -176,7 +176,7 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        // TODO [Read More] Body Text recyclerView and related components
+        // TODO [Pagination Feature] Body Text recyclerView and related components
         mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
         mBodyTextAdapter = new BodyTextAdapter();
         mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
@@ -206,11 +206,11 @@ public class ArticleDetailFragment extends Fragment implements
 
     private Date parsePublishedDate() {
         try {
+            Log.i(TAG, "passing today's date");
             String date = mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
             return dateFormat.parse(date);
         } catch (ParseException ex) {
             Log.e(TAG, ex.getMessage());
-            Log.i(TAG, "passing today's date");
             return new Date();
         }
     }
@@ -224,7 +224,7 @@ public class ArticleDetailFragment extends Fragment implements
         TextView bylineView = mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
 
-        // TODO [DONE] App uses fonts that are either the Android defaults, are complementary, and aren't otherwise distracting.
+        // TODO [SPECIFICATION] App uses fonts that are either the Android defaults, are complementary, and aren't otherwise distracting.
         // Commented it out and use the system default font family roboto instead
         // bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
@@ -239,7 +239,8 @@ public class ArticleDetailFragment extends Fragment implements
                 bylineView.setText(Html.fromHtml(
                         DateUtils.getRelativeTimeSpanString(
                                 publishedDate.getTime(),
-                                System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
+                                System.currentTimeMillis(),
+                                DateUtils.HOUR_IN_MILLIS,
                                 DateUtils.FORMAT_ABBREV_ALL).toString()
                                 + " by <font color='#ffffff'>"
                                 + mCursor.getString(ArticleLoader.Query.AUTHOR)
@@ -247,6 +248,8 @@ public class ArticleDetailFragment extends Fragment implements
 
             } else {
                 // If date is before 1902, just show the string
+
+                // Use Strubg resource with place holder instead
                 bylineView.setText(Html.fromHtml(
                         outputFormat.format(publishedDate) + " by <font color='#ffffff'>"
                                 + mCursor.getString(ArticleLoader.Query.AUTHOR)
@@ -254,12 +257,20 @@ public class ArticleDetailFragment extends Fragment implements
 
             }
 
-            // TODO [Pagination Scroll] ! Performance issue: Body Text is GIGANTIC and freezes UI
+            // TODO [Pagination Feature] ! Performance issue: Body Text is GIGANTIC and freezes UI
             String mBodyTextStr = Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)
                             .replaceAll("(\r\n\r\n)", "\\$")).toString();
             // thread with setting all the text at once, implemented methods to
             // offload the html parsing into spanned in the background with asyncTask
             mBodyTextAdapter.setBodyText(mBodyTextStr);
+
+            // TODO [Use SwipeRefreshLayout to handle user load more request]
+
+
+
+
+
+
 
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
@@ -267,7 +278,10 @@ public class ArticleDetailFragment extends Fragment implements
                         public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
-                                Palette p = Palette.generate(bitmap, 12);
+                                Palette.Builder pBuilder = new Palette.Builder(bitmap)
+                                        .maximumColorCount(12);
+                                Palette p = pBuilder.generate();
+
                                 mMutedColor = p.getDarkMutedColor(0xFF333333);
                                 mPhotoView.setImageBitmap(imageContainer.getBitmap());
                                 mRootView.findViewById(R.id.meta_bar)

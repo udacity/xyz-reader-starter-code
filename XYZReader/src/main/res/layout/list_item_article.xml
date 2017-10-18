@@ -16,11 +16,13 @@
         android:orientation="vertical">
 
         <!--suppress AndroidLintContentDescription -->
-        <!-- TODO [Book Thumbnail] set width to match parent and height to 68dp to fill out the item thumbnail space -->
+        <!-- TODO [DONE] App uses images that are high quality, specific, and full bleed. -->
         <com.example.xyzreader.ui.DynamicHeightNetworkImageView
             android:id="@+id/thumbnail"
             android:layout_width="match_parent"
-            android:layout_height="68dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scaleType="centerCrop"
             android:background="@color/photo_placeholder" />
 
         <TextView

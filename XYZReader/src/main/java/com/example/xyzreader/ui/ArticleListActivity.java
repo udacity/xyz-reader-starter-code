@@ -126,7 +126,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         mRecyclerView.setAdapter(adapter);
         int columnCount = getResources().getInteger(R.integer.list_column_count);
 
-        // TODO [FIXED] Each of item have a common layout, so a normal grid layout is a better fit
+        // TODO [FIXED] Each of item have a common layout, so a normal grid layout should be a better fit
         GridLayoutManager gridLayoutManager =
                 new GridLayoutManager(this, columnCount, GridLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(gridLayoutManager);
