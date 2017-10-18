@@ -7,12 +7,12 @@
     android:layout_height="match_parent">
 
     <!-- TODO [DONE] App uses an AppBar and associated Toolbars. -->
-    <FrameLayout
+    <android.support.design.widget.AppBarLayout
         android:id="@+id/toolbar_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="4dp"
-        android:background="?colorPrimary">
+        android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -21,6 +21,8 @@
             android:layout_gravity="bottom"
             android:layout_marginLeft="@dimen/list_toolbar_side_margin"
             android:layout_marginRight="@dimen/list_toolbar_side_margin"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            android:background="?attr/colorPrimary"
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <ImageView
@@ -30,9 +32,11 @@
                 android:src="@drawable/logo" />
 
         </android.support.v7.widget.Toolbar>
-    </FrameLayout>
+
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

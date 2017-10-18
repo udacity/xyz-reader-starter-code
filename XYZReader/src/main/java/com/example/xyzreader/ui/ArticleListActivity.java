@@ -61,6 +61,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
+        // TODO [FIXED] Handle user on swipe an do data refresh.
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -125,7 +126,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         mRecyclerView.setAdapter(adapter);
         int columnCount = getResources().getInteger(R.integer.list_column_count);
 
-        // TODO [Layout Style] Each of item have a common layout, so a normal grid layout is a better fit
+        // TODO [FIXED] Each of item have a common layout, so a normal grid layout is a better fit
         GridLayoutManager gridLayoutManager =
                 new GridLayoutManager(this, columnCount, GridLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(gridLayoutManager);
