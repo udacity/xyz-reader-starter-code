@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list_item_body_text_snippet"
     style="@style/Base.TextAppearance.AppCompat.Medium"
     android:layout_width="match_parent"
@@ -10,5 +10,6 @@
     android:paddingBottom="@dimen/detail_body_paragraph_bottom_margin"
     android:textColor="@color/color_primary_text"
     android:textSize="@dimen/detail_body_text_size"
-    android:textColorLink="@color/color_accent">
+    android:textColorLink="@color/color_accent"
+    tools:text="@string/dummy_text">
 </TextView>

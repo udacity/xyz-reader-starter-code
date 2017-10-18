@@ -224,7 +224,8 @@ public class ArticleDetailFragment extends Fragment implements
         TextView bylineView = mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
 
-        // TODO [Font] - Use standard Roboto font family in XML instead to keep font consistent and code clean
+        // TODO [DONE] App uses fonts that are either the Android defaults, are complementary, and aren't otherwise distracting.
+        // Commented it out and use the system default font family roboto instead
         // bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
