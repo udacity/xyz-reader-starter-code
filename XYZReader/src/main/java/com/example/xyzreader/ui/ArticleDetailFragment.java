@@ -156,6 +156,7 @@ public class ArticleDetailFragment extends Fragment implements
 
         mStatusBarColorDrawable = new ColorDrawable(0);
 
+        // TODO [SPECIFICATION] App provides a Floating Action Button for the most common action(s).
         mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -165,14 +166,6 @@ public class ArticleDetailFragment extends Fragment implements
                         .getIntent(), getString(R.string.action_share)));
             }
         });
-
-        // TODO [Pagination Feature] Body Text recyclerView and related components
-//        mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
-//        mBodyTextAdapter = new BodyTextAdapter();
-//        mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
-//                LinearLayoutManager.VERTICAL,false);
-//        mBodyTextRv.setAdapter(mBodyTextAdapter);
-//        mBodyTextRv.setLayoutManager(mBodyTextRvLayoutManager);
 
         bindViews();
         updateStatusBar();
@@ -249,6 +242,7 @@ public class ArticleDetailFragment extends Fragment implements
 
             }
 
+            // TODO [USABILITY] Use WebView instead of TextView to resolve performance issue.
             bodyView.loadData(
                     mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n\r\n)", "<br /><br />"),
                     "text/html",
@@ -295,16 +289,13 @@ public class ArticleDetailFragment extends Fragment implements
                     });
         } else {
             mRootView.setVisibility(GONE);
-            titleView.setText("N/A");
-            bylineView.setText("N/A");
-            bodyView.loadData("<p>N/A</p>","text/html", null);
         }
     }
 
     private void isLoadingState(boolean isLoading)
     {
         if (mLoadingIndicator == null) mLoadingIndicator = mRootView.findViewById(R.id.loading_indicator);
-        mLoadingIndicator.setVisibility(isLoading? View.VISIBLE: View.GONE);
+        mLoadingIndicator.setVisibility(isLoading? View.VISIBLE: View.INVISIBLE);
     }
 
     private ProgressBar mLoadingIndicator;
