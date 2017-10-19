@@ -18,11 +18,8 @@
 <resources>
     <color name="photo_placeholder">#ccc</color>
 
-    <color name="color_primary_light">#FFCCBC</color>
     <color name="color_primary">#FF5722</color>
     <color name="color_primary_dark">#E64A19</color>
     <color name="color_accent">#536DFE</color>
     <color name="color_primary_text">#212121</color>
-    <color name="color_secondary_text">#757575</color>
-    <color name="color_divider">#BDBDBD</color>
 </resources>

@@ -3,6 +3,8 @@ package com.example.xyzreader.data;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v4.content.CursorLoader;
+import android.text.Html;
+import android.text.Spanned;
 
 import static com.example.xyzreader.data.ArticleLoader.Query.ARTICLE_LIST_PROJECTION;
 import static com.example.xyzreader.data.ArticleLoader.Query.SINGLE_ARTICLE_PROJECTION;
@@ -58,5 +60,16 @@ public class ArticleLoader extends CursorLoader {
         int PHOTO_URL = 5;
         int ASPECT_RATIO = 6;
         int BODY = 7;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static Spanned fromHtml(String html){
+        Spanned result;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            result = Html.fromHtml(html,Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            result = Html.fromHtml(html);
+        }
+        return result;
     }
 }

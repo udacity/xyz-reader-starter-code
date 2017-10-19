@@ -6,24 +6,22 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
@@ -33,12 +31,12 @@ import com.example.xyzreader.data.ArticleLoader;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import static android.view.View.GONE;
+import static java.text.DateFormat.getDateInstance;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -66,18 +64,11 @@ public class ArticleDetailFragment extends Fragment implements
     private boolean mIsCard = false;
     private int mStatusBarFullOpacityBottom;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss", Locale.getDefault());
     // Use default locale format
-    private SimpleDateFormat outputFormat = new SimpleDateFormat();
+    private SimpleDateFormat outputFormat = (SimpleDateFormat) getDateInstance();
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
-
-    /**
-     * Body Text Pagination Views
-     */
-    private RecyclerView mBodyTextRv;
-    private BodyTextAdapter mBodyTextAdapter;
-    private LinearLayoutManager mBodyTextRvLayoutManager;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -141,8 +132,7 @@ public class ArticleDetailFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
-        mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
-                mRootView.findViewById(R.id.draw_insets_frame_layout);
+        mDrawInsetsFrameLayout = mRootView.findViewById(R.id.draw_insets_frame_layout);
         mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
             @Override
             public void onInsetsChanged(Rect insets) {
@@ -150,7 +140,7 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        mScrollView = (ObservableScrollView) mRootView.findViewById(R.id.scrollview);
+        mScrollView = mRootView.findViewById(R.id.scrollview);
         mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
             @Override
             public void onScrollChanged() {
@@ -161,7 +151,7 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
+        mPhotoView = mRootView.findViewById(R.id.photo);
         mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
 
         mStatusBarColorDrawable = new ColorDrawable(0);
@@ -177,12 +167,12 @@ public class ArticleDetailFragment extends Fragment implements
         });
 
         // TODO [Pagination Feature] Body Text recyclerView and related components
-        mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
-        mBodyTextAdapter = new BodyTextAdapter();
-        mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
-                LinearLayoutManager.VERTICAL,false);
-        mBodyTextRv.setAdapter(mBodyTextAdapter);
-        mBodyTextRv.setLayoutManager(mBodyTextRvLayoutManager);
+//        mBodyTextRv = mRootView.findViewById(R.id.body_text_rv);
+//        mBodyTextAdapter = new BodyTextAdapter();
+//        mBodyTextRvLayoutManager = new LinearLayoutManager(getContext(),
+//                LinearLayoutManager.VERTICAL,false);
+//        mBodyTextRv.setAdapter(mBodyTextAdapter);
+//        mBodyTextRv.setLayoutManager(mBodyTextRvLayoutManager);
 
         bindViews();
         updateStatusBar();
@@ -224,6 +214,7 @@ public class ArticleDetailFragment extends Fragment implements
         TextView titleView = mRootView.findViewById(R.id.article_title);
         TextView bylineView = mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
+        WebView bodyView = mRootView.findViewById(R.id.article_body);
 
         // TODO [SPECIFICATION] App uses fonts that are either the Android defaults, are complementary, and aren't otherwise distracting.
         // Commented it out and use the system default font family roboto instead
@@ -237,7 +228,7 @@ public class ArticleDetailFragment extends Fragment implements
             titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
-                bylineView.setText(Html.fromHtml(
+                bylineView.setText(ArticleLoader.fromHtml(
                         DateUtils.getRelativeTimeSpanString(
                                 publishedDate.getTime(),
                                 System.currentTimeMillis(),
@@ -251,27 +242,29 @@ public class ArticleDetailFragment extends Fragment implements
                 // If date is before 1902, just show the string
 
                 // Use Strubg resource with place holder instead
-                bylineView.setText(Html.fromHtml(
+                bylineView.setText(ArticleLoader.fromHtml(
                         outputFormat.format(publishedDate) + " by <font color='#ffffff'>"
                                 + mCursor.getString(ArticleLoader.Query.AUTHOR)
                                 + "</font>"));
 
             }
 
-            // TODO [Pagination Feature] ! Performance issue: Body Text is GIGANTIC and freezes UI
-            String mBodyTextStr = Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)
-                            .replaceAll("(\r\n\r\n)", "\\$")).toString();
-            // thread with setting all the text at once, implemented methods to
-            // offload the html parsing into spanned in the background with asyncTask
-            mBodyTextAdapter.setBodyText(mBodyTextStr);
+            bodyView.loadData(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n\r\n)", "<br /><br />"),"text/html",null);
+            bodyView.setWebViewClient(new WebViewClient(){
+                @Override
+                public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                    super.onPageStarted(view, url, favicon);
+                    isLoadingState(true);
+                }
 
-            // TODO [Use SwipeRefreshLayout to handle user load more request]
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, url);
+                    // toggle loading state
+                    isLoadingState(false);
+                }
 
-
-
-
-
-
+            });
 
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
@@ -300,8 +293,17 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setVisibility(GONE);
             titleView.setText("N/A");
             bylineView.setText("N/A");
+            bodyView.loadData("<p>N/A</p>","text/html", null);
         }
     }
+
+    private void isLoadingState(boolean isLoading)
+    {
+        if (mLoadingIndicator == null) mLoadingIndicator = mRootView.findViewById(R.id.loading_indicator);
+        mLoadingIndicator.setVisibility(isLoading? View.VISIBLE: View.GONE);
+    }
+
+    private ProgressBar mLoadingIndicator;
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -344,145 +346,5 @@ public class ArticleDetailFragment extends Fragment implements
                 : mPhotoView.getHeight() - mScrollY;
     }
 
-    /**
-     * Pagination for the BodyText to avoid freezing UI in the setText
-     * RecyclerView Adapter and a single TextView viewHolder
-     */
-    private class BodyTextAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-        private String mBodyText;
-        private int startPosition;
-        private final int snippetLength = 1000;
-        private ArrayList<String> mSnippets;
 
-        // Using footer for the recyclerView to show loading progress bar
-        private static final int TYPE_ITEM = 1;
-        private static final int TYPE_FOOTER = 2;
-
-        BodyTextAdapter() {
-            mSnippets = new ArrayList<>();
-        }
-
-        void setBodyText(String mBodyText)
-        {
-            this.mBodyText = mBodyText;
-            // fire off method to split the bodyText into snippets
-            fetchBodyTextSnippet();
-        }
-
-        void addSnippets(String[] snippetsArray)
-        {
-            int currentPosition = getItemCount();
-            Collections.addAll(mSnippets,snippetsArray);
-            notifyItemRangeInserted(currentPosition,mSnippets.size());
-        }
-
-        /**
-         * AsyncTask method to load the body text into the adapter in chucks of chars
-         * instead of all at once
-         */
-        private void fetchBodyTextSnippet() {
-            // No or no more bodyText to fetch, terminate
-            if (mBodyText == null || startPosition >= mBodyText.length()) return;
-
-            new AsyncTask<Void, Void, String[]>() {
-                @Override
-                protected void onPreExecute() {
-                    super.onPreExecute();
-                }
-
-                @Override
-                protected String[] doInBackground(Void... voids) {
-                    // Get the substring that is with at least n chars and ends with \\$
-                    int endPosition = mBodyText.indexOf("$", startPosition + snippetLength);
-                    if (endPosition >= mBodyText.length() || endPosition == -1) // if not found
-                        endPosition = mBodyText.length();
-
-                    // Get the substring with the starting and ending position
-                    String mBodyTextStr = mBodyText.substring(startPosition,endPosition);
-
-                    // Assign the endingPosition as the next starting position
-                    startPosition = endPosition;
-
-                    // return an array of sub-strings for the recyclerView adapter
-                    return mBodyTextStr.split("\\$");
-                }
-
-                @Override
-                protected void onPostExecute(String[] snippets) {
-                    super.onPostExecute(snippets);
-                    addSnippets(snippets);
-                }
-
-            }.execute();
-        }
-
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            if(viewType == TYPE_FOOTER) {
-                View view = getLayoutInflater().inflate(R.layout.footer_item_read_more, parent, false);
-                return new FooterViewHolder(view);
-            } else if(viewType == TYPE_ITEM) {
-                View view = getLayoutInflater().inflate(R.layout.list_item_body_text_snippet, parent, false);
-                return new SnippetViewHolder(view);
-            }
-            return null;
-        }
-
-        @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            if (mSnippets.size() == 0) return;
-            if (holder instanceof SnippetViewHolder) {
-                SnippetViewHolder viewHolder = (SnippetViewHolder) holder;
-                String snippet = mSnippets.get(position);
-                viewHolder.snippetTv.setText(snippet);
-            }else if (holder instanceof FooterViewHolder)
-            {
-                FooterViewHolder viewHolder = (FooterViewHolder) holder;
-                // Hide the readMoreBtn when the user finishes
-                viewHolder.readMoreBtn.setVisibility(startPosition == mBodyText.length()? View.GONE: View.VISIBLE);
-                viewHolder.readMoreBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // load more text for user to read
-                        fetchBodyTextSnippet();
-                    }
-                });
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return mSnippets.size() + 1;
-        }
-
-        @Override
-        public int getItemViewType (int position) {
-            if(isPositionFooter (position)) {
-                return TYPE_FOOTER;
-            }
-            return TYPE_ITEM;
-        }
-
-        private boolean isPositionFooter (int position) {
-            return position == mSnippets.size();
-        }
-    }
-
-    private static class SnippetViewHolder extends RecyclerView.ViewHolder {
-        private TextView snippetTv;
-
-        SnippetViewHolder(View view) {
-            super(view);
-            snippetTv = view.findViewById(R.id.list_item_body_text_snippet);
-        }
-    }
-
-    private static class FooterViewHolder extends RecyclerView.ViewHolder {
-        private Button readMoreBtn;
-
-        FooterViewHolder(View view) {
-            super(view);
-            readMoreBtn = view.findViewById(R.id.read_more_btn);
-        }
-    }
 }
