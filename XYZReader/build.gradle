@@ -1,29 +1,23 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
-    }
-}
-
+// TODO [FIXED] Removed redundant buildScript and repo declarations
 apply plugin: 'com.android.application'
-
-repositories {
-    mavenCentral()
-}
 
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
 
     defaultConfig {
-        minSdkVersion 19
+        applicationId "com.example.xyzreader"
+        minSdkVersion 16
         targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
 }
 
 dependencies {
+    compile "com.android.support:design:$androidSupportVersion"
     compile "com.android.support:support-v4:$androidSupportVersion"
     compile "com.android.support:support-v13:$androidSupportVersion"
     compile "com.android.support:appcompat-v7:$androidSupportVersion"
