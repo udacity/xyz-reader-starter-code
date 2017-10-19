@@ -6,37 +6,10 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/app_bar_height"
-        android:fitsSystemWindows="true"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/toolbar_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-        </android.support.design.widget.CollapsingToolbarLayout>
-    </android.support.design.widget.AppBarLayout>
-
-    <!-- Content -->
     <com.example.xyzreader.ui.DrawInsetsFrameLayout
         android:id="@+id/draw_insets_frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <com.example.xyzreader.ui.ObservableScrollView
             android:id="@+id/scrollview"
@@ -69,7 +42,7 @@
 
                 <com.example.xyzreader.ui.MaxWidthLinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:background="#fff"
                     android:elevation="2dp"
@@ -105,7 +78,7 @@
                         <TextView
                             android:id="@+id/article_byline"
                             style="@style/TextAppearance.AppCompat.Subhead"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textColor="#9fff"
                             tools:text="Jan 1, 2833 by Collective Paradisians" />
@@ -117,25 +90,25 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/detail_inner_horiz_margin"
                         android:layout_marginRight="@dimen/detail_inner_horiz_margin"
-                        android:paddingBottom="@dimen/detail_body_bottom_margin"
-                        android:scrollbars="vertical" />
+                        android:paddingBottom="@dimen/detail_body_bottom_margin" />
 
                 </com.example.xyzreader.ui.MaxWidthLinearLayout>
+
             </LinearLayout>
 
         </com.example.xyzreader.ui.ObservableScrollView>
 
-        <!-- TODO [Specification] App provides a Floating Action Button for the most common action(s). -->
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/share_fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
-            app:layout_anchor="@id/draw_insets_frame_layout"
-            app:layout_anchorGravity="bottom|end"
-            app:srcCompat="@drawable/ic_share" />
-
     </com.example.xyzreader.ui.DrawInsetsFrameLayout>
+
+    <!-- TODO [Specification] App provides a Floating Action Button for the most common action(s). -->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/share_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_anchor="@id/draw_insets_frame_layout"
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@drawable/ic_share" />
 
 </android.support.design.widget.CoordinatorLayout>
 
