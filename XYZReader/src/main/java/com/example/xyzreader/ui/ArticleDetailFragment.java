@@ -217,7 +217,7 @@ public class ArticleDetailFragment extends Fragment implements
         WebView bodyView = mRootView.findViewById(R.id.article_body);
 
         // TODO [SPECIFICATION] App uses fonts that are either the Android defaults, are complementary, and aren't otherwise distracting.
-        // Commented it out and use the system default font family roboto instead
+        // Commented it out and use the system webView's default font family roboto instead
         // bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
@@ -249,7 +249,11 @@ public class ArticleDetailFragment extends Fragment implements
 
             }
 
-            bodyView.loadData(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n\r\n)", "<br /><br />"),"text/html",null);
+            bodyView.loadData(
+                    mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n\r\n)", "<br /><br />"),
+                    "text/html",
+                    null);
+
             bodyView.setWebViewClient(new WebViewClient(){
                 @Override
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {

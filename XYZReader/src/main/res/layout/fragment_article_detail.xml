@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="false">
 
     <com.example.xyzreader.ui.DrawInsetsFrameLayout
         android:id="@+id/draw_insets_frame_layout"
@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <RelativeLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -25,11 +25,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/photo_placeholder">
+
                     <!--suppress AndroidLintContentDescription -->
                     <ImageView
                         android:id="@+id/photo"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/detail_photo_height"
                         android:scaleType="centerCrop" />
 
                     <View
@@ -47,7 +48,7 @@
                     android:maxWidth="@dimen/detail_card_max_width"
                     android:background="#fff"
                     android:elevation="2dp"
-                    android:layout_below="@id/photo_container">
+                    android:layout_marginTop="@dimen/detail_card_top_margin">
 
                     <LinearLayout
                         android:id="@+id/meta_bar"
@@ -59,8 +60,7 @@
                         android:paddingLeft="@dimen/detail_inner_horiz_margin"
                         android:paddingRight="@dimen/detail_inner_horiz_margin"
                         android:paddingTop="@dimen/detail_metabar_vert_padding"
-                        android:paddingBottom="@dimen/detail_metabar_vert_padding"
-                        android:layout_marginBottom="@dimen/detail_metabar_vert_padding">
+                        android:paddingBottom="@dimen/detail_metabar_vert_padding">
 
                         <TextView
                             android:id="@+id/article_title"
@@ -84,79 +84,16 @@
 
                     <WebView
                         android:id="@+id/article_body"
-                        style="?android:attr/textAppearanceMedium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/detail_body_vert_margin"
                         android:layout_marginLeft="@dimen/detail_inner_horiz_margin"
                         android:layout_marginRight="@dimen/detail_inner_horiz_margin"
-                        android:paddingBottom="@dimen/detail_body_bottom_margin"
-                        android:textColor="@color/color_primary_text"
-                        android:textColorLink="@color/color_accent"
-                        android:textSize="40sp"
-                        android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier" />
+                        android:layout_marginBottom="@dimen/detail_body_vert_margin"/>
 
                 </com.example.xyzreader.ui.MaxWidthLinearLayout>
 
-                <!--<com.example.xyzreader.ui.MaxWidthLinearLayout-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_gravity="center_horizontal"-->
-                    <!--android:background="#fff"-->
-                    <!--android:elevation="2dp"-->
-                    <!--android:maxWidth="@dimen/detail_card_max_width"-->
-                    <!--android:orientation="vertical">-->
-
-                    <!--<LinearLayout-->
-                        <!--android:id="@+id/meta_bar"-->
-                        <!--android:layout_width="match_parent"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:layout_gravity="bottom"-->
-                        <!--android:layout_marginBottom="@dimen/detail_metabar_vert_padding"-->
-                        <!--android:background="#333"-->
-                        <!--android:orientation="vertical"-->
-                        <!--android:paddingBottom="@dimen/detail_metabar_vert_padding"-->
-                        <!--android:paddingLeft="@dimen/detail_inner_horiz_margin"-->
-                        <!--android:paddingRight="@dimen/detail_inner_horiz_margin"-->
-                        <!--android:paddingTop="@dimen/detail_metabar_vert_padding">-->
-
-                        <!--<TextView-->
-                            <!--android:id="@+id/article_title"-->
-                            <!--style="@style/TextAppearance.AppCompat.Headline"-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:fontFamily="sans-serif-condensed"-->
-                            <!--android:lineSpacingMultiplier="0.9"-->
-                            <!--android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"-->
-                            <!--android:textColor="#fff"-->
-                            <!--android:textSize="@dimen/detail_title_text_size"-->
-                            <!--android:textStyle="bold"-->
-                            <!--tools:text="Hello from Paradise" />-->
-
-                        <!--<TextView-->
-                            <!--android:id="@+id/article_byline"-->
-                            <!--style="@style/TextAppearance.AppCompat.Subhead"-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:textColor="#9fff"-->
-                            <!--tools:text="Jan 1, 2833 by Collective Paradisians" />-->
-                    <!--</LinearLayout>-->
-
-                    <!--<TextView-->
-                        <!--android:id="@+id/article_body"-->
-                        <!--android:layout_width="match_parent"-->
-                        <!--android:layout_height="wrap_content" />-->
-
-                    <!--&lt;!&ndash;<android.support.v7.widget.RecyclerView&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:id="@+id/body_text_rv"&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:layout_marginLeft="@dimen/detail_inner_horiz_margin"&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:layout_marginRight="@dimen/detail_inner_horiz_margin"&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:paddingBottom="@dimen/detail_body_bottom_margin" />&ndash;&gt;-->
-
-                <!--</com.example.xyzreader.ui.MaxWidthLinearLayout>-->
-
-            </RelativeLayout>
+            </FrameLayout>
 
         </com.example.xyzreader.ui.ObservableScrollView>
 
@@ -172,7 +109,7 @@
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_share" />
 
-    <!-- Loading Indicator -->
+    <!-- Loading Indicator-->
     <ProgressBar
         android:id="@+id/loading_indicator"
         android:layout_width="wrap_content"
