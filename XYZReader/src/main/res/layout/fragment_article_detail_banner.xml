@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/photo_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/photo_placeholder">
+
+    <!--suppress AndroidLintContentDescription -->
+    <ImageView
+        android:id="@+id/photo"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/detail_photo_height"
+        android:scaleType="centerCrop" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/photo_background_protection" />
+
+</FrameLayout>

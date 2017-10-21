@@ -1,7 +1,7 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginLeft="4dp"
     android:layout_marginRight="4dp"
     android:layout_marginTop="4dp"
@@ -16,11 +16,7 @@
         android:orientation="vertical">
 
         <!--suppress AndroidLintContentDescription -->
-        <com.example.xyzreader.ui.DynamicHeightNetworkImageView
-            android:id="@+id/thumbnail"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:background="@color/photo_placeholder" />
+        <include layout="@layout/list_item_article_thumbnail"/>
 
         <TextView
             android:id="@+id/article_title"
@@ -31,9 +27,11 @@
             android:paddingTop="16dp"
             android:paddingRight="16dp"
             android:paddingBottom="4dp"
-            android:textColor="@color/ltgray"
+            android:textColor="@color/color_primary_text"
+            android:textSize="16sp"
             android:ellipsize="end"
-            android:maxLines="4" />
+            android:maxLines="4"
+            tools:text="Fashionable Truck Drivers"/>
 
         <TextView
             android:id="@+id/article_subtitle"
@@ -44,8 +42,10 @@
             android:paddingRight="16dp"
             android:paddingBottom="16dp"
             android:textColor="#6000"
+            android:textSize="14sp"
             android:maxLines="2"
-            android:ellipsize="end" />
+            android:ellipsize="end"
+            tools:text="Feb 12, 2013 By Someone Fashionable"/>
     </LinearLayout>
 
 </android.support.v7.widget.CardView>
