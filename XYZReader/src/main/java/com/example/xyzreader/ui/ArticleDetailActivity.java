@@ -102,6 +102,7 @@ public class ArticleDetailActivity extends AppCompatActivity
                     return windowInsets;
                 }
             });
+
         }
 
         if (savedInstanceState == null) {

@@ -16,14 +16,7 @@
         android:orientation="vertical">
 
         <!--suppress AndroidLintContentDescription -->
-        <!-- TODO [SPECIFICATION] App uses images that are high quality, specific, and full bleed. -->
-        <com.example.xyzreader.ui.DynamicHeightImageView
-            android:id="@+id/thumbnail"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:scaleType="centerCrop"
-            android:background="@color/photo_placeholder" />
+        <include layout="@layout/list_item_article_thumbnail"/>
 
         <TextView
             android:id="@+id/article_title"
