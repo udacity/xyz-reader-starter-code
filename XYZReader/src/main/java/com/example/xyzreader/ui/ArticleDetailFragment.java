@@ -275,7 +275,7 @@ public class ArticleDetailFragment extends Fragment implements
 
             });
 
-            // TODO [USABILITY] Use Glide to load size-optimized image to improve performance
+            // TODO [SUGGESTION] Use Glide to load size-optimized image to improve performance
             // Glide automatically resize and cache the image base on the size of the ImageView
             String url = mCursor.getString(ArticleLoader.Query.PHOTO_URL);
             GlideApp.with(this)

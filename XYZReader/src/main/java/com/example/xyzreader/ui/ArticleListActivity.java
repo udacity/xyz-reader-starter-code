@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -31,6 +32,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+
+import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -101,12 +104,28 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     private boolean mIsRefreshing = false;
+    private boolean mIsConnected;
+    private Snackbar mSnackbar;
 
     private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (UpdaterService.BROADCAST_ACTION_STATE_CHANGE.equals(intent.getAction())) {
                 mIsRefreshing = intent.getBooleanExtra(UpdaterService.EXTRA_REFRESHING, false);
+                if (intent.hasExtra(UpdaterService.EXTRA_CONNECTED)) {
+                    mIsConnected = intent.getBooleanExtra(UpdaterService.EXTRA_CONNECTED, false);
+                    // TODO [SUGGESTION] Check internet connection - informing that there is no network connection.
+                    if (mSnackbar == null)  mSnackbar = Snackbar.make(mSwipeRefreshLayout,
+                            "No network connection", LENGTH_INDEFINITE);
+
+                    if (!mIsConnected) {
+                        mSnackbar.show();
+                    }else
+                    {
+                        // Network is now connected
+                        mSnackbar.dismiss();
+                    }
+                }
                 updateRefreshingUI();
             }
         }
