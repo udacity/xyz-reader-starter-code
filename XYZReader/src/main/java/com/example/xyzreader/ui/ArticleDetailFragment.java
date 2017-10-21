@@ -3,10 +3,13 @@ package com.example.xyzreader.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
@@ -26,6 +29,14 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 
@@ -264,29 +275,43 @@ public class ArticleDetailFragment extends Fragment implements
 
             });
 
-            ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
-                    .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
+            // TODO [USABILITY] Use Glide to load size-optimized image to improve performance
+            // Glide automatically resize and cache the image base on the size of the ImageView
+            String url = mCursor.getString(ArticleLoader.Query.PHOTO_URL);
+            GlideApp.with(this)
+                    .asBitmap()
+                    .load(url)
+                    .override(600,400)
+                    .listener(new RequestListener<Bitmap>() {
                         @Override
-                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-                            Bitmap bitmap = imageContainer.getBitmap();
-                            if (bitmap != null) {
-                                Palette.Builder pBuilder = new Palette.Builder(bitmap)
-                                        .maximumColorCount(12);
+                        public boolean onLoadFailed(@Nullable GlideException e,
+                                                    Object model,
+                                                    Target<Bitmap> target,
+                                                    boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Bitmap resource,
+                                                       Object model,
+                                                       Target<Bitmap> target,
+                                                       DataSource dataSource,
+                                                       boolean isFirstResource) {
+
+                            if (resource != null) {
+                                Palette.Builder pBuilder = new Palette.Builder(resource)
+                                        .maximumColorCount(6);
                                 Palette p = pBuilder.generate();
 
                                 mMutedColor = p.getDarkMutedColor(0xFF333333);
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                mRootView.findViewById(R.id.meta_bar)
-                                        .setBackgroundColor(mMutedColor);
+                                mRootView.findViewById(R.id.meta_bar).setBackgroundColor(mMutedColor);
                                 updateStatusBar();
                             }
+                            return false;
                         }
+                    })
+                    .into(mPhotoView);
 
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-
-                        }
-                    });
         } else {
             mRootView.setVisibility(GONE);
         }

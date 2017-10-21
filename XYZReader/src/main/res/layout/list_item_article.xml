@@ -17,7 +17,7 @@
 
         <!--suppress AndroidLintContentDescription -->
         <!-- TODO [SPECIFICATION] App uses images that are high quality, specific, and full bleed. -->
-        <com.example.xyzreader.ui.DynamicHeightNetworkImageView
+        <com.example.xyzreader.ui.DynamicHeightImageView
             android:id="@+id/thumbnail"
             android:layout_width="match_parent"
             android:layout_height="0dp"

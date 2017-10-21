@@ -110,7 +110,7 @@
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_share"
         app:pressedTranslationZ="12dp"
-        app:elevation="6dp"/> <!-- TODO [Fixed] Added resting and pressed elevation, 12dp and 6dp respectively for FAB  -->
+        app:elevation="6dp"/> <!-- TODO [FIXED] Added resting and pressed elevation, 12dp and 6dp respectively for FAB  -->
 
     <!-- Loading Indicator-->
     <ProgressBar

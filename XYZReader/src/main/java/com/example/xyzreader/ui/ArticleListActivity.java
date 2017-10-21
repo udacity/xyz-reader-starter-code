@@ -17,6 +17,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
@@ -195,9 +196,15 @@ public class ArticleListActivity extends AppCompatActivity implements
                         + "<br/>" + " by "
                         + mCursor.getString(ArticleLoader.Query.AUTHOR)));
             }
-            holder.thumbnailView.setImageUrl(
-                    mCursor.getString(ArticleLoader.Query.THUMB_URL),
-                    ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
+
+            // TODO [USABILITY] Use Glide to load size-optimized image to improve performance
+            // Glide automatically resize and cache the image base on the size of the ImageView
+            String url = mCursor.getString(ArticleLoader.Query.THUMB_URL);
+            GlideApp.with(ArticleListActivity.this)
+                    .load(url)
+                    .override(450,300)
+                    .into(holder.thumbnailView);
+
             holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
         }
 
@@ -208,7 +215,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     private static class ViewHolder extends RecyclerView.ViewHolder {
-        DynamicHeightNetworkImageView thumbnailView;
+        DynamicHeightImageView thumbnailView;
         TextView titleView;
         TextView subtitleView;
 
