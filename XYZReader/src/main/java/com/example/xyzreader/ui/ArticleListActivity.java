@@ -92,11 +92,10 @@ public class ArticleListActivity extends AppCompatActivity implements
                     scrollRange = appBarLayout.getTotalScrollRange();
                 }
                 if (scrollRange + verticalOffset == 0) {
-                    mCollapsingToolbarLayout.setTitle("XYZreader");
+                    mCollapsingToolbarLayout.setTitle("xyzreader");
                     isShow = true;
                 } else if (isShow) {
-                    mCollapsingToolbarLayout.setTitle(" ");
-
+                    mCollapsingToolbarLayout.setTitle("xyzreader");
                 }
             }
         });
