@@ -8,7 +8,8 @@
     android:layout_marginBottom="4dp"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?selectableItemBackground">
+    android:foreground="?selectableItemBackground"
+    android:stateListAnimator="@anim/click_raise">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +21,7 @@
             android:id="@+id/thumbnail"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:background="@color/photo_placeholder" />
+            android:background="@color/theme_primary_dark" />
 
         <TextView
             android:id="@+id/article_title"
