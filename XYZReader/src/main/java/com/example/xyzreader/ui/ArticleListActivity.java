@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.animation.Animator;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,7 +18,9 @@ import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
@@ -57,10 +60,14 @@ public class ArticleListActivity extends AppCompatActivity implements
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
-
-        final View toolbarContainerView = findViewById(R.id.toolbar_container);
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         getLoaderManager().initLoader(0, null, this);
@@ -144,6 +151,12 @@ public class ArticleListActivity extends AppCompatActivity implements
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //TODO, testing this animation remove it
+                    int finalRadius = (int)Math.hypot(view.getWidth()/2, view.getHeight()/2);
+                    Animator anim = ViewAnimationUtils.createCircularReveal(view, (int) view.getWidth()/2,
+                            (int) view.getHeight()/2, 0, finalRadius);
+                    anim.start();
+                    ////TODO END, testing this animation remove it
                     startActivity(new Intent(Intent.ACTION_VIEW,
                             ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
                 }
