@@ -21,6 +21,10 @@
 
     </style>
 
+    <style name="XYZStyle" parent="Theme.AppCompat.Light">
+
+    </style>
+
     <style name="Theme.Bacon.Detail">
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
