@@ -1,6 +1,8 @@
 package com.example.xyzreader.ui;
 
 import android.animation.Animator;
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -169,20 +171,30 @@ public class ArticleListActivity extends AppCompatActivity implements
         }
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
             final ViewHolder vh = new ViewHolder(view);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //TODO, testing this animation remove it
-                    int finalRadius = (int)Math.hypot(view.getWidth()/2, view.getHeight()/2);
-                    Animator anim = ViewAnimationUtils.createCircularReveal(view, (int) view.getWidth()/2,
-                            (int) view.getHeight()/2, 0, finalRadius);
-                    anim.start();
+//                    int finalRadius = (int)Math.hypot(view.getWidth()/2, view.getHeight()/2);
+//                    Animator anim = ViewAnimationUtils.createCircularReveal(view, (int) view.getWidth()/2,
+//                            (int) view.getHeight()/2, 0, finalRadius);
+//                    anim.start();
                     ////TODO END, testing this animation remove it
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+
+//                    Intent intent = new Intent(Intent.ACTION_VIEW,
+//                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())));
+
+                    long value = getItemId(vh.getAdapterPosition());
+
+                    test(value);
+
+//                    Bundle bundle = ActivityOptions
+//                            .makeSceneTransitionAnimation(this)
+//                            .toBundle();
+//                    startActivity(intent, bundle);
                 }
             });
             return vh;
@@ -242,5 +254,16 @@ public class ArticleListActivity extends AppCompatActivity implements
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
         }
+    }
+
+    public void test(long value) {
+
+
+        Intent intent = new Intent(Intent.ACTION_VIEW,
+                ItemsContract.Items.buildItemUri(value));
+        Bundle bundle = ActivityOptions
+                .makeSceneTransitionAnimation(this)
+                .toBundle();
+        startActivity(intent, bundle);
     }
 }
