@@ -1,7 +1,7 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/card_view_height"
+    android:layout_height="wrap_content"
     android:layout_marginLeft="4dp"
     android:layout_marginRight="4dp"
     android:layout_marginTop="4dp"
@@ -18,23 +18,24 @@
         android:orientation="vertical">
 
         <!--suppress AndroidLintContentDescription -->
-        <com.example.xyzreader.ui.DynamicHeightNetworkImageView
+        <ImageView
             android:id="@+id/thumbnail"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:transitionName="profile"
-            android:background="@color/theme_primary_dark" />
+            android:scaleType="fitXY"
+            android:background="@color/theme_accent" />
 
         <TextView
             android:id="@+id/article_title"
-            style="@style/TextAppearance.AppCompat.Subhead"
+            style="@style/TextAppearance.AppCompat.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="16dp"
             android:paddingTop="16dp"
             android:paddingRight="16dp"
             android:paddingBottom="4dp"
-            android:textColor="@color/ltgray"
+            android:textColor="@color/theme_primary"
             android:ellipsize="end"
             android:maxLines="4" />
 
@@ -46,7 +47,7 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:paddingBottom="16dp"
-            android:textColor="#6000"
+            android:textColor="@color/theme_primary"
             android:maxLines="2"
             android:ellipsize="end" />
     </LinearLayout>
