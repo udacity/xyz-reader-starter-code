@@ -151,6 +151,7 @@ public class ArticleListFragment extends Fragment implements
         StaggeredGridLayoutManager sglm =
                 new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
         Binding.recyclerView.setLayoutManager(sglm);
+
     }
 
     @Override
@@ -262,11 +263,15 @@ public class ArticleListFragment extends Fragment implements
     public void test(long value) {
 
 
-        Intent intent = new Intent(Intent.ACTION_VIEW,
-                ItemsContract.Items.buildItemUri(value));
+//        Intent intent = new Intent(Intent.ACTION_VIEW,
+//                ItemsContract.Items.buildItemUri(value));
         Bundle bundle = ActivityOptions
                 .makeSceneTransitionAnimation(getActivity())
                 .toBundle();
-        startActivity(intent, bundle);
+//        startActivity(intent, bundle);
+
+        Log.d("MIKE :::", String.valueOf(value));
+        Intent intent = ArticleDetailActivity.newIntent(mContext, value);
+        startActivity(intent);
     }
 }
