@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -22,10 +21,7 @@ import android.view.WindowInsets;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.Item;
 import com.example.xyzreader.data.ItemsContract;
-
-import java.util.ArrayList;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
@@ -58,7 +54,7 @@ public class ArticleDetailActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         Log.d("MIKE :::", "onCreate");
 
-         mStartId = (long) getIntent()
+        mStartId = (long) getIntent()
                 .getSerializableExtra(ARG_VALUE_ID);
         Log.d("MIKE :::", String.valueOf(mStartId));
 
@@ -94,7 +90,7 @@ public class ArticleDetailActivity extends FragmentActivity
                     mCursor.moveToPosition(position);
                 }
 
-                Log.d("MIKE pageScrolled1", "MIKE2");
+                Log.d("MIKE act ", "onPageSelected MIKE2");
                 mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
                 updateUpButtonPosition();
             }
@@ -142,7 +138,7 @@ public class ArticleDetailActivity extends FragmentActivity
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
 
-        Log.d("MIKE pageScrolled1", "MIKE5");
+        Log.d("MIKE act ", "onLoadFinished MIKE5");
         mCursor = cursor;
         mPagerAdapter.notifyDataSetChanged();
 
@@ -151,9 +147,10 @@ public class ArticleDetailActivity extends FragmentActivity
             mCursor.moveToFirst();
             // TODO: optimize
             while (!mCursor.isAfterLast()) {
+                Log.d("MIKE pageScrolled1", " ... checking!");
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
                     final int position = mCursor.getPosition();
-                    Log.d("MIKE pageScrolled1", "MIKE6");
+                    Log.d("MIKE act", "move PAGER MIKE6");
                     mPager.setCurrentItem(position, false);
                     break;
                 }
@@ -171,7 +168,7 @@ public class ArticleDetailActivity extends FragmentActivity
     }
 
     public void onUpButtonFloorChanged(long itemId, ArticleDetailFragment fragment) {
-        Log.d("MIKE pageScrolled1", "MIKE8");
+        Log.d("MIKE ", " onUpButtonFloorChanged MIKE8");
         if (itemId == mSelectedItemId) {
             mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
             updateUpButtonPosition();
@@ -179,7 +176,7 @@ public class ArticleDetailActivity extends FragmentActivity
     }
 
     private void updateUpButtonPosition() {
-        Log.d("MIKE pageScrolled1", "MIKE3");
+        Log.d("MIKE ACti", "updateUpButtonPosition MIKE3");
         int upButtonNormalBottom = mTopInset + mUpButton.getHeight();
         mUpButton.setTranslationY(Math.min(mSelectedItemUpButtonFloor - upButtonNormalBottom, 0));
     }
@@ -201,7 +198,7 @@ public class ArticleDetailActivity extends FragmentActivity
 
         @Override
         public Fragment getItem(int position) {
-            Log.d("MIKE pageScrolled1", "MIKE10");
+            Log.d("MIKE act getITEM", "MIKE10");
             mCursor.moveToPosition(position);
             return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
         }

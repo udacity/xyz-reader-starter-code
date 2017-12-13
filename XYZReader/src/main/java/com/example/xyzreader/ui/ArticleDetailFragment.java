@@ -77,7 +77,7 @@ public class ArticleDetailFragment extends Fragment
     }
 
     public static ArticleDetailFragment newInstance(long itemId) {
-        Log.d("MIKE pageScrolled1", "MIKE21");
+        Log.d("MIKE new instabceADF", "MIKE21");
         Bundle arguments = new Bundle();
         arguments.putLong(ARG_ITEM_ID, itemId);
         ArticleDetailFragment fragment = new ArticleDetailFragment();
@@ -89,7 +89,7 @@ public class ArticleDetailFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("MIKE pageScrolled1", "onCreate22");
+        Log.d("MIKE frag", "onCreate22");
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
@@ -113,14 +113,14 @@ public class ArticleDetailFragment extends Fragment
         // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
         // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
         // we do this in onActivityCreated.
-        Log.d("MIKE pageScrolled1", "onCreate23");
+        Log.d("MIKE frag ", "onActivityCreated23");
         getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        Log.d("MIKE pageScrolled1", "onCreate24");
+        Log.d("MIKE frag ", "onCreateView24");
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
                 mRootView.findViewById(R.id.draw_insets_frame_layout);
@@ -163,7 +163,7 @@ public class ArticleDetailFragment extends Fragment
     }
 
     private void updateStatusBar() {
-        Log.d("MIKE pageScrolled1", "onCreate25");
+        Log.d("MIKE frag", "updateStatusBar onCreate25");
         int color = 0;
         if (mPhotoView != null && mTopInset != 0 && mScrollY > 0) {
             float f = progress(mScrollY,
@@ -194,7 +194,7 @@ public class ArticleDetailFragment extends Fragment
     }
 
     private Date parsePublishedDate() {
-        Log.d("MIKE pageScrolled1", "onCreate27");
+        Log.d("MIKE frag", "parsePublishedDate onCreate27");
         try {
             String date = mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
             return dateFormat.parse(date);
@@ -206,7 +206,7 @@ public class ArticleDetailFragment extends Fragment
     }
 
     private void bindViews() {
-        Log.d("MIKE pageScrolled1", "onCreate29");
+        Log.d("MIKE frag", " bindViews onCreate29");
         if (mRootView == null) {
             return;
         }
@@ -251,7 +251,7 @@ public class ArticleDetailFragment extends Fragment
                         public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
-                                Log.d("MIKE pageScrolled1", "onCreate27");
+                                Log.d("MIKE loadingIMAGE", "onCreate27");
                                 Palette p = Palette.generate(bitmap, 12);
                                 mMutedColor = p.getDarkMutedColor(0xFF333333);
                                 mPhotoView.setImageBitmap(imageContainer.getBitmap());
@@ -276,13 +276,13 @@ public class ArticleDetailFragment extends Fragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Log.d("MIKE pageScrolled1", "onCreate29 it should no be need anymore");
+        Log.d("MIKE frag", "onCreateLoaderonCreate29 it should no be need anymore");
         return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        Log.d("MIKE pageScrolled1", "onCreate30");
+        Log.d("MIKE loadFinished", "onCreate30");
         if (!isAdded()) {
             if (cursor != null) {
                 cursor.close();
@@ -308,7 +308,7 @@ public class ArticleDetailFragment extends Fragment
     }
 
     public int getUpButtonFloor() {
-        Log.d("MIKE pageScrolled1", "onCreate32");
+        Log.d("MIKE fragment ", "getUpButtonFloor onCreate32");
         if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
             return Integer.MAX_VALUE;
         }
