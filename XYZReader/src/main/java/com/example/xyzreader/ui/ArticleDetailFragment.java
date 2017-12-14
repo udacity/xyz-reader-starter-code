@@ -35,6 +35,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.Item;
+import com.squareup.picasso.Picasso;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -77,7 +78,8 @@ public class ArticleDetailFragment extends Fragment
     }
 
     public static ArticleDetailFragment newInstance(long itemId) {
-        Log.d("MIKE new instabceADF", "MIKE21");
+        Log.d("MIKE detFrag ", "instabceADF MIKE21");
+        Log.d("MIKE detFrag ", Long.toString(itemId));
         Bundle arguments = new Bundle();
         arguments.putLong(ARG_ITEM_ID, itemId);
         ArticleDetailFragment fragment = new ArticleDetailFragment();
@@ -88,7 +90,7 @@ public class ArticleDetailFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        postponeEnterTransition();
         Log.d("MIKE frag", "onCreate22");
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
@@ -157,8 +159,8 @@ public class ArticleDetailFragment extends Fragment
             }
         });
 
-        bindViews();
-        updateStatusBar();
+//        bindViews();
+//        updateStatusBar();
         return mRootView;
     }
 
@@ -179,7 +181,7 @@ public class ArticleDetailFragment extends Fragment
     }
 
     static float progress(float v, float min, float max) {
-        Log.d("MIKE pageScrolled1", "onCreate26");
+        Log.d("MIKE floatProgress", "onCreate26");
         return constrain((v - min) / (max - min), 0, 1);
     }
 
@@ -245,27 +247,33 @@ public class ArticleDetailFragment extends Fragment
 
             }
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
-            ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
-                    .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-                            Bitmap bitmap = imageContainer.getBitmap();
-                            if (bitmap != null) {
-                                Log.d("MIKE loadingIMAGE", "onCreate27");
-                                Palette p = Palette.generate(bitmap, 12);
-                                mMutedColor = p.getDarkMutedColor(0xFF333333);
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                mRootView.findViewById(R.id.meta_bar)
-                                        .setBackgroundColor(mMutedColor);
-                                updateStatusBar();
-                            }
-                        }
+//            ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
+//                    .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
+//                        @Override
+//                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+//                            Bitmap bitmap = imageContainer.getBitmap();
+//                            if (bitmap != null) {
+//                                Log.d("MIKE loadingIMAGE", "onCreate27");
+//                                Palette p = Palette.generate(bitmap, 12);
+//                                mMutedColor = p.getDarkMutedColor(0xFF333333);
+//                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
+//                                mRootView.findViewById(R.id.meta_bar)
+//                                        .setBackgroundColor(mMutedColor);
+//                                updateStatusBar();
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onErrorResponse(VolleyError volleyError) {
+//                            Log.d("MIKE detFrag", "ErrorResponseonCreate28");
+//                        }
+//                    });
 
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-                            Log.d("MIKE pageScrolled1", "onCreate28");
-                        }
-                    });
+            Picasso.with(getActivity())
+                    .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
+                    .placeholder(R.drawable.empty_detail)
+                    .error(R.drawable.empty_detail)
+                    .into(mPhotoView);
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
@@ -282,7 +290,7 @@ public class ArticleDetailFragment extends Fragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        Log.d("MIKE loadFinished", "onCreate30");
+        Log.d("MIKE fragloadFinished", "onCreate30");
         if (!isAdded()) {
             if (cursor != null) {
                 cursor.close();
@@ -303,8 +311,8 @@ public class ArticleDetailFragment extends Fragment
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mCursor = null;
-        Log.d("MIKE pageScrolled1", "onCreate31");
-        bindViews();
+        Log.d("MIKE detFrag", "onLoaderResetonCreate31");
+        //bindViews();
     }
 
     public int getUpButtonFloor() {

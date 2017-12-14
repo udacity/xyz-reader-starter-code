@@ -29,6 +29,8 @@ import com.example.xyzreader.data.ItemsContract;
 public class ArticleDetailActivity extends FragmentActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String ARG_VALUE_ID = "value_id";
+    public static final String ARG_ITEM = "image_url";
+    public static final String ARG_IMAGE_TRANSITION_NAME = "image_transition_name";
 
     private Cursor mCursor;
     private long mStartId;
@@ -41,22 +43,26 @@ public class ArticleDetailActivity extends FragmentActivity
     private MyPagerAdapter mPagerAdapter;
     private View mUpButtonContainer;
     private View mUpButton;
+    private String imageTransitionName;
 
-    public static Intent newIntent(Context packageContent, long id) {
+    public static Intent newIntent(Context packageContent, long id, String sharedPreferences) {
         Log.d("MIKE :::", String.valueOf(id));
         Intent intent = new Intent(packageContent, ArticleDetailActivity.class);
         intent.putExtra(ARG_VALUE_ID, id);
+        intent.putExtra(ARG_IMAGE_TRANSITION_NAME, sharedPreferences);
         return intent;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("MIKE :::", "onCreate");
+        Log.d("MIKE :::Act", "onCreate");
 
         mStartId = (long) getIntent()
                 .getSerializableExtra(ARG_VALUE_ID);
         Log.d("MIKE :::", String.valueOf(mStartId));
+
+        imageTransitionName = getIntent().getStringExtra(ARG_IMAGE_TRANSITION_NAME);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().getDecorView().setSystemUiVisibility(
@@ -78,7 +84,7 @@ public class ArticleDetailActivity extends FragmentActivity
             @Override
             public void onPageScrollStateChanged(int state) {
                 super.onPageScrollStateChanged(state);
-                Log.d("MIKE pageScrolled1", "MIKE1");
+                Log.d("MIKE actdet", "MIKE1");
                 mUpButton.animate()
                         .alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
                         .setDuration(300);
@@ -131,7 +137,7 @@ public class ArticleDetailActivity extends FragmentActivity
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Log.d("MIKE pageScrolled1", "MIKE4 this should not be need it");
+        Log.d("MIKE actdet ", "on createLoader MIKE4 this should not be need it");
         return ArticleLoader.newAllArticlesInstance(this);
     }
 
@@ -147,10 +153,10 @@ public class ArticleDetailActivity extends FragmentActivity
             mCursor.moveToFirst();
             // TODO: optimize
             while (!mCursor.isAfterLast()) {
-                Log.d("MIKE pageScrolled1", " ... checking!");
+                Log.d("MIKE detAct", " ... checking!");
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
                     final int position = mCursor.getPosition();
-                    Log.d("MIKE act", "move PAGER MIKE6");
+                    Log.d("MIKE detact", "move PAGER MIKE6");
                     mPager.setCurrentItem(position, false);
                     break;
                 }
@@ -162,7 +168,7 @@ public class ArticleDetailActivity extends FragmentActivity
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        Log.d("MIKE pageScrolled1", "MIKE7");
+        Log.d("MIKE DetAct", "detAct MIKE7");
         mCursor = null;
         mPagerAdapter.notifyDataSetChanged();
     }

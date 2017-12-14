@@ -14,7 +14,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -46,6 +48,10 @@ import java.util.GregorianCalendar;
 
 public class ArticleListFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
+
+    public static final String ARG_ITEM = "image_url";
+    public static final String ARG_IMAGE_TRANSITION_NAME = "image_transition_name";
+
 
     private static final String TAG = ArticleListFragment.class.toString();
 
@@ -104,6 +110,7 @@ public class ArticleListFragment extends Fragment implements
     }
 
     private void refresh() {
+
         getActivity().startService(new Intent(getActivity(), UpdaterService.class));
     }
 
@@ -191,7 +198,9 @@ public class ArticleListFragment extends Fragment implements
 
                     long value = getItemId(vh.getAdapterPosition());
 
-                    test(value);
+                    ImageView imageView = view.findViewById(R.id.thumbnail);
+
+                    test(value, imageView);
 
 //                    Bundle bundle = ActivityOptions
 //                            .makeSceneTransitionAnimation(this)
@@ -234,9 +243,11 @@ public class ArticleListFragment extends Fragment implements
                                 + mCursor.getString(ArticleLoader.Query.AUTHOR)));
             }
 
+            ViewCompat.setTransitionName(holder.thumbnailView, mCursor.getString(ArticleLoader.Query._ID));
+
             Picasso.with(getActivity())
                     .load(mCursor.getString(ArticleLoader.Query.THUMB_URL))
-                    .placeholder(R.drawable.empty_detail)
+//                    .placeholder(R.drawable.empty_detail)
                     .error(R.drawable.empty_detail)
                     .into(holder.thumbnailView);
         }
@@ -260,7 +271,7 @@ public class ArticleListFragment extends Fragment implements
         }
     }
 
-    public void test(long value) {
+    public void test(long value, ImageView sharedImageView) {
 
 
 //        Intent intent = new Intent(Intent.ACTION_VIEW,
@@ -271,7 +282,15 @@ public class ArticleListFragment extends Fragment implements
 //        startActivity(intent, bundle);
 
         Log.d("MIKE :::", String.valueOf(value));
-        Intent intent = ArticleDetailActivity.newIntent(mContext, value);
-        startActivity(intent);
+        Intent intent = ArticleDetailActivity.newIntent(mContext, value, ViewCompat.getTransitionName(sharedImageView));
+//        intent.putExtra(ARG_ITEM, id);
+//        intent.putExtra(ARG_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(sharedImageView));
+
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                getActivity(),
+                sharedImageView,
+                ViewCompat.getTransitionName(sharedImageView));
+
+        startActivity(intent, options.toBundle());
     }
 }
