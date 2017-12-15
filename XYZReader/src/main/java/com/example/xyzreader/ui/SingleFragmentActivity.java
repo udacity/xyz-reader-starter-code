@@ -5,6 +5,7 @@ import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.example.xyzreader.R;
 
@@ -19,6 +20,8 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
+
+        Log.d("MIKE", "MIKE onCreate");
         setContentView(getLayoutResId());
 
         FragmentManager fm = getSupportFragmentManager();

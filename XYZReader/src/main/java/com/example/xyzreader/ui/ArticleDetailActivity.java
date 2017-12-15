@@ -1,20 +1,29 @@
 package com.example.xyzreader.ui;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.LoaderManager;
+
+
+//import android.app.LoaderManager;
+import android.database.Cursor;
+import android.support.v4.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
+//import android.content.Loader;
+//import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
@@ -26,7 +35,7 @@ import com.example.xyzreader.data.ItemsContract;
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
-public class ArticleDetailActivity extends FragmentActivity
+public class ArticleDetailActivity extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String ARG_VALUE_ID = "value_id";
     public static final String ARG_ITEM = "image_url";
@@ -53,31 +62,68 @@ public class ArticleDetailActivity extends FragmentActivity
         return intent;
     }
 
+    public static ArticleDetailActivity newInstance( long recipeName, String sharedPreferences) {
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_VALUE_ID, recipeName);
+        args.putSerializable(ARG_IMAGE_TRANSITION_NAME, sharedPreferences);
+
+        ArticleDetailActivity fragment = new ArticleDetailActivity();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("MIKE :::Act", "onCreate");
 
-        mStartId = (long) getIntent()
-                .getSerializableExtra(ARG_VALUE_ID);
+        mStartId = (long) getArguments()
+                .getLong(ARG_VALUE_ID);
         Log.d("MIKE :::", String.valueOf(mStartId));
 
-        imageTransitionName = getIntent().getStringExtra(ARG_IMAGE_TRANSITION_NAME);
+        imageTransitionName = getArguments().getString(ARG_IMAGE_TRANSITION_NAME);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().getDecorView().setSystemUiVisibility(
+            getActivity().getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
-        setContentView(R.layout.activity_article_detail);
+//        setContentView(R.layout.activity_article_detail);
 
         getLoaderManager().initLoader(0, null, this);
+//        getActivity().getSupportLoaderManager().restartLoader(0, null, this);
+//        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
+
+
+        if (savedInstanceState == null) {
+            if (getActivity().getIntent() != null && getActivity().getIntent().getData() != null) {
+                Log.d("MIKE", "trigger an exception");
+                mStartId = ItemsContract.Items.getItemId(getActivity().getIntent().getData());
+                mSelectedItemId = mStartId;
+            }
+        }
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        //setContentView(R.layout.activity_article_detail);
+        //return super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(R.layout.activity_article_detail, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
-        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager = view.findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
         mPager.setPageMargin((int) TypedValue
-                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
+                        getResources().getDisplayMetrics()));
         mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
 
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -102,9 +148,9 @@ public class ArticleDetailActivity extends FragmentActivity
             }
         });
 
-        mUpButtonContainer = findViewById(R.id.up_container);
+        mUpButtonContainer = view.findViewById(R.id.up_container);
 
-        mUpButton = findViewById(R.id.action_up);
+        mUpButton = view.findViewById(R.id.action_up);
         mUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,21 +171,23 @@ public class ArticleDetailActivity extends FragmentActivity
                 }
             });
         }
-
-        if (savedInstanceState == null) {
-            if (getIntent() != null && getIntent().getData() != null) {
-                Log.d("MIKE", "trigger an exception");
-                mStartId = ItemsContract.Items.getItemId(getIntent().getData());
-                mSelectedItemId = mStartId;
-            }
-        }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         Log.d("MIKE actdet ", "on createLoader MIKE4 this should not be need it");
-        return ArticleLoader.newAllArticlesInstance(this);
+        return ArticleLoader.newAllArticlesInstance(getContext());
     }
+
+//    @Override
+//    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
+//
+//    }
+
+//    @Override
+//    public void onLoaderReset(Loader<Cursor> loader) {
+//
+//    }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
@@ -188,7 +236,8 @@ public class ArticleDetailActivity extends FragmentActivity
     }
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
-        public MyPagerAdapter(FragmentManager fm) {
+//        private Cursor
+         MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -208,6 +257,7 @@ public class ArticleDetailActivity extends FragmentActivity
             mCursor.moveToPosition(position);
             return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
         }
+
 
         @Override
         public int getCount() {

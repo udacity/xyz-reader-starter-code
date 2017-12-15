@@ -1,12 +1,12 @@
 package com.example.xyzreader.ui;
 
 import android.app.ActivityOptions;
-import android.app.LoaderManager;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
+
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -16,6 +16,8 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
@@ -69,7 +71,7 @@ public class ArticleListFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         mContext = getActivity();
         Log.d("MIKE", "OnCreateFragment");
-        getActivity().getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Nullable
@@ -145,8 +147,10 @@ public class ArticleListFragment extends Fragment implements
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
-        return ArticleLoader.newAllArticlesInstance(mContext);
+        return ArticleLoader.newAllArticlesInstance(getContext());
     }
+
+
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
@@ -273,18 +277,10 @@ public class ArticleListFragment extends Fragment implements
 
     public void test(long value, ImageView sharedImageView) {
 
-
-//        Intent intent = new Intent(Intent.ACTION_VIEW,
-//                ItemsContract.Items.buildItemUri(value));
-        Bundle bundle = ActivityOptions
-                .makeSceneTransitionAnimation(getActivity())
-                .toBundle();
-//        startActivity(intent, bundle);
-
         Log.d("MIKE :::", String.valueOf(value));
-        Intent intent = ArticleDetailActivity.newIntent(mContext, value, ViewCompat.getTransitionName(sharedImageView));
-//        intent.putExtra(ARG_ITEM, id);
-//        intent.putExtra(ARG_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(sharedImageView));
+//        Intent intent = ArticleDetailActivity.newIntent(mContext, value, ViewCompat.getTransitionName(sharedImageView));
+
+        Intent intent = ArticleDetailMainActivity.newIntent(mContext, value, ViewCompat.getTransitionName(sharedImageView));
 
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 getActivity(),
@@ -292,5 +288,14 @@ public class ArticleListFragment extends Fragment implements
                 ViewCompat.getTransitionName(sharedImageView));
 
         startActivity(intent, options.toBundle());
+
+
+//        Fragment animalViewPagerFragment = ArticleDetailActivity.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
+//        getFragmentManager()
+//                .beginTransaction()
+//                .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
+//                .addToBackStack(TAG)
+//                .replace(R.id.fragment_container, animalViewPagerFragment)
+//                .commit();
     }
 }

@@ -1,9 +1,9 @@
 package com.example.xyzreader.ui;
 
-import android.app.Fragment;
-import android.app.LoaderManager;
+
+
 import android.content.Intent;
-import android.content.Loader;
+
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -18,7 +18,13 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
 import android.text.Html;
 import android.text.format.DateUtils;
@@ -90,7 +96,8 @@ public class ArticleDetailFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        postponeEnterTransition();
+        //postponeEnterTransition();
+        getLoaderManager().initLoader(0, null, this);
         Log.d("MIKE frag", "onCreate22");
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
@@ -103,29 +110,42 @@ public class ArticleDetailFragment extends Fragment
         setHasOptionsMenu(true);
     }
 
-    public ArticleDetailActivity getActivityCast() {
-        return (ArticleDetailActivity) getActivity();
-    }
+//    public ArticleDetailActivity getActivityCast() {
+//        return (ArticleDetailActivity) getActivity();
+//    }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        // In support library r8, calling initLoader for a fragment in a FragmentPagerAdapter in
-        // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
-        // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
-        // we do this in onActivityCreated.
-        Log.d("MIKE frag ", "onActivityCreated23");
-        getLoaderManager().initLoader(0, null, this);
-    }
+//    @Override
+//    public void onActivityCreated(Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//
+//        // In support library r8, calling initLoader for a fragment in a FragmentPagerAdapter in
+//        // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
+//        // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
+//        // we do this in onActivityCreated.
+//        Log.d("MIKE frag ", "onActivityCreated23");
+//        getLoaderManager().initLoader(0, null, this);
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         Log.d("MIKE frag ", "onCreateView24");
-        mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
-        mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
-                mRootView.findViewById(R.id.draw_insets_frame_layout);
+        return inflater.inflate(R.layout.fragment_article_detail, container, false);
+
+//        bindViews();
+//        updateStatusBar();
+//        return mRootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mRootView = view;
+//        mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
+//        mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
+//                mRootView.findViewById(R.id.draw_insets_frame_layout);
+        mDrawInsetsFrameLayout =
+                view.findViewById(R.id.draw_insets_frame_layout);
         mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
             @Override
             public void onInsetsChanged(Rect insets) {
@@ -133,23 +153,24 @@ public class ArticleDetailFragment extends Fragment
             }
         });
 
-        mScrollView = (ObservableScrollView) mRootView.findViewById(R.id.scrollview);
+        mScrollView = (ObservableScrollView) view.findViewById(R.id.scrollview);
         mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
             @Override
             public void onScrollChanged() {
                 mScrollY = mScrollView.getScrollY();
-                getActivityCast().onUpButtonFloorChanged(mItemId, ArticleDetailFragment.this);
+                //TODO fix next lline
+                //getContext().getActivityCast().onUpButtonFloorChanged(mItemId, ArticleDetailFragment.this);
                 mPhotoContainerView.setTranslationY((int) (mScrollY - mScrollY / PARALLAX_FACTOR));
                 updateStatusBar();
             }
         });
 
-        mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
-        mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
+        mPhotoView = (ImageView) view.findViewById(R.id.photo);
+        mPhotoContainerView = view.findViewById(R.id.photo_container);
 
         mStatusBarColorDrawable = new ColorDrawable(0);
 
-        mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
@@ -158,10 +179,6 @@ public class ArticleDetailFragment extends Fragment
                         .getIntent(), getString(R.string.action_share)));
             }
         });
-
-//        bindViews();
-//        updateStatusBar();
-        return mRootView;
     }
 
     private void updateStatusBar() {
@@ -287,6 +304,7 @@ public class ArticleDetailFragment extends Fragment
         Log.d("MIKE frag", "onCreateLoaderonCreate29 it should no be need anymore");
         return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
     }
+
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
