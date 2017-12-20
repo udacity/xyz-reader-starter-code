@@ -1,34 +1,21 @@
 package com.example.xyzreader.ui;
 
 
-
 import android.content.Intent;
-
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
+import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.graphics.Palette;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,12 +23,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.Item;
+import com.example.xyzreader.data.ItemsContract;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -53,10 +44,12 @@ public class ArticleDetailFragment extends Fragment
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
+    public static final String ARG_IMAGE_TRANSITION_NAME = "image_transition_name";
     private static final float PARALLAX_FACTOR = 1.25f;
 
     private Cursor mCursor;
     private long mItemId;
+    private String mSharedAnimation;
     private View mRootView;
     private int mMutedColor = 0xFF333333;
     private ObservableScrollView mScrollView;
@@ -83,11 +76,13 @@ public class ArticleDetailFragment extends Fragment
     public ArticleDetailFragment() {
     }
 
-    public static ArticleDetailFragment newInstance(long itemId) {
+    public static ArticleDetailFragment newInstance(long itemId, String transitionName) {
         Log.d("MIKE detFrag ", "instabceADF MIKE21");
-        Log.d("MIKE detFrag ", Long.toString(itemId));
+        Log.d("MIKE detFrag ID ", Long.toString(itemId));
+        Log.d("MIKE detFrag  ", "transitionName "+ transitionName );
         Bundle arguments = new Bundle();
         arguments.putLong(ARG_ITEM_ID, itemId);
+        arguments.putString(ARG_IMAGE_TRANSITION_NAME, transitionName);
         ArticleDetailFragment fragment = new ArticleDetailFragment();
         fragment.setArguments(arguments);
         return fragment;
@@ -96,62 +91,71 @@ public class ArticleDetailFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //postponeEnterTransition();
-        getLoaderManager().initLoader(0, null, this);
+
+//        supportPostponeEnterTransition(); this for appCompactActivity
+        postponeEnterTransition();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move));
+        }
+
         Log.d("MIKE frag", "onCreate22");
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
+            mSharedAnimation = getArguments().getString(ARG_IMAGE_TRANSITION_NAME);
+            Log.d("MIKE sharedAnimation:::", mSharedAnimation);
         }
 
         mIsCard = getResources().getBoolean(R.bool.detail_is_card);
         mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
                 R.dimen.detail_card_top_margin);
         setHasOptionsMenu(true);
+        //getLoaderManager().initLoader(0, null, this);
+        Cursor c = getActivity().getContentResolver().query(ItemsContract.Items.buildItemUri(mItemId), ArticleLoader.Query.PROJECTION, null, null, ItemsContract.Items.DEFAULT_SORT);
+        mCursor = c;
+        mCursor.moveToFirst();
+        Log.d("MIKE ", "  - - - - - - >m68");
+        Log.d("MIKE ID",mCursor.getString(ArticleLoader.Query._ID));
+        Log.d("MIKE TITLE",mCursor.getString(ArticleLoader.Query.TITLE));
+        Log.d("MIKE PHOTO_URL",mCursor.getString(ArticleLoader.Query.PHOTO_URL));
+        Log.d("MIKE THUMB_URL",mCursor.getString(ArticleLoader.Query.THUMB_URL));
+        Log.d("MIKE PUBLISHED_DATE",mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE));
+        Log.d("MIKE ASPECT_RATIO",mCursor.getString(ArticleLoader.Query.ASPECT_RATIO));
+//        Log.d("MIKE BODY",mCursor.getString(ArticleLoader.Query.BODY));
+        Log.d("MIKE AUTHOR",mCursor.getString(ArticleLoader.Query.AUTHOR));
     }
-
-//    public ArticleDetailActivity getActivityCast() {
-//        return (ArticleDetailActivity) getActivity();
-//    }
-
-//    @Override
-//    public void onActivityCreated(Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//
-//        // In support library r8, calling initLoader for a fragment in a FragmentPagerAdapter in
-//        // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
-//        // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
-//        // we do this in onActivityCreated.
-//        Log.d("MIKE frag ", "onActivityCreated23");
-//        getLoaderManager().initLoader(0, null, this);
-//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        Log.d("MIKE frag ", "onCreateView24");
+        Log.d("MIKE frag ", " bindViews21 onCreateView24");
+//        bindViews();
+//        updateStatusBar();
         return inflater.inflate(R.layout.fragment_article_detail, container, false);
 
-//        bindViews();
+
 //        updateStatusBar();
 //        return mRootView;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view,  Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Log.d("MIKE frag ", " bindViews22 onViewCreated 255");
+//        bindViews();
         mRootView = view;
 //        mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
 //        mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
 //                mRootView.findViewById(R.id.draw_insets_frame_layout);
-        mDrawInsetsFrameLayout =
-                view.findViewById(R.id.draw_insets_frame_layout);
-        mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
-            @Override
-            public void onInsetsChanged(Rect insets) {
-                mTopInset = insets.top;
-            }
-        });
+//        mDrawInsetsFrameLayout =
+//                view.findViewById(R.id.draw_insets_frame_layout);
+//        mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
+//            @Override
+//            public void onInsetsChanged(Rect insets) {
+//                mTopInset = insets.top;
+//            }
+//        });
 
         mScrollView = (ObservableScrollView) view.findViewById(R.id.scrollview);
         mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
@@ -160,13 +164,15 @@ public class ArticleDetailFragment extends Fragment
                 mScrollY = mScrollView.getScrollY();
                 //TODO fix next lline
                 //getContext().getActivityCast().onUpButtonFloorChanged(mItemId, ArticleDetailFragment.this);
-                mPhotoContainerView.setTranslationY((int) (mScrollY - mScrollY / PARALLAX_FACTOR));
+                //mPhotoContainerView.setTranslationY((int) (mScrollY - mScrollY / PARALLAX_FACTOR));
                 updateStatusBar();
             }
         });
 
         mPhotoView = (ImageView) view.findViewById(R.id.photo);
-        mPhotoContainerView = view.findViewById(R.id.photo_container);
+        Log.d("MIKE FINAL TRANSITION", mSharedAnimation);
+        //mPhotoView.setTransitionName("simple_activity_transition");
+       // mPhotoContainerView = view.findViewById(R.id.photo_container);
 
         mStatusBarColorDrawable = new ColorDrawable(0);
 
@@ -179,6 +185,10 @@ public class ArticleDetailFragment extends Fragment
                         .getIntent(), getString(R.string.action_share)));
             }
         });
+        mCursor.moveToFirst();
+        Log.d("MIKE ", " bindViews233 bindingViewB");
+        bindViews();
+//        updateStatusBar();
     }
 
     private void updateStatusBar() {
@@ -194,7 +204,7 @@ public class ArticleDetailFragment extends Fragment
                     (int) (Color.blue(mMutedColor) * 0.9));
         }
         mStatusBarColorDrawable.setColor(color);
-        mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
+//        mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
     }
 
     static float progress(float v, float min, float max) {
@@ -235,7 +245,6 @@ public class ArticleDetailFragment extends Fragment
         bylineView.setMovementMethod(new LinkMovementMethod());
         TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
 
-
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
@@ -263,7 +272,22 @@ public class ArticleDetailFragment extends Fragment
                                 + "</font>"));
 
             }
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
+
+            bodyView.setText("What you're doing is perfect. There are no changes required. " +
+                    "But your outermost LinearLayout doesn't make sense if that has only one " +
+                    "ScrollView as its child. Except for that, everything is exactly how it should be done." +
+                    "What you're doing is perfect. There are no changes required. " +
+                    "But your outermost LinearLayout doesn't make sense if that has only one " +
+                    "ScrollView as its child. Except for that, everything is exactly how it should be done."+
+                    "What you're doing is perfect. There are no changes required. " +
+                            "But your outermost LinearLayout doesn't make sense if that has only one " +
+                            "ScrollView as its child. Except for that, everything is exactly how it should be done." +
+                            "What you're doing is perfect. There are no changes required. " +
+                            "But your outermost LinearLayout doesn't make sense if that has only one " +
+                            "ScrollView as its child. Except for that, everything is exactly how it should be done." +
+            "");
+//            bodyView.setText(mCursor.getString(ArticleLoader.Query.BODY));
+            //bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
 //            ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
 //                    .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
 //                        @Override
@@ -286,11 +310,37 @@ public class ArticleDetailFragment extends Fragment
 //                        }
 //                    });
 
+            Log.d("MIKE setA" , mSharedAnimation);
+            Log.d("MIKE setB" , mCursor.getString(ArticleLoader.Query._ID));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                    mSharedAnimation.equals(mCursor.getString(ArticleLoader.Query._ID))) {
+//                imageView.setTransitionName(transitionName);
+                Log.d("MIKE set" , "transitionFinal");
+                Log.d("MIKE set" , "transitionFinal: " +mSharedAnimation);
+                mPhotoView.setTransitionName(mSharedAnimation);
+            }
+
+
+            //mPhotoView.setTransitionName("simple_activity_transition");
             Picasso.with(getActivity())
                     .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
-                    .placeholder(R.drawable.empty_detail)
-                    .error(R.drawable.empty_detail)
-                    .into(mPhotoView);
+//                    .placeholder(R.drawable.empty_detail)
+                    .noFade()
+//                    .error(R.drawable.empty_detail)
+//                    .into(mPhotoView);
+                    .into(mPhotoView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            startPostponedEnterTransition();
+                        }
+
+                        @Override
+                        public void onError() {
+                            startPostponedEnterTransition();
+                        }
+                    });
+//            mPhotoView.setTransitionName("");
+
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
@@ -301,7 +351,7 @@ public class ArticleDetailFragment extends Fragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Log.d("MIKE frag", "onCreateLoaderonCreate29 it should no be need anymore");
+        Log.d("MIKE frag", "onCreateLoaderonCreate29 ID: " + Long.toString(mItemId));
         return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
     }
 
@@ -309,6 +359,7 @@ public class ArticleDetailFragment extends Fragment
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         Log.d("MIKE fragloadFinished", "onCreate30");
+
         if (!isAdded()) {
             if (cursor != null) {
                 cursor.close();
@@ -322,7 +373,7 @@ public class ArticleDetailFragment extends Fragment
             mCursor.close();
             mCursor = null;
         }
-
+        Log.d("MIKE ", " bindViews24 bindingViewA");
         bindViews();
     }
 
@@ -330,14 +381,12 @@ public class ArticleDetailFragment extends Fragment
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mCursor = null;
         Log.d("MIKE detFrag", "onLoaderResetonCreate31");
-        //bindViews();
+        Log.d("MIKE ", " bindViews25 bindingViewC");
+        bindViews();
     }
 
     public int getUpButtonFloor() {
         Log.d("MIKE fragment ", "getUpButtonFloor onCreate32");
-        if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
-            return Integer.MAX_VALUE;
-        }
 
         // account for parallax
         return mIsCard

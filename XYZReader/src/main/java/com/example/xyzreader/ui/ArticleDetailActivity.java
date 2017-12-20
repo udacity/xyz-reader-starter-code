@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -55,7 +56,7 @@ public class ArticleDetailActivity extends Fragment
     private String imageTransitionName;
 
     public static Intent newIntent(Context packageContent, long id, String sharedPreferences) {
-        Log.d("MIKE :::", String.valueOf(id));
+        Log.d("MIKE Activity intent:::", String.valueOf(id));
         Intent intent = new Intent(packageContent, ArticleDetailActivity.class);
         intent.putExtra(ARG_VALUE_ID, id);
         intent.putExtra(ARG_IMAGE_TRANSITION_NAME, sharedPreferences);
@@ -66,6 +67,7 @@ public class ArticleDetailActivity extends Fragment
         Bundle args = new Bundle();
         args.putSerializable(ARG_VALUE_ID, recipeName);
         args.putSerializable(ARG_IMAGE_TRANSITION_NAME, sharedPreferences);
+        Log.d("MIKE newInstance", sharedPreferences);
 
         ArticleDetailActivity fragment = new ArticleDetailActivity();
         fragment.setArguments(args);
@@ -75,26 +77,37 @@ public class ArticleDetailActivity extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("MIKE :::Act", "onCreate");
+//
 
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            postponeEnterTransition();
+//            setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move));
+//        }
+//        setSharedElementReturnTransition(null);
+
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         mStartId = (long) getArguments()
                 .getLong(ARG_VALUE_ID);
-        Log.d("MIKE :::", String.valueOf(mStartId));
+        Log.d("MIKE ADA:::ID: ", String.valueOf(mStartId));
 
         imageTransitionName = getArguments().getString(ARG_IMAGE_TRANSITION_NAME);
+
+        Log.d("MIKE ADA:::: ", "sharedTransitions " +imageTransitionName);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getActivity().getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
-//        setContentView(R.layout.activity_article_detail);
 
         getLoaderManager().initLoader(0, null, this);
 //        getActivity().getSupportLoaderManager().restartLoader(0, null, this);
 //        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
-
-
 
         if (savedInstanceState == null) {
             if (getActivity().getIntent() != null && getActivity().getIntent().getData() != null) {
@@ -103,14 +116,8 @@ public class ArticleDetailActivity extends Fragment
                 mSelectedItemId = mStartId;
             }
         }
-    }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        //setContentView(R.layout.activity_article_detail);
-        //return super.onCreateView(inflater, container, savedInstanceState);
+//        setSharedElementReturnTransition(null);
         return inflater.inflate(R.layout.activity_article_detail, container, false);
     }
 
@@ -121,6 +128,7 @@ public class ArticleDetailActivity extends Fragment
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = view.findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
+//        mPager.setOffscreenPageLimit(3);
         mPager.setPageMargin((int) TypedValue
                 .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
                         getResources().getDisplayMetrics()));
@@ -194,15 +202,20 @@ public class ArticleDetailActivity extends Fragment
 
         Log.d("MIKE act ", "onLoadFinished MIKE5");
         mCursor = cursor;
-        mPagerAdapter.notifyDataSetChanged();
+        mPagerAdapter.swapCursor(cursor);
+        //mPagerAdapter.notifyDataSetChanged();
 
         // Select the start ID
         if (mStartId > 0) {
             mCursor.moveToFirst();
             // TODO: optimize
             while (!mCursor.isAfterLast()) {
+                Log.d("MIKE detAct", " - - - - - - - - - - - - - - - - - - >");
                 Log.d("MIKE detAct", " ... checking!");
+                Log.d("MIKE detAct", Long.toString(mCursor.getLong(ArticleLoader.Query._ID)));
+                Log.d("MIKE detAct", mCursor.getString(ArticleLoader.Query.TITLE));
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
+
                     final int position = mCursor.getPosition();
                     Log.d("MIKE detact", "move PAGER MIKE6");
                     mPager.setCurrentItem(position, false);
@@ -236,7 +249,7 @@ public class ArticleDetailActivity extends Fragment
     }
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
-//        private Cursor
+        private Cursor mCursor;
          MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -246,7 +259,7 @@ public class ArticleDetailActivity extends Fragment
             super.setPrimaryItem(container, position, object);
             ArticleDetailFragment fragment = (ArticleDetailFragment) object;
             if (fragment != null) {
-                mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
+                //mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
                 updateUpButtonPosition();
             }
         }
@@ -254,14 +267,27 @@ public class ArticleDetailActivity extends Fragment
         @Override
         public Fragment getItem(int position) {
             Log.d("MIKE act getITEM", "MIKE10");
-            mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
+            if (mCursor == null) {
+                Log.d("MIKE", "getItem mCursor == null");
+                return null;
+            }
+
+            if (mCursor.moveToPosition(position)) {
+                return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID), imageTransitionName);
+            }
+            return null;
         }
 
 
         @Override
         public int getCount() {
             return (mCursor != null) ? mCursor.getCount() : 0;
+        }
+
+
+        public void swapCursor(Cursor cursor) {
+            mCursor = cursor;
+            notifyDataSetChanged();
         }
     }
 }

@@ -30,16 +30,25 @@
         <item name="colorPrimary">@color/theme_primary</item>
         <item name="colorPrimaryDark">@color/theme_primary_dark</item>
         <item name="colorAccent">@color/theme_accent</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:fitsSystemWindows">true</item>
+
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowSharedElementEnterTransition">@transition/change_image_transition_2</item>
+        <item name="android:windowSharedElementExitTransition">@transition/change_image_transition_2</item>
+
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:fitsSystemWindows">true</item>
-        <item name="android:windowExitTransition">
-            @transition/grid_exit
-        </item>
+
         <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowSharedElementEnterTransition">@transition/change_image_transition_2</item>
+        <item name="android:windowSharedElementExitTransition">@transition/change_image_transition_2</item>
     </style>
 
     <style name="Theme.Bacon.Detail">

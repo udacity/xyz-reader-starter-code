@@ -52,7 +52,9 @@ public class ArticleListFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String ARG_ITEM = "image_url";
+    private static final String ARG_VALUE_ID = "value_id";
     public static final String ARG_IMAGE_TRANSITION_NAME = "image_transition_name";
+    public static final String ARG_IMAGE_TRANSITION_NAME_IMAGE = "image_transition_name_image";
 
 
     private static final String TAG = ArticleListFragment.class.toString();
@@ -150,8 +152,6 @@ public class ArticleListFragment extends Fragment implements
         return ArticleLoader.newAllArticlesInstance(getContext());
     }
 
-
-
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         ArticleListFragment.Adapter adapter = new ArticleListFragment.Adapter(cursor);
@@ -180,6 +180,9 @@ public class ArticleListFragment extends Fragment implements
         @Override
         public long getItemId(int position) {
             mCursor.moveToPosition(position);
+
+            Log.d("MIKE 23A:", Long.toString(mCursor.getLong(ArticleLoader.Query._ID)));
+            Log.d("MIKE 23B:", mCursor.getString(ArticleLoader.Query.TITLE));
             return mCursor.getLong(ArticleLoader.Query._ID);
         }
 
@@ -197,19 +200,12 @@ public class ArticleListFragment extends Fragment implements
 //                    anim.start();
                     ////TODO END, testing this animation remove it
 
-//                    Intent intent = new Intent(Intent.ACTION_VIEW,
-//                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())));
-
                     long value = getItemId(vh.getAdapterPosition());
 
                     ImageView imageView = view.findViewById(R.id.thumbnail);
 
-                    test(value, imageView);
-
-//                    Bundle bundle = ActivityOptions
-//                            .makeSceneTransitionAnimation(this)
-//                            .toBundle();
-//                    startActivity(intent, bundle);
+                    Log.d("MIKECLICKB", Long.toString(value));
+                    Log.d("MIKECLICKB", imageView.toString());
                 }
             });
             return vh;
@@ -227,7 +223,7 @@ public class ArticleListFragment extends Fragment implements
         }
 
         @Override
-        public void onBindViewHolder(ArticleListFragment.ViewHolder holder, int position) {
+        public void onBindViewHolder(final ArticleListFragment.ViewHolder holder, final int position) {
             mCursor.moveToPosition(position);
             holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
@@ -251,9 +247,25 @@ public class ArticleListFragment extends Fragment implements
 
             Picasso.with(getActivity())
                     .load(mCursor.getString(ArticleLoader.Query.THUMB_URL))
-//                    .placeholder(R.drawable.empty_detail)
                     .error(R.drawable.empty_detail)
                     .into(holder.thumbnailView);
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    animalItemClickListener.onAnimalItemClick(position, animalItem, holder.thumbnailView);
+                    Log.d("MIKECLICK", Integer.toString(position));
+                    Log.d("MIKECLICK", mCursor.getString(ArticleLoader.Query._ID));
+                    Log.d("MIKECLICK", holder.thumbnailView.toString());
+                    Log.d("MIKECLICK", mCursor.getString(ArticleLoader.Query.TITLE));
+                    //test(Long.parseLong(mCursor.getString(ArticleLoader.Query._ID)), holder.thumbnailView);
+                    mCursor.moveToPosition(position);
+
+                    Log.d("MIKECLICK :::", mCursor.getString(ArticleLoader.Query._ID));
+                    Log.d("MIKECLICK :::", mCursor.getString(ArticleLoader.Query.TITLE));
+                    test2(Long.parseLong(mCursor.getString(ArticleLoader.Query._ID)), holder.thumbnailView);
+                }
+            });
         }
 
         @Override
@@ -277,25 +289,44 @@ public class ArticleListFragment extends Fragment implements
 
     public void test(long value, ImageView sharedImageView) {
 
-        Log.d("MIKE :::", String.valueOf(value));
+        Log.d("MIKE TEST:::", String.valueOf(sharedImageView));
+        Log.d("MIKE TESTB:::", sharedImageView.toString());
+        Log.d("MIKE TESTC:::", ViewCompat.getTransitionName(sharedImageView));
+        Log.d("MIKE TESTD:::", Long.toString(value));
 //        Intent intent = ArticleDetailActivity.newIntent(mContext, value, ViewCompat.getTransitionName(sharedImageView));
 
-        Intent intent = ArticleDetailMainActivity.newIntent(mContext, value, ViewCompat.getTransitionName(sharedImageView));
+//        Intent intent = ArticleDetailMainActivity.newIntent(mContext, value, ViewCompat.getTransitionName(sharedImageView));
+//        intent.putExtra(ARG_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(sharedImageView));
+//
+//        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+//                getActivity(),
+//                sharedImageView,
+//                ViewCompat.getTransitionName(sharedImageView));
+//
+//        startActivity(intent, options.toBundle());
 
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                getActivity(),
-                sharedImageView,
-                ViewCompat.getTransitionName(sharedImageView));
 
-        startActivity(intent, options.toBundle());
+        Fragment articleDetailFragment = ArticleDetailFragment.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
+        getFragmentManager()
+                .beginTransaction()
+                .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
+                .addToBackStack(TAG)
+                .replace(R.id.fragment_container, articleDetailFragment)
+                .commit();
+    }
 
 
-//        Fragment animalViewPagerFragment = ArticleDetailActivity.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
-//        getFragmentManager()
-//                .beginTransaction()
-//                .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
-//                .addToBackStack(TAG)
-//                .replace(R.id.fragment_container, animalViewPagerFragment)
-//                .commit();
+    public void test2(long value, ImageView sharedImageView) {
+        Log.d("MIKE TEST2:::", String.valueOf(sharedImageView));
+        Log.d("MIKE TEST2:::", sharedImageView.toString());
+        Log.d("MIKE TEST2:::", ViewCompat.getTransitionName(sharedImageView));
+
+        Fragment articleDetailFragment = ArticleDetailFragment.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
+        getFragmentManager()
+                .beginTransaction()
+                .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
+                .addToBackStack(TAG)
+                .replace(R.id.fragment_container, articleDetailFragment)
+                .commit();
     }
 }
