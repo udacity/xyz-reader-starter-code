@@ -1,20 +1,15 @@
 package com.example.xyzreader.ui;
 
-import android.app.ActivityOptions;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -22,7 +17,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -34,7 +28,6 @@ import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 import com.example.xyzreader.databinding.ActivityArticleListBinding;
 import com.squareup.picasso.Picasso;
@@ -114,7 +107,6 @@ public class ArticleListFragment extends Fragment implements
     }
 
     private void refresh() {
-
         getActivity().startService(new Intent(getActivity(), UpdaterService.class));
     }
 
@@ -286,47 +278,25 @@ public class ArticleListFragment extends Fragment implements
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
         }
     }
-
-    public void test(long value, ImageView sharedImageView) {
-
-        Log.d("MIKE TEST:::", String.valueOf(sharedImageView));
-        Log.d("MIKE TESTB:::", sharedImageView.toString());
-        Log.d("MIKE TESTC:::", ViewCompat.getTransitionName(sharedImageView));
-        Log.d("MIKE TESTD:::", Long.toString(value));
-//        Intent intent = ArticleDetailActivity.newIntent(mContext, value, ViewCompat.getTransitionName(sharedImageView));
-
-//        Intent intent = ArticleDetailMainActivity.newIntent(mContext, value, ViewCompat.getTransitionName(sharedImageView));
-//        intent.putExtra(ARG_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(sharedImageView));
-//
-//        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-//                getActivity(),
-//                sharedImageView,
-//                ViewCompat.getTransitionName(sharedImageView));
-//
-//        startActivity(intent, options.toBundle());
-
-
-        Fragment articleDetailFragment = ArticleDetailFragment.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
-        getFragmentManager()
-                .beginTransaction()
-                .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
-                .addToBackStack(TAG)
-                .replace(R.id.fragment_container, articleDetailFragment)
-                .commit();
-    }
-
-
     public void test2(long value, ImageView sharedImageView) {
         Log.d("MIKE TEST2:::", String.valueOf(sharedImageView));
         Log.d("MIKE TEST2:::", sharedImageView.toString());
         Log.d("MIKE TEST2:::", ViewCompat.getTransitionName(sharedImageView));
 
-        Fragment articleDetailFragment = ArticleDetailFragment.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
+//        Fragment articleDetailFragment = ArticleDetailFragment.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
+//        getFragmentManager()
+//                .beginTransaction()
+//                .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
+//                .addToBackStack(TAG)
+//                .replace(R.id.fragment_container, articleDetailFragment)
+//                .commit();
+
+        Fragment articleDetailActivity = ArticleDetailActivity.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
         getFragmentManager()
                 .beginTransaction()
                 .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
                 .addToBackStack(TAG)
-                .replace(R.id.fragment_container, articleDetailFragment)
+                .replace(R.id.fragment_container, articleDetailActivity)
                 .commit();
     }
 }

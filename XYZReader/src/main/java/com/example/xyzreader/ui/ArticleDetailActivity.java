@@ -1,33 +1,24 @@
 package com.example.xyzreader.ui;
 
-
-
-//import android.app.LoaderManager;
-import android.database.Cursor;
-import android.support.v4.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
-//import android.content.Loader;
-//import android.database.Cursor;
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
@@ -63,7 +54,7 @@ public class ArticleDetailActivity extends Fragment
         return intent;
     }
 
-    public static ArticleDetailActivity newInstance( long recipeName, String sharedPreferences) {
+    public static ArticleDetailActivity newInstance(long recipeName, String sharedPreferences) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_VALUE_ID, recipeName);
         args.putSerializable(ARG_IMAGE_TRANSITION_NAME, sharedPreferences);
@@ -77,14 +68,6 @@ public class ArticleDetailActivity extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            postponeEnterTransition();
-//            setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move));
-//        }
-//        setSharedElementReturnTransition(null);
-
     }
 
 
@@ -97,7 +80,7 @@ public class ArticleDetailActivity extends Fragment
 
         imageTransitionName = getArguments().getString(ARG_IMAGE_TRANSITION_NAME);
 
-        Log.d("MIKE ADA:::: ", "sharedTransitions " +imageTransitionName);
+        Log.d("MIKE ADA:::: ", "sharedTransitions " + imageTransitionName);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getActivity().getWindow().getDecorView().setSystemUiVisibility(
@@ -134,50 +117,28 @@ public class ArticleDetailActivity extends Fragment
                         getResources().getDisplayMetrics()));
         mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
 
-        mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-                Log.d("MIKE actdet", "MIKE1");
-                mUpButton.animate()
-                        .alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
-                        .setDuration(300);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (mCursor != null) {
-                    mCursor.moveToPosition(position);
-                }
-
-                Log.d("MIKE act ", "onPageSelected MIKE2");
-                mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
-                updateUpButtonPosition();
-            }
-        });
-
-        mUpButtonContainer = view.findViewById(R.id.up_container);
-
-        mUpButton = view.findViewById(R.id.action_up);
-        mUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO fix this next line that is commented because it cause an error
-//                onSupportNavigateUp();
-            }
-        });
+//        mUpButtonContainer = view.findViewById(R.id.up_container);
+//
+//        mUpButton = view.findViewById(R.id.action_up);
+//        mUpButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                //TODO fix this next line that is commented because it cause an error
+////                onSupportNavigateUp();
+//            }
+//        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                    view.onApplyWindowInsets(windowInsets);
-                    mTopInset = windowInsets.getSystemWindowInsetTop();
-                    mUpButtonContainer.setTranslationY(mTopInset);
-                    updateUpButtonPosition();
-                    return windowInsets;
-                }
-            });
+//            mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+//                @Override
+//                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
+//                    view.onApplyWindowInsets(windowInsets);
+//                    mTopInset = windowInsets.getSystemWindowInsetTop();
+//                    mUpButtonContainer.setTranslationY(mTopInset);
+//                    updateUpButtonPosition();
+//                    return windowInsets;
+//                }
+//            });
         }
     }
 
@@ -187,19 +148,8 @@ public class ArticleDetailActivity extends Fragment
         return ArticleLoader.newAllArticlesInstance(getContext());
     }
 
-//    @Override
-//    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
-//
-//    }
-
-//    @Override
-//    public void onLoaderReset(Loader<Cursor> loader) {
-//
-//    }
-
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-
         Log.d("MIKE act ", "onLoadFinished MIKE5");
         mCursor = cursor;
         mPagerAdapter.swapCursor(cursor);
@@ -238,7 +188,7 @@ public class ArticleDetailActivity extends Fragment
         Log.d("MIKE ", " onUpButtonFloorChanged MIKE8");
         if (itemId == mSelectedItemId) {
             mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-            updateUpButtonPosition();
+            // updateUpButtonPosition();
         }
     }
 
@@ -250,18 +200,14 @@ public class ArticleDetailActivity extends Fragment
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
         private Cursor mCursor;
-         MyPagerAdapter(FragmentManager fm) {
+
+        MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
         public void setPrimaryItem(ViewGroup container, int position, Object object) {
             super.setPrimaryItem(container, position, object);
-            ArticleDetailFragment fragment = (ArticleDetailFragment) object;
-            if (fragment != null) {
-                //mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-                updateUpButtonPosition();
-            }
         }
 
         @Override
