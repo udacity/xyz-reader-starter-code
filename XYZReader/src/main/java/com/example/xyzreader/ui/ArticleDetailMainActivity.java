@@ -27,7 +27,7 @@ public class ArticleDetailMainActivity extends SingleFragmentActivity {
     @Override
     protected Fragment createFragment() {
 //        return new ArticleListFragment();
-        long id = getIntent().getLongExtra(ARG_VALUE_ID, 0);
+        int id = getIntent().getIntExtra(ARG_VALUE_ID, 0);
         String sharedPreferences= getIntent().getStringExtra(ARG_IMAGE_TRANSITION_NAME);
         return ArticleDetailActivity.newInstance(id, sharedPreferences);
     }

@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
@@ -34,7 +33,7 @@ public class ArticleDetailActivity extends Fragment
     public static final String ARG_IMAGE_TRANSITION_NAME = "image_transition_name";
 
     private Cursor mCursor;
-    private long mStartId;
+    private int mStartId;
 
     private long mSelectedItemId;
     private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
@@ -45,6 +44,7 @@ public class ArticleDetailActivity extends Fragment
     private View mUpButtonContainer;
     private View mUpButton;
     private String imageTransitionName;
+    private View mRootView;
 
     public static Intent newIntent(Context packageContent, long id, String sharedPreferences) {
         Log.d("MIKE Activity intent:::", String.valueOf(id));
@@ -54,9 +54,11 @@ public class ArticleDetailActivity extends Fragment
         return intent;
     }
 
-    public static ArticleDetailActivity newInstance(long recipeName, String sharedPreferences) {
+    public static ArticleDetailActivity newInstance(int position, String sharedPreferences) {
         Bundle args = new Bundle();
-        args.putSerializable(ARG_VALUE_ID, recipeName);
+//        args.putSerializable(ARG_VALUE_ID, position);
+        args.putInt(ARG_VALUE_ID, position);
+
         args.putSerializable(ARG_IMAGE_TRANSITION_NAME, sharedPreferences);
         Log.d("MIKE newInstance", sharedPreferences);
 
@@ -74,8 +76,8 @@ public class ArticleDetailActivity extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mStartId = (long) getArguments()
-                .getLong(ARG_VALUE_ID);
+        mStartId = getArguments()
+                .getInt(ARG_VALUE_ID);
         Log.d("MIKE ADA:::ID: ", String.valueOf(mStartId));
 
         imageTransitionName = getArguments().getString(ARG_IMAGE_TRANSITION_NAME);
@@ -95,8 +97,8 @@ public class ArticleDetailActivity extends Fragment
         if (savedInstanceState == null) {
             if (getActivity().getIntent() != null && getActivity().getIntent().getData() != null) {
                 Log.d("MIKE", "trigger an exception");
-                mStartId = ItemsContract.Items.getItemId(getActivity().getIntent().getData());
-                mSelectedItemId = mStartId;
+                //mStartId = ItemsContract.Items.getItemId(getActivity().getIntent().getData());
+                //mSelectedItemId = mStartId;
             }
         }
 
@@ -108,10 +110,12 @@ public class ArticleDetailActivity extends Fragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mRootView = view;
+
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = view.findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
-//        mPager.setOffscreenPageLimit(3);
+//        mPager.setOffscreenPageLimit(1);
         mPager.setPageMargin((int) TypedValue
                 .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
                         getResources().getDisplayMetrics()));
@@ -156,24 +160,8 @@ public class ArticleDetailActivity extends Fragment
         //mPagerAdapter.notifyDataSetChanged();
 
         // Select the start ID
-        if (mStartId > 0) {
-            mCursor.moveToFirst();
-            // TODO: optimize
-            while (!mCursor.isAfterLast()) {
-                Log.d("MIKE detAct", " - - - - - - - - - - - - - - - - - - >");
-                Log.d("MIKE detAct", " ... checking!");
-                Log.d("MIKE detAct", Long.toString(mCursor.getLong(ArticleLoader.Query._ID)));
-                Log.d("MIKE detAct", mCursor.getString(ArticleLoader.Query.TITLE));
-                if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
-
-                    final int position = mCursor.getPosition();
-                    Log.d("MIKE detact", "move PAGER MIKE6");
-                    mPager.setCurrentItem(position, false);
-                    break;
-                }
-                mCursor.moveToNext();
-            }
-            mStartId = 0;
+        if (mStartId >= 0) {
+            mPager.setCurrentItem(mStartId, false);
         }
     }
 
@@ -223,7 +211,6 @@ public class ArticleDetailActivity extends Fragment
             }
             return null;
         }
-
 
         @Override
         public int getCount() {

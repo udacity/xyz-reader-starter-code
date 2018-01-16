@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -15,10 +16,13 @@ import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.transition.TransitionInflater;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
@@ -31,6 +35,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -61,7 +67,12 @@ public class ArticleDetailFragment extends Fragment
     private int mScrollY;
     private View mRootView;
     private boolean mIsCard = false;
+    private boolean mIsVisibleToUser = false;
     private int mStatusBarFullOpacityBottom;
+    private PopupWindow mPopupWindow;
+    private ProgressDialog dialog;
+    private String bodyDetails;
+    private String imageUrl;
 
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
@@ -115,6 +126,7 @@ public class ArticleDetailFragment extends Fragment
         mCursor.moveToFirst();
         Log.d("MIKE ", "  - - - - - - >m68");
         Log.d("MIKE TITLE", mCursor.getString(ArticleLoader.Query.TITLE));
+        imageUrl = mCursor.getString(ArticleLoader.Query.PHOTO_URL);
     }
 
     @Override
@@ -183,21 +195,36 @@ public class ArticleDetailFragment extends Fragment
 
             }
 
-            final String bodyDetails = mCursor.getString(ArticleLoader.Query.BODY);
+            bodyDetails = mCursor.getString(ArticleLoader.Query.BODY);
             bodyView.setText(Html.fromHtml(
                     bodyDetails.substring(0,
                             (bodyDetails.length() <= 250
                                     ? bodyDetails.length() :
                                     250))));
 
-            Log.d("MIKE-TEXT: ", bodyDetails);
-
             seeMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    bodyView.setText(bodyDetails);
-                    view.setVisibility(View.INVISIBLE);
 
+//                    dialog = ProgressDialog.show(getActivity(), "",
+//                            "Loading. Please wait...", true);
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Log.d("MIKE run", "test1");
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+
+                                        showPopupBodyInfo(bodyDetails);
+                                    }
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
                 }
             });
 
@@ -210,27 +237,14 @@ public class ArticleDetailFragment extends Fragment
                 Log.d("MIKE set", "transitionFinal: " + mSharedAnimation);
                 // mPhotoView.setTransitionName(mSharedAnimation);
             }
-
-
             //mPhotoView.setTransitionName("simple_activity_transition");
-            Picasso.with(getActivity())
-                    .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
-//                    .placeholder(R.drawable.empty_detail)
-                    .noFade()
-//                    .error(R.drawable.empty_detail)
-//                    .into(mPhotoView);
-                    .into(mPhotoView, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            startPostponedEnterTransition();
-                        }
 
-                        @Override
-                        public void onError() {
-                            startPostponedEnterTransition();
-                        }
-                    });
-//            mPhotoView.setTransitionName("");
+            Log.d("MIKE IMAGE2: ", mCursor.getString(ArticleLoader.Query.PHOTO_URL));
+
+            if (mIsVisibleToUser) {
+                Log.d("MIKE IMAGE3: ", mCursor.getString(ArticleLoader.Query.PHOTO_URL));
+                updateImage();
+            }
 
         } else {
             mRootView.setVisibility(View.GONE);
@@ -283,5 +297,75 @@ public class ArticleDetailFragment extends Fragment
         return mIsCard
                 ? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
                 : mPhotoView.getHeight() - mScrollY;
+    }
+
+    public void showPopupBodyInfo(String bodytext) {
+
+        dialog = ProgressDialog.show(getActivity(), "",
+                "Loading. Please wait...", true);
+
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View customView = inflater.inflate(R.layout.custom_popup, null);
+        mPopupWindow = new PopupWindow(
+                customView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            mPopupWindow.setElevation(5.0f);
+        }
+
+        ImageButton closeButton = customView.findViewById(R.id.ib_close);
+        TextView bodyText = customView.findViewById(R.id.body_message);
+
+        bodyText.setText(bodytext);
+
+        // Set a click listener for the popup window close button
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Dismiss the popup window
+                mPopupWindow.dismiss();
+            }
+        });
+
+        mPopupWindow.setAnimationStyle(android.R.style.Animation_Translucent);
+        mPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        mPopupWindow.setOutsideTouchable(true);
+        mPopupWindow.setFocusable(true);
+        mPopupWindow.showAtLocation(mRootView, Gravity.CENTER, 0, 0);
+        dialog.dismiss();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsVisibleToUser = isVisibleToUser;
+        if (mRootView == null) {
+            Log.d("MIKE ", "mRootView is null");
+            return;
+        }
+        if (isVisibleToUser && mRootView != null) {
+            Log.d("MIKE ", "updateImage");
+            updateImage();
+        }
+    }
+
+    private void updateImage() {
+        Picasso.with(getActivity())
+                .load(imageUrl)
+                .noFade()
+                .into(mPhotoView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        startPostponedEnterTransition();
+                    }
+
+                    @Override
+                    public void onError() {
+                        startPostponedEnterTransition();
+                    }
+                });
     }
 }

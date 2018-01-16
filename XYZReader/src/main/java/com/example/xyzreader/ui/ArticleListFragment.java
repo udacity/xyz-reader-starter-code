@@ -255,7 +255,7 @@ public class ArticleListFragment extends Fragment implements
 
                     Log.d("MIKECLICK :::", mCursor.getString(ArticleLoader.Query._ID));
                     Log.d("MIKECLICK :::", mCursor.getString(ArticleLoader.Query.TITLE));
-                    test2(Long.parseLong(mCursor.getString(ArticleLoader.Query._ID)), holder.thumbnailView);
+                    test2(position, holder.thumbnailView);
                 }
             });
         }
@@ -278,7 +278,8 @@ public class ArticleListFragment extends Fragment implements
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
         }
     }
-    public void test2(long value, ImageView sharedImageView) {
+
+    public void test2(int position, ImageView sharedImageView) {
         Log.d("MIKE TEST2:::", String.valueOf(sharedImageView));
         Log.d("MIKE TEST2:::", sharedImageView.toString());
         Log.d("MIKE TEST2:::", ViewCompat.getTransitionName(sharedImageView));
@@ -291,7 +292,7 @@ public class ArticleListFragment extends Fragment implements
 //                .replace(R.id.fragment_container, articleDetailFragment)
 //                .commit();
 
-        Fragment articleDetailActivity = ArticleDetailActivity.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
+        Fragment articleDetailActivity = ArticleDetailActivity.newInstance(position, ViewCompat.getTransitionName(sharedImageView));
         getFragmentManager()
                 .beginTransaction()
                 .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
