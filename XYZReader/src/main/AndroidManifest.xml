@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".ui.ArticleListActivity"
+            android:name=".ui.ArticleListFragment"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -24,6 +24,19 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.ArticleDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".ui.ArticleListActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.com.example.xyzreader.items" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ArticleListActivity" />
+        </activity>
 
 
         <activity

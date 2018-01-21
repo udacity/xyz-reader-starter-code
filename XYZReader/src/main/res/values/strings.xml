@@ -11,4 +11,6 @@
     <string name="see_more"> ... See more</string>
     <string name="image">image</string>
 
+    <string name="article_image_transition">article_image_transition</string>
+
 </resources>

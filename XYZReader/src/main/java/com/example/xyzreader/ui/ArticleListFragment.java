@@ -1,33 +1,32 @@
 package com.example.xyzreader.ui;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
+import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
 import android.database.Cursor;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
+import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 import com.example.xyzreader.databinding.ActivityArticleListBinding;
 import com.squareup.picasso.Picasso;
@@ -41,7 +40,7 @@ import java.util.GregorianCalendar;
  * Created by mike on 12/12/17.
  */
 
-public class ArticleListFragment extends Fragment implements
+public class ArticleListFragment extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String ARG_ITEM = "image_url";
@@ -61,31 +60,30 @@ public class ArticleListFragment extends Fragment implements
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private RecyclerView mRecyclerView;
+    private AppBarLayout mAppBarLayout;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext = getActivity();
         Log.d("MIKE", "OnCreateFragment");
-        getLoaderManager().initLoader(0, null, this);
-    }
+        setContentView(R.layout.activity_article_list);
+        mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Binding = DataBindingUtil.inflate(inflater, R.layout.activity_article_list, container, false);
-
-        Binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Binding.swipeRefreshLayout.setRefreshing(false);
+                //Binding.swipeRefreshLayout.setRefreshing(false);
+                refresh();
             }
         });
 
-        if (savedInstanceState == null) {
-            refresh();
-        }
+        mRecyclerView = findViewById(R.id.recycler_view);
 
-        Binding.appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+        mAppBarLayout = findViewById(R.id.app_bar_layout);
+
+        mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             boolean isShow = false;
             int scrollRange = -1;
 
@@ -103,24 +101,28 @@ public class ArticleListFragment extends Fragment implements
             }
         });
 
-        return Binding.getRoot();
+        getLoaderManager().initLoader(0, null, this);
+
+        if (savedInstanceState == null) {
+            refresh();
+        }
     }
 
     private void refresh() {
-        getActivity().startService(new Intent(getActivity(), UpdaterService.class));
+        startService(new Intent(this, UpdaterService.class));
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        getActivity().registerReceiver(mRefreshingReceiver,
+        registerReceiver(mRefreshingReceiver,
                 new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        getActivity().unregisterReceiver(mRefreshingReceiver);
+        unregisterReceiver(mRefreshingReceiver);
     }
 
     private boolean mIsRefreshing = false;
@@ -136,24 +138,24 @@ public class ArticleListFragment extends Fragment implements
     };
 
     private void updateRefreshingUI() {
-        Binding.swipeRefreshLayout.setRefreshing(mIsRefreshing);
+        mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
 
     @Override
-    public Loader onCreateLoader(int id, Bundle args) {
-        return ArticleLoader.newAllArticlesInstance(getContext());
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return ArticleLoader.newAllArticlesInstance(this);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        ArticleListFragment.Adapter adapter = new ArticleListFragment.Adapter(cursor);
+        ArticleListFragment.Adapter adapter = new ArticleListFragment.Adapter(ArticleListFragment.this, cursor);
         adapter.setHasStableIds(true);
 
-        Binding.recyclerView.setAdapter(adapter);
+        mRecyclerView.setAdapter(adapter);
         int columnCount = getResources().getInteger(R.integer.list_column_count);
         StaggeredGridLayoutManager sglm =
                 new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
-        Binding.recyclerView.setLayoutManager(sglm);
+        mRecyclerView.setLayoutManager(sglm);
 
     }
 
@@ -164,9 +166,14 @@ public class ArticleListFragment extends Fragment implements
 
     private class Adapter extends RecyclerView.Adapter<ArticleListFragment.ViewHolder> {
         private Cursor mCursor;
+        private Interpolator mInterpolator;
+        private int lastAnimatedPosition = -1;
+        private Activity mActivity;
 
-        public Adapter(Cursor cursor) {
+        public Adapter(Activity activity, Cursor cursor) {
             mCursor = cursor;
+            mActivity = activity;
+//            mInterpolator = AnimationUtils.loadInterpolator(getActivity(), android.R.interpolator.linear_out_slow_in);
         }
 
         @Override
@@ -190,6 +197,12 @@ public class ArticleListFragment extends Fragment implements
 //                    Animator anim = ViewAnimationUtils.createCircularReveal(view, (int) view.getWidth()/2,
 //                            (int) view.getHeight()/2, 0, finalRadius);
 //                    anim.start();
+
+                    ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(mActivity,
+                            vh.thumbnailView,
+                            getApplicationContext().getString(R.string.article_image_transition));
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))), transitionActivityOptions.toBundle());
                     ////TODO END, testing this animation remove it
 
                     long value = getItemId(vh.getAdapterPosition());
@@ -235,30 +248,29 @@ public class ArticleListFragment extends Fragment implements
                                 + mCursor.getString(ArticleLoader.Query.AUTHOR)));
             }
 
-            ViewCompat.setTransitionName(holder.thumbnailView, mCursor.getString(ArticleLoader.Query._ID));
+//            ViewCompat.setTransitionName(holder.thumbnailView, mCursor.getString(ArticleLoader.Query._ID));
 
-            Picasso.with(getActivity())
+//            ViewCompat.setTransitionName(holder.thumbnailView, mContext.getString(R.string.article_image_transition));
+
+            Picasso.with(mActivity)
                     .load(mCursor.getString(ArticleLoader.Query.THUMB_URL))
                     .error(R.drawable.empty_detail)
                     .into(holder.thumbnailView);
-
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-//                    animalItemClickListener.onAnimalItemClick(position, animalItem, holder.thumbnailView);
-                    Log.d("MIKECLICK", Integer.toString(position));
-                    Log.d("MIKECLICK", mCursor.getString(ArticleLoader.Query._ID));
-                    Log.d("MIKECLICK", holder.thumbnailView.toString());
-                    Log.d("MIKECLICK", mCursor.getString(ArticleLoader.Query.TITLE));
-                    //test(Long.parseLong(mCursor.getString(ArticleLoader.Query._ID)), holder.thumbnailView);
-                    mCursor.moveToPosition(position);
-
-                    Log.d("MIKECLICK :::", mCursor.getString(ArticleLoader.Query._ID));
-                    Log.d("MIKECLICK :::", mCursor.getString(ArticleLoader.Query.TITLE));
-                    test2(position, holder.thumbnailView);
-                }
-            });
         }
+
+//        private void setAnimation(View viewToAnimate, int position) {
+//            if (position > lastAnimatedPosition) {
+//                viewToAnimate.setTranslationY((position + 1) * 1000);
+//                viewToAnimate.setAlpha(0.85f);
+//                viewToAnimate.animate()
+//                        .translationY(0f)
+//                        .alpha(1f)
+//                        .setInterpolator(mInterpolator)
+//                        .setDuration(1000L)
+//                        .start();
+//                lastAnimatedPosition = position;
+//            }
+//        }
 
         @Override
         public int getItemCount() {
@@ -277,27 +289,5 @@ public class ArticleListFragment extends Fragment implements
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
         }
-    }
-
-    public void test2(int position, ImageView sharedImageView) {
-        Log.d("MIKE TEST2:::", String.valueOf(sharedImageView));
-        Log.d("MIKE TEST2:::", sharedImageView.toString());
-        Log.d("MIKE TEST2:::", ViewCompat.getTransitionName(sharedImageView));
-
-//        Fragment articleDetailFragment = ArticleDetailFragment.newInstance(value, ViewCompat.getTransitionName(sharedImageView));
-//        getFragmentManager()
-//                .beginTransaction()
-//                .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
-//                .addToBackStack(TAG)
-//                .replace(R.id.fragment_container, articleDetailFragment)
-//                .commit();
-
-        Fragment articleDetailActivity = ArticleDetailActivity.newInstance(position, ViewCompat.getTransitionName(sharedImageView));
-        getFragmentManager()
-                .beginTransaction()
-                .addSharedElement(sharedImageView, ViewCompat.getTransitionName(sharedImageView))
-                .addToBackStack(TAG)
-                .replace(R.id.fragment_container, articleDetailActivity)
-                .commit();
     }
 }

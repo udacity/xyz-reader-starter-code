@@ -29,6 +29,8 @@ public class ArticleDetailMainActivity extends SingleFragmentActivity {
 //        return new ArticleListFragment();
         int id = getIntent().getIntExtra(ARG_VALUE_ID, 0);
         String sharedPreferences= getIntent().getStringExtra(ARG_IMAGE_TRANSITION_NAME);
-        return ArticleDetailActivity.newInstance(id, sharedPreferences);
+//        return ArticleDetailActivity.newInstance(id, sharedPreferences);
+//        return ArticleDetailActivity.newIntent(getApplicationContext(), 23, "mikeTest1" );
+        return null;
     }
 }

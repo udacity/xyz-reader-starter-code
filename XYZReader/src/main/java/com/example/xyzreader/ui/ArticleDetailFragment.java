@@ -1,7 +1,9 @@
 package com.example.xyzreader.ui;
 
+import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -10,9 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
-import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -114,8 +114,8 @@ public class ArticleDetailFragment extends Fragment
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
-            mSharedAnimation = getArguments().getString(ARG_IMAGE_TRANSITION_NAME);
-            Log.d("MIKE sharedAnimation:::", mSharedAnimation);
+            //mSharedAnimation = getArguments().getString(ARG_IMAGE_TRANSITION_NAME);
+            //Log.d("MIKE sharedAnimation:::", mSharedAnimation);
         }
 
         mIsCard = getResources().getBoolean(R.bool.detail_is_card);
@@ -128,6 +128,7 @@ public class ArticleDetailFragment extends Fragment
         mCursor.moveToFirst();
         Log.d("MIKE ", "  - - - - - - >m68");
         Log.d("MIKE TITLE", mCursor.getString(ArticleLoader.Query.TITLE));
+        Log.d("MIKE TITLE", mCursor.getString(ArticleLoader.Query._ID));
         imageUrl = mCursor.getString(ArticleLoader.Query.PHOTO_URL);
     }
 
@@ -141,7 +142,6 @@ public class ArticleDetailFragment extends Fragment
         mPhotoView = (ImageView) getActivity().findViewById(R.id.imgTitle);
 
         mFloatingActionButton = (FloatingActionButton) getActivity().findViewById(R.id.share_fab);
-        
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -187,7 +187,7 @@ public class ArticleDetailFragment extends Fragment
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
             titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
-            Log.d("MIKE TITLE", mCursor.getString(ArticleLoader.Query.TITLE));
+            Log.d("MIKE TITLE XXX", mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
                 bylineView.setText(Html.fromHtml(
@@ -241,15 +241,15 @@ public class ArticleDetailFragment extends Fragment
                 }
             });
 
-            Log.d("MIKE setA", mSharedAnimation);
+            // Log.d("MIKE setA", mSharedAnimation);
             Log.d("MIKE setB", mCursor.getString(ArticleLoader.Query._ID));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    mSharedAnimation.equals(mCursor.getString(ArticleLoader.Query._ID))) {
-//                imageView.setTransitionName(transitionName);
-                Log.d("MIKE set", "transitionFinal");
-                Log.d("MIKE set", "transitionFinal: " + mSharedAnimation);
-                // mPhotoView.setTransitionName(mSharedAnimation);
-            }
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+//                    mSharedAnimation.equals(mCursor.getString(ArticleLoader.Query._ID))) {
+////                imageView.setTransitionName(transitionName);
+//                Log.d("MIKE set", "transitionFinal");
+//                Log.d("MIKE set", "transitionFinal: " + mSharedAnimation);
+////                 mPhotoView.setTransitionName(mSharedAnimation);
+//            }
             //mPhotoView.setTransitionName("simple_activity_transition");
 
             Log.d("MIKE IMAGE2: ", mCursor.getString(ArticleLoader.Query.PHOTO_URL));
