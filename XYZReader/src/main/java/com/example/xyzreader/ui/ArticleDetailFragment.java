@@ -1,71 +1,87 @@
 package com.example.xyzreader.ui;
 
-import android.app.Fragment;
 import android.app.LoaderManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.ShareCompat;
+import android.text.Html;
+import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
+import android.transition.TransitionInflater;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+
+import com.example.xyzreader.R;
+import com.example.xyzreader.data.ArticleLoader;
+import com.example.xyzreader.data.ItemsContract;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import android.os.Bundle;
-import android.support.v4.app.ShareCompat;
-import android.support.v7.graphics.Palette;
-import android.text.Html;
-import android.text.format.DateUtils;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-import com.example.xyzreader.R;
-import com.example.xyzreader.data.ArticleLoader;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
  * either contained in a {@link ArticleListActivity} in two-pane mode (on
  * tablets) or a {@link ArticleDetailActivity} on handsets.
  */
-public class ArticleDetailFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor> {
+public class ArticleDetailFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
+    public static final String ARG_IMAGE_TRANSITION_NAME = "image_transition_name";
     private static final float PARALLAX_FACTOR = 1.25f;
 
     private Cursor mCursor;
     private long mItemId;
-    private View mRootView;
+    private String mSharedAnimation;
+
     private int mMutedColor = 0xFF333333;
     private ObservableScrollView mScrollView;
     private DrawInsetsFrameLayout mDrawInsetsFrameLayout;
     private ColorDrawable mStatusBarColorDrawable;
+    private FloatingActionButton mFloatingActionButton;
 
     private int mTopInset;
     private View mPhotoContainerView;
     private ImageView mPhotoView;
     private int mScrollY;
+    private View mRootView;
     private boolean mIsCard = false;
+    private boolean mIsVisibleToUser = false;
     private int mStatusBarFullOpacityBottom;
+    private PopupWindow mPopupWindow;
+    private ProgressDialog dialog;
+    private String bodyDetails;
+    private String imageUrl;
+
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
-    private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
+    private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -74,9 +90,13 @@ public class ArticleDetailFragment extends Fragment implements
     public ArticleDetailFragment() {
     }
 
-    public static ArticleDetailFragment newInstance(long itemId) {
+    public static ArticleDetailFragment newInstance(long itemId, String transitionName) {
+        Log.d("MIKE detFrag ", "instabceADF MIKE21");
+        Log.d("MIKE detFrag ID ", Long.toString(itemId));
+        Log.d("MIKE detFrag  ", "transitionName " + transitionName);
         Bundle arguments = new Bundle();
         arguments.putLong(ARG_ITEM_ID, itemId);
+        arguments.putString(ARG_IMAGE_TRANSITION_NAME, transitionName);
         ArticleDetailFragment fragment = new ArticleDetailFragment();
         fragment.setArguments(arguments);
         return fragment;
@@ -85,62 +105,44 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        postponeEnterTransition();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move));
+        }
+
+        Log.d("MIKE frag", "onCreate22");
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
+            //mSharedAnimation = getArguments().getString(ARG_IMAGE_TRANSITION_NAME);
+            //Log.d("MIKE sharedAnimation:::", mSharedAnimation);
         }
 
         mIsCard = getResources().getBoolean(R.bool.detail_is_card);
         mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
                 R.dimen.detail_card_top_margin);
         setHasOptionsMenu(true);
-    }
-
-    public ArticleDetailActivity getActivityCast() {
-        return (ArticleDetailActivity) getActivity();
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        // In support library r8, calling initLoader for a fragment in a FragmentPagerAdapter in
-        // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
-        // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
-        // we do this in onActivityCreated.
-        getLoaderManager().initLoader(0, null, this);
+        //getLoaderManager().initLoader(0, null, this);
+        Cursor c = getActivity().getContentResolver().query(ItemsContract.Items.buildItemUri(mItemId), ArticleLoader.Query.PROJECTION, null, null, ItemsContract.Items.DEFAULT_SORT);
+        mCursor = c;
+        mCursor.moveToFirst();
+        Log.d("MIKE ", "  - - - - - - >m68");
+        Log.d("MIKE TITLE", mCursor.getString(ArticleLoader.Query.TITLE));
+        Log.d("MIKE TITLE", mCursor.getString(ArticleLoader.Query._ID));
+        imageUrl = mCursor.getString(ArticleLoader.Query.PHOTO_URL);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
+        Log.d("MIKE frag ", " bindViews21 onCreateView24");
+//        bindViews();
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
-        mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
-                mRootView.findViewById(R.id.draw_insets_frame_layout);
-        mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
-            @Override
-            public void onInsetsChanged(Rect insets) {
-                mTopInset = insets.top;
-            }
-        });
 
-        mScrollView = (ObservableScrollView) mRootView.findViewById(R.id.scrollview);
-        mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
-            @Override
-            public void onScrollChanged() {
-                mScrollY = mScrollView.getScrollY();
-                getActivityCast().onUpButtonFloorChanged(mItemId, ArticleDetailFragment.this);
-                mPhotoContainerView.setTranslationY((int) (mScrollY - mScrollY / PARALLAX_FACTOR));
-                updateStatusBar();
-            }
-        });
+        mPhotoView = (ImageView) getActivity().findViewById(R.id.imgTitle);
 
-        mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
-        mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
-
-        mStatusBarColorDrawable = new ColorDrawable(0);
-
-        mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
+        mFloatingActionButton = (FloatingActionButton) getActivity().findViewById(R.id.share_fab);
+        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
@@ -151,40 +153,11 @@ public class ArticleDetailFragment extends Fragment implements
         });
 
         bindViews();
-        updateStatusBar();
         return mRootView;
     }
 
-    private void updateStatusBar() {
-        int color = 0;
-        if (mPhotoView != null && mTopInset != 0 && mScrollY > 0) {
-            float f = progress(mScrollY,
-                    mStatusBarFullOpacityBottom - mTopInset * 3,
-                    mStatusBarFullOpacityBottom - mTopInset);
-            color = Color.argb((int) (255 * f),
-                    (int) (Color.red(mMutedColor) * 0.9),
-                    (int) (Color.green(mMutedColor) * 0.9),
-                    (int) (Color.blue(mMutedColor) * 0.9));
-        }
-        mStatusBarColorDrawable.setColor(color);
-        mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
-    }
-
-    static float progress(float v, float min, float max) {
-        return constrain((v - min) / (max - min), 0, 1);
-    }
-
-    static float constrain(float val, float min, float max) {
-        if (val < min) {
-            return min;
-        } else if (val > max) {
-            return max;
-        } else {
-            return val;
-        }
-    }
-
     private Date parsePublishedDate() {
+        Log.d("MIKE frag", "parsePublishedDate onCreate27");
         try {
             String date = mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
             return dateFormat.parse(date);
@@ -196,6 +169,7 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     private void bindViews() {
+        Log.d("MIKE frag", " bindViews onCreate29");
         if (mRootView == null) {
             return;
         }
@@ -203,8 +177,8 @@ public class ArticleDetailFragment extends Fragment implements
         TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
         TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
-        TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
-
+        final TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+        TextView seeMore = mRootView.findViewById(R.id.seeMoreTextView);
 
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
@@ -213,6 +187,7 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
             titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+            Log.d("MIKE TITLE XXX", mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
                 bylineView.setText(Html.fromHtml(
@@ -228,46 +203,81 @@ public class ArticleDetailFragment extends Fragment implements
                 // If date is before 1902, just show the string
                 bylineView.setText(Html.fromHtml(
                         outputFormat.format(publishedDate) + " by <font color='#ffffff'>"
-                        + mCursor.getString(ArticleLoader.Query.AUTHOR)
+                                + mCursor.getString(ArticleLoader.Query.AUTHOR)
                                 + "</font>"));
 
             }
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
-            ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
-                    .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
+
+            bodyDetails = mCursor.getString(ArticleLoader.Query.BODY);
+            bodyView.setText(Html.fromHtml(
+                    bodyDetails.substring(0,
+                            (bodyDetails.length() <= 250
+                                    ? bodyDetails.length() :
+                                    250))));
+
+            seeMore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+//                    dialog = ProgressDialog.show(getActivity(), "",
+//                            "Loading. Please wait...", true);
+
+                    new Thread(new Runnable() {
                         @Override
-                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-                            Bitmap bitmap = imageContainer.getBitmap();
-                            if (bitmap != null) {
-                                Palette p = Palette.generate(bitmap, 12);
-                                mMutedColor = p.getDarkMutedColor(0xFF333333);
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                mRootView.findViewById(R.id.meta_bar)
-                                        .setBackgroundColor(mMutedColor);
-                                updateStatusBar();
+                        public void run() {
+                            try {
+                                Log.d("MIKE run", "test1");
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+
+                                        showPopupBodyInfo(bodyDetails);
+                                    }
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
+                    }).start();
+                }
+            });
 
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
+            // Log.d("MIKE setA", mSharedAnimation);
+            Log.d("MIKE setB", mCursor.getString(ArticleLoader.Query._ID));
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+//                    mSharedAnimation.equals(mCursor.getString(ArticleLoader.Query._ID))) {
+////                imageView.setTransitionName(transitionName);
+//                Log.d("MIKE set", "transitionFinal");
+//                Log.d("MIKE set", "transitionFinal: " + mSharedAnimation);
+////                 mPhotoView.setTransitionName(mSharedAnimation);
+//            }
+            //mPhotoView.setTransitionName("simple_activity_transition");
 
-                        }
-                    });
+            Log.d("MIKE IMAGE2: ", mCursor.getString(ArticleLoader.Query.PHOTO_URL));
+
+            if (mIsVisibleToUser) {
+                Log.d("MIKE IMAGE3: ", mCursor.getString(ArticleLoader.Query.PHOTO_URL));
+                updateImage();
+            }
+
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
-            bylineView.setText("N/A" );
+            bylineView.setText("N/A");
             bodyView.setText("N/A");
         }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        Log.d("MIKE frag", "onCreateLoaderonCreate29 ID: " + Long.toString(mItemId));
         return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
     }
 
+
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        Log.d("MIKE fragloadFinished", "onCreate30");
+
         if (!isAdded()) {
             if (cursor != null) {
                 cursor.close();
@@ -281,24 +291,94 @@ public class ArticleDetailFragment extends Fragment implements
             mCursor.close();
             mCursor = null;
         }
-
+        Log.d("MIKE ", " bindViews24 bindingViewA");
         bindViews();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mCursor = null;
+        Log.d("MIKE detFrag", "onLoaderResetonCreate31");
+        Log.d("MIKE ", " bindViews25 bindingViewC");
         bindViews();
     }
 
     public int getUpButtonFloor() {
-        if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
-            return Integer.MAX_VALUE;
-        }
+        Log.d("MIKE fragment ", "getUpButtonFloor onCreate32");
 
         // account for parallax
         return mIsCard
                 ? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
                 : mPhotoView.getHeight() - mScrollY;
+    }
+
+    public void showPopupBodyInfo(String bodytext) {
+
+        dialog = ProgressDialog.show(getActivity(), "",
+                "Loading. Please wait...", true);
+
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View customView = inflater.inflate(R.layout.custom_popup, null);
+        mPopupWindow = new PopupWindow(
+                customView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            mPopupWindow.setElevation(5.0f);
+        }
+
+        ImageButton closeButton = customView.findViewById(R.id.ib_close);
+        TextView bodyText = customView.findViewById(R.id.body_message);
+
+        bodyText.setText(bodytext);
+
+        // Set a click listener for the popup window close button
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Dismiss the popup window
+                mPopupWindow.dismiss();
+            }
+        });
+
+        mPopupWindow.setAnimationStyle(android.R.style.Animation_Translucent);
+        mPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        mPopupWindow.setOutsideTouchable(true);
+        mPopupWindow.setFocusable(true);
+        mPopupWindow.showAtLocation(mRootView, Gravity.CENTER, 0, 0);
+        dialog.dismiss();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsVisibleToUser = isVisibleToUser;
+        if (mRootView == null) {
+            Log.d("MIKE ", "mRootView is null");
+            return;
+        }
+        if (isVisibleToUser && mRootView != null) {
+            Log.d("MIKE ", "updateImage");
+            updateImage();
+        }
+    }
+
+    private void updateImage() {
+        Picasso.with(getActivity())
+                .load(imageUrl)
+                .noFade()
+                .into(mPhotoView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        startPostponedEnterTransition();
+                    }
+
+                    @Override
+                    public void onError() {
+                        startPostponedEnterTransition();
+                    }
+                });
     }
 }

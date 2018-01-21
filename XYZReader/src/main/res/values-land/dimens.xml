@@ -1,0 +1,5 @@
+<resources>
+
+    <dimen name="card_view_height">180dp</dimen>
+
+</resources>
