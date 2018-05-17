@@ -1,12 +1,15 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"/>
+<!--
     <FrameLayout
         android:id="@+id/up_container"
         android:background="@android:color/transparent"
@@ -21,5 +24,5 @@
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/up"
             android:src="@drawable/ic_arrow_back" />
-    </FrameLayout>
-</FrameLayout>
+    </FrameLayout>-->
+</android.support.design.widget.CoordinatorLayout>
