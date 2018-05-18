@@ -1,3 +1,10 @@
-= XYZ Reader Starter Code
+# XYZ Reader Starter Code
+The sixth exercise of the Android Developer Nanodegree Program by Udacity
 
-This repository stores the starter code for the XYZ Reader project in Udacity's Android Nanodegree.
+## Main target
+Redesign an app to follow the Material Design guidelines and translate a set of static design mocks to a living and breathing app.
+
+Understand the fundamentals of Android design.
+Apply Material Design guidelines to an mobile application.
+Separate an interface into surfaces.
+Effectively use transitions and motion.
