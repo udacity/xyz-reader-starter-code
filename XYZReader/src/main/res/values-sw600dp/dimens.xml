@@ -1,7 +1,11 @@
 <resources>
     <!-- detail -->
-    <dimen name="detail_title_text_size">42sp</dimen>
     <dimen name="detail_body_text_size">20sp</dimen>
     <item name="detail_body_line_spacing_multiplier" format="float" type="fraction">1.3</item>
-    <dimen name="fab_margin">24dp</dimen>
+
+    <dimen name="appbar_max_height">450dp</dimen>
+    <dimen name="detail_body_text_height">@dimen/match_parent</dimen>
+    <dimen name="match_parent">-1px</dimen>
+    <dimen name="subtitle_size">18sp</dimen>
+    <dimen name="subtitle_margin_end">32dp</dimen>
 </resources>
