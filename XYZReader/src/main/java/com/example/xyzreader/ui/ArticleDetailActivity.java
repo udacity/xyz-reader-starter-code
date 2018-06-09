@@ -2,7 +2,6 @@ package com.example.xyzreader.ui;
 
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -47,52 +46,10 @@ public class ArticleDetailActivity extends AppCompatActivity implements LoaderMa
                 .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
         mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
 
-        /*mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-                mUpButton.animate()
-                        .alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
-                        .setDuration(300);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (mCursor != null) {
-                    mCursor.moveToPosition(position);
-                }
-                mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
-                updateUpButtonPosition();
-            }
-        });*/
-
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                    view.onApplyWindowInsets(windowInsets);
-                    mTopInset = windowInsets.getSystemWindowInsetTop();
-                    mUpButtonContainer.setTranslationY(mTopInset);
-                    updateUpButtonPosition();
-                    return windowInsets;
-                }
-            });
-        }*/
-
         if (savedInstanceState == null) {
             if ((getIntent() != null) && (getIntent().getData() != null)) {
                 mStartId = ItemsContract.Items.getItemId(getIntent().getData());
             }
-        }
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-
-        final Fragment currentFragment = mPagerAdapter.getCurrentFragment();
-        if (currentFragment instanceof FocusListener) {
-            ((FocusListener) currentFragment).onWindowFocusChanged(hasFocus);
         }
     }
 
@@ -135,21 +92,15 @@ public class ArticleDetailActivity extends AppCompatActivity implements LoaderMa
     }
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
-        private Fragment currentFragment;
 
-        public MyPagerAdapter(FragmentManager fm) {
+        MyPagerAdapter(FragmentManager fm) {
             super(fm);
-        }
-
-        public Fragment getCurrentFragment() {
-            return currentFragment;
         }
 
         @Override
         public Fragment getItem(int position) {
             mCursor.moveToPosition(position);
-            currentFragment = ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
-            return currentFragment;
+            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
         }
 
         @Override
