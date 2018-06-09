@@ -13,13 +13,16 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
 import android.text.Html;
@@ -29,6 +32,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -195,7 +200,7 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
 
         TextView titleView = mRootView.findViewById(R.id.article_title);
         TextView bylineView = mRootView.findViewById(R.id.article_byline);
-        CollapsingToolbarLayout collapsingToolbarLayout = mRootView.findViewById(R.id.collapsing_toolbar);
+        final CollapsingToolbarLayout collapsingToolbarLayout = mRootView.findViewById(R.id.collapsing_toolbar);
         bylineView.setMovementMethod(new LinkMovementMethod());
         TextView bodyView = mRootView.findViewById(R.id.article_body);
 
@@ -228,26 +233,53 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
 
             }
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
-            ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
-                    .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-                            Bitmap bitmap = imageContainer.getBitmap();
-                            if (bitmap != null) {
-                                Palette p = Palette.generate(bitmap, 12);
-                                mMutedColor = p.getDarkMutedColor(0xFF333333);
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                mRootView.findViewById(R.id.meta_bar)
-                                        .setBackgroundColor(mMutedColor);
-                                //updateStatusBar();
+            final FragmentActivity activity = getActivity();
+            if (activity != null) {
+                ImageLoaderHelper.getInstance(activity).getImageLoader()
+                        .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
+                            @Override
+                            public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+                                createPaletteAsync(imageContainer);
                             }
-                        }
 
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
+                            @Override
+                            public void onErrorResponse(VolleyError volleyError) {
+                                //no-op
+                            }
 
-                        }
-                    });
+                            private void createPaletteAsync(final ImageLoader.ImageContainer imageContainer) {
+                                Bitmap bitmap = imageContainer.getBitmap();
+                                if (bitmap != null) {
+                                    mPhotoView.setImageBitmap(bitmap);
+                                    Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                                        public void onGenerated(@NonNull Palette palette) {
+                                            mMutedColor = palette.getDarkMutedColor(0xFF333333);
+                                            mRootView.findViewById(R.id.meta_bar).setBackgroundColor(mMutedColor);
+
+                                            @ColorInt final int scrimColor = palette.getVibrantColor(ContextCompat.getColor(activity, R.color.colorPrimary));
+                                            collapsingToolbarLayout.setContentScrimColor(scrimColor);
+
+                                            @ColorInt final int statusBarColor = palette.getDarkVibrantColor(ContextCompat.getColor(activity, R.color.colorPrimaryDark));
+                                            updateStatusBar(statusBarColor);
+                                        }
+                                    });
+                                }
+                            }
+
+                            private void updateStatusBar(@ColorInt int color) {
+                                final Window window = activity.getWindow();
+                                if (window == null) {
+                                    return;
+                                }
+                                // clear FLAG_TRANSLUCENT_STATUS flag:
+                                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                                // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+                                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                                // finally change the color
+                                window.setStatusBarColor(color);
+                            }
+                        });
+            }
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
