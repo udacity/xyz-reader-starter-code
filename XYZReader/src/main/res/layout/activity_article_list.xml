@@ -1,49 +1,60 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true" >
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:scrollbarStyle="outsideOverlay"
-            android:paddingTop="116dp"
-            android:paddingLeft="@dimen/list_side_margin"
-            android:paddingRight="@dimen/list_side_margin"
-            android:paddingBottom="28dp" />
-    </android.support.v4.widget.SwipeRefreshLayout>
-
-    <FrameLayout
+    <android.support.design.widget.AppBarLayout
         android:id="@+id/toolbar_container"
         android:layout_width="match_parent"
-        android:layout_height="112dp"
-        android:background="?colorPrimary"
-        android:elevation="8dp">
+        android:layout_height="168dp"
+        android:background="@color/primary" >
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:layout_marginLeft="@dimen/list_toolbar_side_margin"
-            android:layout_marginRight="@dimen/list_toolbar_side_margin"
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar_layout"
             android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            android:layout_gravity="bottom">
-
+            android:layout_height="match_parent"
+            android:minHeight="?actionBarSize"
+            app:expandedTitleMarginStart="16dp"
+            app:collapsedTitleTextAppearance="@style/VisibleTitle"
+            app:expandedTitleTextAppearance="@style/TransparentTitle"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:contentScrim="@color/primary"
+            app:title="XYZ Reader" >
             <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/logo" />
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/logo"
-                android:contentDescription="@string/app_name" />
+                android:layout_height="?actionBarSize"
+                android:fitsSystemWindows="true"
+                app:layout_collapseMode="pin" />
+        </android.support.design.widget.CollapsingToolbarLayout>
 
-        </android.support.v7.widget.Toolbar>
-    </FrameLayout>
+    </android.support.design.widget.AppBarLayout>
 
-</FrameLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:outlineProvider="bounds"
+        android:clipToPadding="false"
+        android:paddingBottom="12dp"
+        android:background="@color/primary_light"
+        app:elevation="0dp"
+        android:elevation="0dp"
+        android:paddingLeft="@dimen/list_side_margin"
+        android:paddingRight="@dimen/list_side_margin"
+        android:scrollbarStyle="outsideOverlay"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/list_item_article" />
+
+
+</android.support.design.widget.CoordinatorLayout>
