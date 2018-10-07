@@ -20,23 +20,24 @@
  * -Changed package name
  */
 
-package com.example.xyzreader.data;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+package com.example.xyzreader.data.helper;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
 /**
  * Helper for building selection clauses for {@link SQLiteDatabase}. Each
  * appended clause is combined using {@code AND}. This class is <em>not</em>
  * thread safe.
  */
-public class SelectionBuilder {
+@SuppressWarnings("WeakerAccess")
+public final class SelectionBuilder {
     private String mTable = null;
     private HashMap<String, String> mProjectionMap;
     private StringBuilder mSelection;
@@ -82,9 +83,7 @@ public class SelectionBuilder {
         mSelection.append("(").append(selection).append(")");
         if (selectionArgs != null) {
         	ensureSelectionArgs();
-            for (String arg : selectionArgs) {
-                mSelectionArgs.add(arg);
-            }
+			mSelectionArgs.addAll(Arrays.asList(selectionArgs));
         }
 
         return this;
@@ -103,7 +102,7 @@ public class SelectionBuilder {
 
     private void ensureProjectionMap() {
 		if (mProjectionMap == null) {
-			mProjectionMap = new HashMap<String, String>();
+			mProjectionMap = new HashMap<>();
 		}
     }
 
@@ -115,7 +114,7 @@ public class SelectionBuilder {
 
     private void ensureSelectionArgs() {
     	if (mSelectionArgs == null) {
-    		mSelectionArgs = new ArrayList<String>();
+			mSelectionArgs = new ArrayList<>();
     	}
     }
 
@@ -151,7 +150,7 @@ public class SelectionBuilder {
      */
     public String[] getSelectionArgs() {
     	if (mSelectionArgs != null) {
-            return mSelectionArgs.toArray(new String[mSelectionArgs.size()]);
+			return mSelectionArgs.toArray(new String[0]);
     	} else {
     		return null;
     	}
