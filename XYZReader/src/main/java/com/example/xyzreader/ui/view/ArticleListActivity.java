@@ -1,4 +1,4 @@
-package com.example.xyzreader.ui;
+package com.example.xyzreader.ui.view;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -24,6 +25,9 @@ import com.example.xyzreader.R;
 import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 import com.example.xyzreader.data.loader.ArticleLoader;
+import com.example.xyzreader.ui.ArticleDetailActivity;
+import com.example.xyzreader.ui.DynamicHeightNetworkImageView;
+import com.example.xyzreader.ui.ImageLoaderHelper;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -73,7 +77,12 @@ public class ArticleListActivity extends AppCompatActivity implements
 		setContentView(R.layout.activity_article_list);
 
 		mToolbar = findViewById(R.id.toolbar);
-
+		setSupportActionBar(mToolbar);
+		ActionBar supportActionBar = getSupportActionBar();
+		if (supportActionBar != null) {
+			supportActionBar.setDisplayShowTitleEnabled(false);
+			supportActionBar.setElevation(getResources().getDimension(R.dimen.ab_elevation));
+		}
 
 		final View toolbarContainerView = findViewById(R.id.toolbar_container);
 

@@ -1,7 +1,10 @@
 package com.example.xyzreader.remote;
 
 import android.util.Log;
-
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONTokener;
@@ -9,18 +12,15 @@ import org.json.JSONTokener;
 import java.io.IOException;
 import java.net.URL;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-public class RemoteEndpointUtil {
+@SuppressWarnings("WeakerAccess")
+public final class RemoteEndpointUtil {
     private static final String TAG = "RemoteEndpointUtil";
 
     private RemoteEndpointUtil() {
     }
 
     public static JSONArray fetchJsonArray() {
-        String itemsJson = null;
+		String itemsJson;
         try {
             itemsJson = fetchPlainText(Config.BASE_URL);
         } catch (IOException e) {
@@ -43,7 +43,7 @@ public class RemoteEndpointUtil {
         return null;
     }
 
-    static String fetchPlainText(URL url) throws IOException {
+	public static String fetchPlainText(URL url) throws IOException {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
@@ -51,6 +51,11 @@ public class RemoteEndpointUtil {
                 .build();
 
         Response response = client.newCall(request).execute();
-        return response.body().string();
-    }
+		ResponseBody body = response.body();
+		if (body != null) {
+			return body.string();
+		}
+
+		return null;
+	}
 }

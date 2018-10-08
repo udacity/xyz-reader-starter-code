@@ -27,6 +27,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.loader.ArticleLoader;
+import com.example.xyzreader.ui.view.ArticleListActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
