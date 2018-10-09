@@ -1,10 +1,11 @@
-<com.example.xyzreader.ui.DrawInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/draw_insets_frame_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<com.example.xyzreader.ui.view.xyz.DrawInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+														 xmlns:app="http://schemas.android.com/apk/res-auto"
+														 android:id="@+id/draw_insets_frame_layout"
+														 android:layout_width="match_parent"
+														 android:layout_height="match_parent"
+		>
 
-    <com.example.xyzreader.ui.ObservableScrollView
+	<com.example.xyzreader.ui.view.xyz.ObservableScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -32,15 +33,16 @@
 
             </FrameLayout>
 
-            <com.example.xyzreader.ui.MaxWidthLinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:maxWidth="@dimen/detail_card_max_width"
-                android:background="#fff"
-                android:elevation="2dp"
-                android:layout_marginTop="@dimen/detail_card_top_margin">
+			<com.example.xyzreader.ui.view.xyz.MaxWidthLinearLayout
+					android:orientation="vertical"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal"
+					android:maxWidth="@dimen/detail_card_max_width"
+					android:background="#fff"
+					app:elevation="2dp"
+					android:layout_marginTop="@dimen/detail_card_top_margin"
+					>
 
                 <LinearLayout
                     android:id="@+id/meta_bar"
@@ -88,20 +90,21 @@
                     android:textSize="@dimen/detail_body_text_size"
                     android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier" />
 
-            </com.example.xyzreader.ui.MaxWidthLinearLayout>
+			</com.example.xyzreader.ui.view.xyz.MaxWidthLinearLayout>
         </FrameLayout>
-    </com.example.xyzreader.ui.ObservableScrollView>
+	</com.example.xyzreader.ui.view.xyz.ObservableScrollView>
 
+	<!--android:stateListAnimator="@anim/fab_state_list_anim"-->
     <ImageButton android:id="@+id/share_fab"
-        android:stateListAnimator="@anim/fab_state_list_anim"
-        android:background="@drawable/add_fab_background"
-        android:layout_gravity="bottom|end"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@drawable/ic_share"
-        android:elevation="@dimen/fab_elevation"
-        android:contentDescription="@string/action_share" />
+				 android:background="@drawable/add_fab_background"
+				 android:layout_gravity="bottom|end"
+				 android:layout_marginEnd="@dimen/fab_margin"
+				 android:layout_marginBottom="@dimen/fab_margin"
+				 android:layout_width="56dp"
+				 android:layout_height="56dp"
+				 android:src="@drawable/ic_share"
+				 app:elevation="@dimen/fab_elevation"
+				 android:contentDescription="@string/action_share"
+			/>
 
-</com.example.xyzreader.ui.DrawInsetsFrameLayout>
+</com.example.xyzreader.ui.view.xyz.DrawInsetsFrameLayout>

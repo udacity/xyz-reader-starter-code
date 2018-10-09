@@ -1,4 +1,4 @@
-package com.example.xyzreader.ui;
+package com.example.xyzreader.ui.fragment;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -27,7 +27,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.loader.ArticleLoader;
+import com.example.xyzreader.ui.view.ArticleDetailActivity;
 import com.example.xyzreader.ui.view.ArticleListActivity;
+import com.example.xyzreader.ui.view.helper.ImageLoaderHelper;
+import com.example.xyzreader.ui.view.xyz.DrawInsetsFrameLayout;
+import com.example.xyzreader.ui.view.xyz.ObservableScrollView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

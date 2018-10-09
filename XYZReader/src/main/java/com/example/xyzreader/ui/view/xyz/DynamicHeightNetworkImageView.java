@@ -1,8 +1,7 @@
-package com.example.xyzreader.ui;
+package com.example.xyzreader.ui.view.xyz;
 
 import android.content.Context;
 import android.util.AttributeSet;
-
 import com.android.volley.toolbox.NetworkImageView;
 
 public class DynamicHeightNetworkImageView extends NetworkImageView {

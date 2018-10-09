@@ -28,4 +28,6 @@
 	<color name="texto_light">#7e7979</color>
 	<color name="texto_dark">#000</color>
     <color name="ltgray">#ffe0e0e0</color>
+	<color name="red">#fc2032</color>
+	<color name="blue">#2b35f7</color>
 </resources>

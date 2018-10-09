@@ -12,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -20,7 +21,8 @@ import android.view.WindowInsets;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.loader.ArticleLoader;
-import com.example.xyzreader.ui.ArticleDetailFragment;
+import com.example.xyzreader.ui.fragment.ArticleDetailFragment;
+import com.example.xyzreader.ui.view.helper.ActivityHelper;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
@@ -41,6 +43,7 @@ public class ArticleDetailActivity extends AppCompatActivity
 	private MyPagerAdapter mPagerAdapter;
 	private View mUpButtonContainer;
 	private View mUpButton;
+	private Toolbar mToolbar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +58,11 @@ public class ArticleDetailActivity extends AppCompatActivity
 		//noinspection deprecation
 		getSupportLoaderManager().initLoader(0, null, this);
 
-		mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
 		mPager = findViewById(R.id.pager);
+		mToolbar = findViewById(R.id.toolbar);
+
+		ActivityHelper.configureActionBar(this, mToolbar);
+		mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
 		mPager.setAdapter(mPagerAdapter);
 		mPager.setPageMargin((int) TypedValue
 				.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));

@@ -10,31 +10,18 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ProgressBar;
 import com.example.xyzreader.R;
-import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 import com.example.xyzreader.data.loader.ArticleLoader;
-import com.example.xyzreader.ui.ArticleDetailActivity;
-import com.example.xyzreader.ui.DynamicHeightNetworkImageView;
-import com.example.xyzreader.ui.ImageLoaderHelper;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import com.example.xyzreader.ui.adapter.Adapter;
+import com.example.xyzreader.ui.presenter.ArticleListContract;
+import com.example.xyzreader.ui.view.helper.ActivityHelper;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -43,19 +30,17 @@ import java.util.Locale;
  * activity presents a grid of items as cards.
  */
 public class ArticleListActivity extends AppCompatActivity implements
-		LoaderManager.LoaderCallbacks<Cursor> {
+		LoaderManager.LoaderCallbacks<Cursor>, ArticleListContract.View {
 
 	private static final String TAG = ArticleListActivity.class.toString();
 	private Toolbar mToolbar;
 	private SwipeRefreshLayout mSwipeRefreshLayout;
 	private RecyclerView mRecyclerView;
 
-	private DateFormat dateFormat;
-	// Use default locale format
-	private DateFormat outputFormat;
-	// Most time functions can only handle 1902 - 2037
-	private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
 	private boolean mIsRefreshing = false;
+	private View rootLayout;
+	private ProgressBar progressBar;
+
 	private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -66,29 +51,18 @@ public class ArticleListActivity extends AppCompatActivity implements
 		}
 	};
 
-	public ArticleListActivity() {
-		dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss", Locale.getDefault());
-		outputFormat = SimpleDateFormat.getDateTimeInstance();
-	}
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_article_list);
 
 		mToolbar = findViewById(R.id.toolbar);
-		setSupportActionBar(mToolbar);
-		ActionBar supportActionBar = getSupportActionBar();
-		if (supportActionBar != null) {
-			supportActionBar.setDisplayShowTitleEnabled(false);
-			supportActionBar.setElevation(getResources().getDimension(R.dimen.ab_elevation));
-		}
-
-		final View toolbarContainerView = findViewById(R.id.toolbar_container);
-
+		rootLayout = findViewById(R.id.main_root);
+		progressBar = findViewById(R.id.progress_bar);
 		mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-
 		mRecyclerView = findViewById(R.id.recycler_view);
+
+		ActivityHelper.configureActionBar(this, mToolbar);
 		//noinspection deprecation
 		getSupportLoaderManager().initLoader(0, null, this);
 
@@ -126,7 +100,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
-		Adapter adapter = new Adapter(cursor);
+		Adapter adapter = new Adapter(this, cursor);
 		adapter.setHasStableIds(true);
 		mRecyclerView.setAdapter(adapter);
 		int columnCount = getResources().getInteger(R.integer.list_column_count);
@@ -140,87 +114,22 @@ public class ArticleListActivity extends AppCompatActivity implements
 		mRecyclerView.setAdapter(null);
 	}
 
-	static class ViewHolder extends RecyclerView.ViewHolder {
-		DynamicHeightNetworkImageView thumbnailView;
-		TextView titleView;
-		TextView subtitleView;
-
-		ViewHolder(View view) {
-			super(view);
-			thumbnailView = view.findViewById(R.id.thumbnail);
-			titleView = view.findViewById(R.id.article_title);
-			subtitleView = view.findViewById(R.id.article_subtitle);
-		}
+	@Override
+	public void showErrorMsg(String msg) {
+		ActivityHelper.showErrorMsgWithSnack(rootLayout, msg);
 	}
 
-	private class Adapter extends RecyclerView.Adapter<ViewHolder> {
-		private Cursor mCursor;
+	@Override
+	public void showSucessMsg(String msg) {
+		ActivityHelper.showSucessMsgWithSnack(rootLayout, msg);
+	}
 
-		Adapter(Cursor cursor) {
-			mCursor = cursor;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			mCursor.moveToPosition(position);
-			return mCursor.getLong(ArticleLoader.Query._ID);
-		}
-
-		@NonNull
-		@Override
-		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
-			final ViewHolder vh = new ViewHolder(view);
-			view.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					startActivity(new Intent(Intent.ACTION_VIEW,
-							ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
-				}
-			});
-			return vh;
-		}
-
-		private Date parsePublishedDate() {
-			try {
-				String date = mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
-				return dateFormat.parse(date);
-			} catch (ParseException ex) {
-				Log.e(TAG, ex.getMessage());
-				Log.i(TAG, "passing today's date");
-				return new Date();
-			}
-		}
-
-		@Override
-		public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-			mCursor.moveToPosition(position);
-			holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
-			Date publishedDate = parsePublishedDate();
-			if (!publishedDate.before(START_OF_EPOCH.getTime())) {
-
-				holder.subtitleView.setText(Html.fromHtml(
-						DateUtils.getRelativeTimeSpanString(
-								publishedDate.getTime(),
-								System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
-								DateUtils.FORMAT_ABBREV_ALL).toString()
-								+ "<br/>" + " by "
-								+ mCursor.getString(ArticleLoader.Query.AUTHOR)));
-			} else {
-				holder.subtitleView.setText(Html.fromHtml(
-						outputFormat.format(publishedDate)
-								+ "<br/>" + " by "
-								+ mCursor.getString(ArticleLoader.Query.AUTHOR)));
-			}
-			holder.thumbnailView.setImageUrl(
-					mCursor.getString(ArticleLoader.Query.THUMB_URL),
-					ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
-			holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
-		}
-
-		@Override
-		public int getItemCount() {
-			return mCursor.getCount();
+	@Override
+	public void setProgressBarVisibity(boolean visible) {
+		if (visible) {
+			progressBar.setVisibility(View.VISIBLE);
+		} else {
+			progressBar.setVisibility(View.INVISIBLE);
 		}
 	}
 }
