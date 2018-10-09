@@ -30,6 +30,8 @@ import com.example.xyzreader.ui.view.helper.ActivityHelper;
 public class ArticleDetailActivity extends AppCompatActivity
 		implements LoaderManager.LoaderCallbacks<Cursor> {
 
+	public static final String ARTICLE_ID_EXTRA_PARAM_KEY = "article extra param key";
+
 	private static final String TAG = ArticleDetailActivity.class.getSimpleName();
 
 	private Cursor mCursor;
@@ -43,7 +45,6 @@ public class ArticleDetailActivity extends AppCompatActivity
 	private MyPagerAdapter mPagerAdapter;
 	private View mUpButtonContainer;
 	private View mUpButton;
-	private Toolbar mToolbar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,13 +60,15 @@ public class ArticleDetailActivity extends AppCompatActivity
 		getSupportLoaderManager().initLoader(0, null, this);
 
 		mPager = findViewById(R.id.pager);
-		mToolbar = findViewById(R.id.toolbar);
+		Toolbar mToolbar = findViewById(R.id.toolbar);
+		mUpButtonContainer = findViewById(R.id.toolbar_container);
+		mUpButton = findViewById(R.id.action_up);
 
 		ActivityHelper.configureActionBar(this, mToolbar);
 		mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
 		mPager.setAdapter(mPagerAdapter);
-		mPager.setPageMargin((int) TypedValue
-				.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+		mPager.setPageMargin(
+				(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
 		mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
 
 		//noinspection deprecation
@@ -88,9 +91,6 @@ public class ArticleDetailActivity extends AppCompatActivity
 			}
 		});
 
-		mUpButtonContainer = findViewById(R.id.up_container);
-
-		mUpButton = findViewById(R.id.action_up);
 		mUpButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -117,6 +117,9 @@ public class ArticleDetailActivity extends AppCompatActivity
 				mSelectedItemId = mStartId;
 			}
 		}
+
+		//noinspection deprecation
+		getSupportLoaderManager().initLoader(0, null, this);
 	}
 
 	@NonNull

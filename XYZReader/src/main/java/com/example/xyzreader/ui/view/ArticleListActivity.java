@@ -3,7 +3,6 @@ package com.example.xyzreader.ui.view;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,13 +13,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.UpdaterService;
 import com.example.xyzreader.data.loader.ArticleLoader;
+import com.example.xyzreader.data.model.Article;
 import com.example.xyzreader.ui.adapter.Adapter;
 import com.example.xyzreader.ui.presenter.ArticleListContract;
+import com.example.xyzreader.ui.presenter.ArticleListPresenter;
 import com.example.xyzreader.ui.view.helper.ActivityHelper;
 
 /**
@@ -30,10 +32,10 @@ import com.example.xyzreader.ui.view.helper.ActivityHelper;
  * activity presents a grid of items as cards.
  */
 public class ArticleListActivity extends AppCompatActivity implements
-		LoaderManager.LoaderCallbacks<Cursor>, ArticleListContract.View {
-
+		LoaderManager.LoaderCallbacks<Cursor>, ArticleListContract.View, Adapter.AdapterListener {
+	@SuppressWarnings("unused")
 	private static final String TAG = ArticleListActivity.class.toString();
-	private Toolbar mToolbar;
+
 	private SwipeRefreshLayout mSwipeRefreshLayout;
 	private RecyclerView mRecyclerView;
 
@@ -51,23 +53,28 @@ public class ArticleListActivity extends AppCompatActivity implements
 		}
 	};
 
+	private ArticleListContract.Presenter presenter;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_article_list);
 
-		mToolbar = findViewById(R.id.toolbar);
+		Toolbar mToolbar = findViewById(R.id.toolbar);
 		rootLayout = findViewById(R.id.main_root);
 		progressBar = findViewById(R.id.progress_bar);
 		mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
 		mRecyclerView = findViewById(R.id.recycler_view);
 
 		ActivityHelper.configureActionBar(this, mToolbar);
+		presenter = new ArticleListPresenter(this, this);
 		//noinspection deprecation
 		getSupportLoaderManager().initLoader(0, null, this);
 
 		if (savedInstanceState == null) {
 			refresh();
+		} else {
+			presenter.restoreSavedState(savedInstanceState);
 		}
 	}
 
@@ -78,8 +85,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 	@Override
 	protected void onStart() {
 		super.onStart();
-		registerReceiver(mRefreshingReceiver,
-				new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
+		presenter.loadArticleList(mRefreshingReceiver);
 	}
 
 	@Override
@@ -100,13 +106,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
-		Adapter adapter = new Adapter(this, cursor);
-		adapter.setHasStableIds(true);
-		mRecyclerView.setAdapter(adapter);
-		int columnCount = getResources().getInteger(R.integer.list_column_count);
-		StaggeredGridLayoutManager sglm =
-				new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
-		mRecyclerView.setLayoutManager(sglm);
+		presenter.onLoaderFinish(cursorLoader, cursor);
 	}
 
 	@Override
@@ -130,6 +130,47 @@ public class ArticleListActivity extends AppCompatActivity implements
 			progressBar.setVisibility(View.VISIBLE);
 		} else {
 			progressBar.setVisibility(View.INVISIBLE);
+		}
+	}
+
+	@Override
+	public void showArticleDetailsView(Article article) {
+		Intent intent = new Intent(this, ArticleDetailActivity.class);
+		intent.putExtra(ArticleDetailActivity.ARTICLE_ID_EXTRA_PARAM_KEY, article.getId());
+
+		startActivity(intent);
+	}
+
+	@Override
+	public void setArticleListPositionTo(int position) {
+		if (mRecyclerView.getItemDecorationCount() > position) {
+			mRecyclerView.setVerticalScrollbarPosition(position);
+		} else {
+			Log.w(TAG, "Tentando fazer scrool em RV sem o total de itens no adapter: " + position);
+		}
+	}
+
+	@Override
+	public void createAdapter(Cursor cursor) {
+		Adapter adapter = new Adapter(this, cursor, this);
+		adapter.setHasStableIds(true);
+		mRecyclerView.setAdapter(adapter);
+
+		int columnCount = getResources().getInteger(R.integer.list_column_count);
+		StaggeredGridLayoutManager sglm = new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
+		mRecyclerView.setLayoutManager(sglm);
+	}
+
+	@Override
+	public void selectArticle(int position, Long id) {
+		presenter.selectArticle(position, id);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (presenter != null) {
+			presenter.savePositionState(outState, mRecyclerView.getVerticalScrollbarPosition());
 		}
 	}
 }

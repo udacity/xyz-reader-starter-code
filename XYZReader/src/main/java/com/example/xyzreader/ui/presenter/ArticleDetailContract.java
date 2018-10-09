@@ -1,13 +1,12 @@
 package com.example.xyzreader.ui.presenter;
 
-import android.content.BroadcastReceiver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import com.example.xyzreader.data.model.Article;
 import com.example.xyzreader.ui.view.BaseView;
 
-public interface ArticleListContract {
+public interface ArticleDetailContract {
 
 	interface View extends BaseView {
 
@@ -19,10 +18,6 @@ public interface ArticleListContract {
 	}
 
 	interface Presenter {
-
-		void loadArticleList(BroadcastReceiver mRefreshingReceiver);
-
-		void selectArticle(int position, Long id);
 
 		void restoreSavedState(Bundle savedInstanceState);
 

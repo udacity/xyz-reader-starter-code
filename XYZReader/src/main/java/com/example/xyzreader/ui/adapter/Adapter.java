@@ -1,6 +1,5 @@
 package com.example.xyzreader.ui.adapter;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.example.xyzreader.R;
-import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.loader.ArticleLoader;
 import com.example.xyzreader.ui.view.ArticleListActivity;
 import com.example.xyzreader.ui.view.helper.ImageLoaderHelper;
@@ -29,15 +27,17 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
 	private ArticleListActivity activity;
 	private Cursor mCursor;
+	private AdapterListener listener;
 	private DateFormat dateFormat;
 	private DateFormat outputFormat;
 
 	// Most time functions can only handle 1902 - 2037
 	private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
 
-	public Adapter(ArticleListActivity activity, Cursor cursor) {
+	public Adapter(ArticleListActivity activity, Cursor cursor, AdapterListener listener) {
 		this.activity = activity;
 		mCursor = cursor;
+		this.listener = listener;
 
 		dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss", Locale.getDefault());
 		outputFormat = SimpleDateFormat.getDateTimeInstance();
@@ -53,15 +53,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 	@Override
 	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		View view = activity.getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
-		final ViewHolder vh = new ViewHolder(view);
-		view.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				activity.startActivity(new Intent(Intent.ACTION_VIEW,
-						ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
-			}
-		});
-		return vh;
+
+		return new ViewHolder(view);
 	}
 
 	private Date parsePublishedDate() {
@@ -76,7 +69,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+	public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
 		mCursor.moveToPosition(position);
 		holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
 		Date publishedDate = parsePublishedDate();
@@ -99,6 +92,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 				mCursor.getString(ArticleLoader.Query.THUMB_URL),
 				ImageLoaderHelper.getInstance(activity).getImageLoader());
 		holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+		holder.itemView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				listener.selectArticle(holder.getAdapterPosition(), getItemId(holder.getAdapterPosition()));
+			}
+		});
 	}
 
 	@Override
@@ -117,5 +116,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 			titleView = view.findViewById(R.id.article_title);
 			subtitleView = view.findViewById(R.id.article_subtitle);
 		}
+	}
+
+	public interface AdapterListener {
+		void selectArticle(int position, Long id);
 	}
 }
