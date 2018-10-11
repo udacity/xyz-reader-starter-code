@@ -58,9 +58,6 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 
 		presenter = new ArticleDetailsPresenter(this, this);
 
-		//noinspection deprecation
-		getSupportLoaderManager().initLoader(0, null, presenter);
-
 		rootView = findViewById(R.id.root_view);
 		mPager = findViewById(R.id.pager);
 		progressBar = findViewById(R.id.progress_bar);

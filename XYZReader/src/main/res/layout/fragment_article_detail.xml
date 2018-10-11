@@ -94,6 +94,12 @@
         </FrameLayout>
 	</com.example.xyzreader.ui.view.xyz.ObservableScrollView>
 
+	<ProgressBar
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/progress_bar"
+			/>
+
 	<!--android:stateListAnimator="@anim/fab_state_list_anim"-->
     <ImageButton android:id="@+id/share_fab"
 				 android:background="@drawable/add_fab_background"

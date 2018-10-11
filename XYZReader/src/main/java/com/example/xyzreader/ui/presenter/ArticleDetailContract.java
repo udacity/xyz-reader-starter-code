@@ -24,6 +24,8 @@ public interface ArticleDetailContract {
 		boolean isFragmentAdded();
 
 		void bindView(Cursor mCursor);
+
+		void setProgressBarVisibility(boolean visible);
 	}
 
 	interface FragmentListener {

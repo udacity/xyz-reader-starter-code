@@ -10,6 +10,8 @@ import android.view.View;
 import com.example.xyzreader.data.loader.ArticleLoader;
 
 public class ArticleDetailsPresenter implements ArticleDetailContract.Presenter {
+	private static final boolean PROGRESS_BAR_VISIBLE = true;
+	private static final boolean PROGRESS_BAR_INVISIBLE = false;
 	private Context context;
 	private ArticleDetailContract.View view;
 	private Cursor mCursor;
@@ -67,11 +69,13 @@ public class ArticleDetailsPresenter implements ArticleDetailContract.Presenter 
 	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
+		view.setProgressBarVisibity(PROGRESS_BAR_VISIBLE);
 		return ArticleLoader.newAllArticlesInstance(context);
 	}
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+		view.setProgressBarVisibity(PROGRESS_BAR_INVISIBLE);
 		mCursor = cursor;
 		view.notifyViewPagerThatDataChanged();
 

@@ -27,11 +27,13 @@ public class ArticleDetailsFragmentPresenter implements ArticleDetailContract.Pr
 	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
+		view.setProgressBarVisibility(true);
 		return ArticleLoader.newInstanceForItemId(context, itemId);
 	}
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+		view.setProgressBarVisibility(false);
 		if (!view.isFragmentAdded()) {
 			if (cursor != null) {
 				cursor.close();

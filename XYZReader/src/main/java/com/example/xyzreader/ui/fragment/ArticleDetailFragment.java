@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -68,6 +69,7 @@ public class ArticleDetailFragment extends Fragment implements
 	private SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss", Locale.getDefault());
 	// Most time functions can only handle 1902 - 2037
 	private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
+	private ProgressBar progressBar;
 
 	/**
 	 * Mandatory empty constructor for the fragment manager to instantiate the
@@ -151,6 +153,7 @@ public class ArticleDetailFragment extends Fragment implements
 		});
 
 		mScrollView = mRootView.findViewById(R.id.scrollview);
+		progressBar = mRootView.findViewById(R.id.progress_bar);
 		mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
 			@Override
 			public void onScrollChanged() {
@@ -275,6 +278,15 @@ public class ArticleDetailFragment extends Fragment implements
 			titleView.setText("N/A");
 			bylineView.setText("N/A");
 			bodyView.setText("N/A");
+		}
+	}
+
+	@Override
+	public void setProgressBarVisibility(boolean visible) {
+		if (visible) {
+			progressBar.setVisibility(View.VISIBLE);
+		} else {
+			progressBar.setVisibility(View.INVISIBLE);
 		}
 	}
 

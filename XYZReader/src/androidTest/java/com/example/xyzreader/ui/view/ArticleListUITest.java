@@ -35,17 +35,6 @@ public class ArticleListUITest {
 		onView(withId(R.id.recycler_view)).perform(RecyclerViewActions.actionOnItemAtPosition(
 				1, ViewActions.click()
 		));
-		onView(withId(R.id.article_body)).check(matches(isDisplayed()));
-	}
-
-	@Test
-	public void showProgress_onSelectArticle() {
-		onView(isRoot()).check(matches(isDisplayed()));
-		onView(withId(R.id.recycler_view)).check(matches(isDisplayed()));
-		onIdle();
-		onView(withId(R.id.recycler_view)).perform(RecyclerViewActions.actionOnItemAtPosition(
-				1, ViewActions.click()
-		));
-		onView(withId(R.id.progress_bar)).check(matches(isDisplayed()));
+		onView(withId(R.id.pager)).check(matches(isDisplayed()));
 	}
 }
