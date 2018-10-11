@@ -6,6 +6,6 @@ public interface BaseView {
 
 	void showSucessMsg(String msg);
 
-	void setProgressBarVisibity(boolean visibity);
+	void setProgressBarVisibity(boolean visible);
 
 }

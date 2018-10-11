@@ -1,6 +1,5 @@
 package com.example.xyzreader.ui.fragment;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -10,9 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.Loader;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.graphics.Palette;
 import android.text.Html;
 import android.text.format.DateUtils;
@@ -27,6 +24,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.loader.ArticleLoader;
+import com.example.xyzreader.ui.presenter.ArticleDetailContract;
+import com.example.xyzreader.ui.presenter.ArticleDetailsFragmentPresenter;
 import com.example.xyzreader.ui.view.ArticleDetailActivity;
 import com.example.xyzreader.ui.view.ArticleListActivity;
 import com.example.xyzreader.ui.view.helper.ImageLoaderHelper;
@@ -45,13 +44,13 @@ import java.util.Locale;
  * tablets) or a {@link ArticleDetailActivity} on handsets.
  */
 public class ArticleDetailFragment extends Fragment implements
-		LoaderManager.LoaderCallbacks<Cursor> {
+		ArticleDetailContract.FragmentView {
 	public static final String ARG_ITEM_ID = "item_id";
 	private static final String TAG = "ArticleDetailFragment";
 	private static final float PARALLAX_FACTOR = 1.25f;
 
-	private Cursor mCursor;
-	private long mItemId;
+	private ArticleDetailContract.PresenterFragment presenter;
+	private ArticleDetailContract.FragmentListener listener;
 	private View mRootView;
 	private int mMutedColor = 0xFF333333;
 	private ObservableScrollView mScrollView;
@@ -62,7 +61,6 @@ public class ArticleDetailFragment extends Fragment implements
 	private View mPhotoContainerView;
 	private ImageView mPhotoView;
 	private int mScrollY;
-	private boolean mIsCard = false;
 	private int mStatusBarFullOpacityBottom;
 
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss", Locale.getDefault());
@@ -83,6 +81,7 @@ public class ArticleDetailFragment extends Fragment implements
 		arguments.putLong(ARG_ITEM_ID, itemId);
 		ArticleDetailFragment fragment = new ArticleDetailFragment();
 		fragment.setArguments(arguments);
+
 		return fragment;
 	}
 
@@ -104,14 +103,16 @@ public class ArticleDetailFragment extends Fragment implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (getArguments() != null && getArguments().containsKey(ARG_ITEM_ID)) {
-			mItemId = getArguments().getLong(ARG_ITEM_ID);
-		}
-
-		mIsCard = getResources().getBoolean(R.bool.detail_is_card);
 		mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
 				R.dimen.detail_card_top_margin);
 		setHasOptionsMenu(true);
+
+		if (getArguments() != null && getArguments().containsKey(ARG_ITEM_ID)) {
+			long mItemId = getArguments().getLong(ARG_ITEM_ID);
+			presenter = new ArticleDetailsFragmentPresenter(requireContext(), this, mItemId);
+		} else {
+			throw new IllegalStateException("Não foi passado itemId");
+		}
 	}
 
 	public ArticleDetailActivity getActivityCast() {
@@ -121,13 +122,20 @@ public class ArticleDetailFragment extends Fragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		FragmentActivity activity = getActivity();
+		try {
+			listener = (ArticleDetailContract.FragmentListener) activity;
+		} catch (ClassCastException e) {
+			Log.e(TAG, "Activity que utilizar fragment deve implementar listener: " + e.getMessage());
+			throw new IllegalStateException("Activity que utilizar fragment deve implementar listener", e);
+		}
 
 		// In support library r8, calling initLoader for a fragment in a FragmentPagerAdapter in
 		// the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
 		// fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
 		// we do this in onActivityCreated.
 		//noinspection deprecation
-		requireActivity().getSupportLoaderManager().initLoader(0, null, this);
+		requireActivity().getSupportLoaderManager().initLoader(0, null, presenter);
 	}
 
 	@Override
@@ -147,7 +155,7 @@ public class ArticleDetailFragment extends Fragment implements
 			@Override
 			public void onScrollChanged() {
 				mScrollY = mScrollView.getScrollY();
-				getActivityCast().onUpButtonFloorChanged(mItemId, ArticleDetailFragment.this);
+//				getActivityCast().onUpButtonFloorChanged(mItemId, ArticleDetailFragment.this); // TODO: 10/10/18 upbt
 				mPhotoContainerView.setTranslationY((int) (mScrollY - mScrollY / PARALLAX_FACTOR));
 				updateStatusBar();
 			}
@@ -161,15 +169,13 @@ public class ArticleDetailFragment extends Fragment implements
 		mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(requireActivity())
-						.setType("text/plain")
-						.setText("Some sample text")
-						.getIntent(), getString(R.string.action_share)));
+				listener.shareArticle(view);
 			}
 		});
 
-		bindViews();
+		bindView(null);
 		updateStatusBar();
+
 		return mRootView;
 	}
 
@@ -188,18 +194,25 @@ public class ArticleDetailFragment extends Fragment implements
 		mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
 	}
 
-	private Date parsePublishedDate() {
+	private Date parsePublishedDate(Cursor cursor) {
 		try {
-			String date = mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
+			String date = cursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
 			return dateFormat.parse(date);
 		} catch (ParseException ex) {
 			Log.e(TAG, ex.getMessage());
 			Log.i(TAG, "passing today's date");
+
 			return new Date();
 		}
 	}
 
-	private void bindViews() {
+	@Override
+	public boolean isFragmentAdded() {
+		return isAdded();
+	}
+
+	@Override
+	public void bindView(Cursor mCursor) {
 		if (mRootView == null) {
 			return;
 		}
@@ -217,7 +230,7 @@ public class ArticleDetailFragment extends Fragment implements
 			mRootView.setVisibility(View.VISIBLE);
 			mRootView.animate().alpha(1);
 			titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
-			Date publishedDate = parsePublishedDate();
+			Date publishedDate = parsePublishedDate(mCursor);
 			if (!publishedDate.before(START_OF_EPOCH.getTime())) {
 				bylineView.setText(Html.fromHtml(
 						DateUtils.getRelativeTimeSpanString(
@@ -265,45 +278,16 @@ public class ArticleDetailFragment extends Fragment implements
 		}
 	}
 
-	@NonNull
-	@Override
-	public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-		return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
-	}
+	// TODO: 10/10/18 upbt
+	//	public int getUpButtonFloor() {
+//		if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
+//			return Integer.MAX_VALUE;
+//		}
+//
+//		// account for parallax
+//		return mIsCard
+//				? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
+//				: mPhotoView.getHeight() - mScrollY;
+//	}
 
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
-		if (!isAdded()) {
-			if (cursor != null) {
-				cursor.close();
-			}
-			return;
-		}
-
-		mCursor = cursor;
-		if (mCursor != null && !mCursor.moveToFirst()) {
-			Log.e(TAG, "Error reading item detail cursor");
-			mCursor.close();
-			mCursor = null;
-		}
-
-		bindViews();
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> cursorLoader) {
-		mCursor = null;
-		bindViews();
-	}
-
-	public int getUpButtonFloor() {
-		if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
-			return Integer.MAX_VALUE;
-		}
-
-		// account for parallax
-		return mIsCard
-				? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
-				: mPhotoView.getHeight() - mScrollY;
-	}
 }
