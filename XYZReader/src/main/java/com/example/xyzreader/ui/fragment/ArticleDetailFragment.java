@@ -153,7 +153,7 @@ public class ArticleDetailFragment extends Fragment implements
 		});
 
 		mScrollView = mRootView.findViewById(R.id.scrollview);
-		progressBar = mRootView.findViewById(R.id.progress_bar);
+		progressBar = mRootView.findViewById(R.id.pb_details_fragment);
 		mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
 			@Override
 			public void onScrollChanged() {

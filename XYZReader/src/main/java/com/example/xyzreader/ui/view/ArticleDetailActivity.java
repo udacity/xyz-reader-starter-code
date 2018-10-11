@@ -113,9 +113,15 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 			if (getIntent() != null && getIntent().getData() != null) {
 				long mStartId = ItemsContract.Items.getItemId(getIntent().getData());
 				presenter.setStartId(mStartId);
+			} else {
+				throw new IllegalStateException("Não foi passado itemId");
 			}
 		}
+	}
 
+	@Override
+	protected void onStart() {
+		super.onStart();
 		//noinspection deprecation
 		getSupportLoaderManager().initLoader(0, null, presenter);
 	}

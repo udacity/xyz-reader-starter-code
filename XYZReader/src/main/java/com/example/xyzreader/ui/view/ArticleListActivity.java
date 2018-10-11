@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import com.example.xyzreader.R;
+import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 import com.example.xyzreader.data.loader.ArticleLoader;
 import com.example.xyzreader.data.model.Article;
@@ -62,7 +63,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 
 		Toolbar mToolbar = findViewById(R.id.toolbar);
 		rootLayout = findViewById(R.id.main_root);
-		progressBar = findViewById(R.id.progress_bar);
+		progressBar = findViewById(R.id.pb_details_fragment);
 		mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
 		mRecyclerView = findViewById(R.id.recycler_view);
 
@@ -135,8 +136,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 
 	@Override
 	public void showArticleDetailsView(Article article) {
-		Intent intent = new Intent(this, ArticleDetailActivity.class);
-		intent.putExtra(ArticleDetailActivity.ARTICLE_ID_EXTRA_PARAM_KEY, article.getId());
+		Intent intent = new Intent(Intent.ACTION_VIEW, ItemsContract.Items.buildItemUri(article.getId()));
 
 		startActivity(intent);
 	}

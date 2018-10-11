@@ -97,7 +97,7 @@
 	<ProgressBar
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:id="@+id/progress_bar"
+			android:id="@+id/pb_details_fragment"
 			/>
 
 	<!--android:stateListAnimator="@anim/fab_state_list_anim"-->

@@ -75,7 +75,7 @@ public class ArticleDetailsPresenter implements ArticleDetailContract.Presenter 
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-		view.setProgressBarVisibity(PROGRESS_BAR_INVISIBLE);
+//		view.setProgressBarVisibity(PROGRESS_BAR_INVISIBLE);
 		mCursor = cursor;
 		view.notifyViewPagerThatDataChanged();
 
