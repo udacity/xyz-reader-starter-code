@@ -35,18 +35,18 @@ public class ArticleDetailsUITest {
 	@Test
 	public void showTitleBodyArticle_onStart() {
 		onView(isRoot()).check(matches(isDisplayed()));
-		onView(withId(R.id.pager)).check(matches(isDisplayed()));
+		onView(withId(R.id.vp_article)).check(matches(isDisplayed()));
 		onIdle();
-		onView(withId(R.id.article_title)).check(matches(isDisplayed()));
-		onView(withId(R.id.article_body)).check(matches(isDisplayed()));
+		onView(withId(R.id.tv_article_title)).check(matches(isDisplayed()));
+		onView(withId(R.id.tv_article_body)).check(matches(isDisplayed()));
 	}
 
 	@Test
 	public void showShareActivity_onSelectShare() {
 		onView(isRoot()).check(matches(isDisplayed()));
-		onView(withId(R.id.pager)).check(matches(isDisplayed()));
+		onView(withId(R.id.vp_article)).check(matches(isDisplayed()));
 		onIdle();
-		onView(withId(R.id.share_fab)).perform(click());
+		onView(withId(R.id.fab_share)).perform(click());
 		onIdle();
 		// TODO: 08/10/18 Add teste de activity de shar, Descobrir algum id dela ou se testa por passagem de intent
 	}

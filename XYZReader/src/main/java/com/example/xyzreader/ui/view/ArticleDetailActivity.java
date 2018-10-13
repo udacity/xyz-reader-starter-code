@@ -2,10 +2,9 @@ package com.example.xyzreader.ui.view;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -13,101 +12,62 @@ import android.support.v4.app.ShareCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ItemsContract;
+import com.example.xyzreader.data.loader.ArticleLoader;
 import com.example.xyzreader.ui.fragment.ArticleDetailFragment;
 import com.example.xyzreader.ui.presenter.ArticleDetailContract;
 import com.example.xyzreader.ui.presenter.ArticleDetailsPresenter;
 import com.example.xyzreader.ui.view.helper.ActivityHelper;
+import com.example.xyzreader.ui.view.helper.ImageLoaderHelper;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
 public class ArticleDetailActivity extends AppCompatActivity implements ArticleDetailContract.View {
 
-	public static final String ARTICLE_ID_EXTRA_PARAM_KEY = "article extra param key";
-
 	private static final String TAG = ArticleDetailActivity.class.getSimpleName();
 
-	private ViewPager mPager;
 	private MyPagerAdapter mPagerAdapter;
-	private View mUpButton;
 	private ArticleDetailContract.Presenter presenter;
-	private View rootView;
-	private ProgressBar progressBar;
 
-	// TODO: 10/10/18 verificar need
-	private View mUpButtonContainer;
-	private long mSelectedItemId;
-	private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
-	private int mTopInset;
+	@BindView(R.id.root_view)
+	View rootView;
+	@BindView(R.id.collapsingBar)
+	CollapsingToolbarLayout collapsingToolbarLayout;
+	@BindView(R.id.toolbar)
+	Toolbar toobar;
+	//	@BindView(R.id.tv_article_title)
+//	TextView titleTV;
+	@BindView(R.id.iv_article)
+	ImageView articleIV;
+	@BindView(R.id.vp_article)
+	ViewPager articleVP;
+	@BindView(R.id.progress_bar)
+	ProgressBar progressBar;
+
+	@Override
+	public void createPagerAdapter() {
+		mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+		articleVP.setAdapter(mPagerAdapter);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			getWindow().getDecorView().setSystemUiVisibility(
-					View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-							View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-		}
-		setContentView(R.layout.activity_article_detail);
-
-		presenter = new ArticleDetailsPresenter(this, this);
-
-		rootView = findViewById(R.id.root_view);
-		mPager = findViewById(R.id.pager);
-		progressBar = findViewById(R.id.progress_bar);
-		Toolbar mToolbar = findViewById(R.id.toolbar);
-		mUpButtonContainer = findViewById(R.id.toolbar_container);
-		mUpButton = findViewById(R.id.action_up);
-
-		ActivityHelper.configureActionBar(this, mToolbar);
-		mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
-		mPager.setAdapter(mPagerAdapter);
-		mPager.setPageMargin(
-				(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
-		mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
-
-		//noinspection deprecation
-		mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-			@Override
-			public void onPageScrollStateChanged(int state) {
-				super.onPageScrollStateChanged(state);
-				mUpButton.animate()
-						.alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
-						.setDuration(300);
-			}
-
-			@Override
-			public void onPageSelected(int position) {
-				presenter.changeCursorPosition(position);
-			}
-		});
-
-		mUpButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onSupportNavigateUp();
-			}
-		});
-
-		// TODO: 10/10/18 validar uso de upBt
 //		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//			mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-//				@Override
-//				public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-//					view.onApplyWindowInsets(windowInsets);
-//					mTopInset = windowInsets.getSystemWindowInsetTop();
-//					mUpButtonContainer.setTranslationY(mTopInset);
-//					updateUpButtonPosition();
-//					return windowInsets;
-//				}
-//			});
+//			setFullScreenLoliPop();
 //		}
+		setContentView(R.layout.activity_article_detail);
+		presenter = new ArticleDetailsPresenter(this, this);
+		ButterKnife.bind(this);
 
 		if (savedInstanceState == null) {
 			if (getIntent() != null && getIntent().getData() != null) {
@@ -117,6 +77,15 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 				throw new IllegalStateException("Não foi passado itemId");
 			}
 		}
+
+		ActivityHelper.configureActionBar(this, toobar);
+//		ActivityHelper.configureHomeButton(this);
+	}
+
+	private void setFullScreenLoliPop() {
+		getWindow().getDecorView().setSystemUiVisibility(
+				View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+						View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
 	}
 
 	@Override
@@ -135,26 +104,40 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 	}
 
 	@Override
+	public void bindView(Cursor cursor) {
+		String title = cursor.getString(cursor.getColumnIndex(ItemsContract.Items.TITLE));
+//		titleTV.setText(title);
+		ImageLoaderHelper.getInstance(this).getImageLoader()
+				.get(cursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
+					@Override
+					public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+						Bitmap bitmap = imageContainer.getBitmap();
+						if (bitmap != null) {
+							articleIV.setImageBitmap(bitmap);
+						}
+					}
+
+					@Override
+					public void onErrorResponse(VolleyError volleyError) {
+						articleIV.setImageDrawable(getResources().getDrawable(R.drawable.empty_detail));
+					}
+				});
+		toobar.setTitle(title);
+	}
+
+	@Override
 	public void setPagerPos(int position) {
-		mPager.setCurrentItem(position, false);
+		articleVP.setCurrentItem(position, false);
 	}
 
 	@Override
 	public void updateUpBt(int position) {
-//		updateUpButtonPosition();
+		updateUpButtonPosition();
 	}
 
-//	public void onUpButtonFloorChanged(long itemId, ArticleDetailFragment fragment) {
-//		if (itemId == mSelectedItemId) {
-//			mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-//			updateUpButtonPosition();
-//		}
-//	}
+	private void updateUpButtonPosition() {
 
-//	private void updateUpButtonPosition() {
-//		int upButtonNormalBottom = mTopInset + mUpButton.getHeight();
-//		mUpButton.setTranslationY(Math.min(mSelectedItemUpButtonFloor - upButtonNormalBottom, 0));
-//	}
+	}
 
 	@Override
 	public void showErrorMsg(String msg) {
@@ -171,8 +154,13 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 		if (visible) {
 			progressBar.setVisibility(View.VISIBLE);
 		} else {
-			progressBar.setVisibility(View.INVISIBLE);
+			progressBar.setVisibility(View.GONE);
 		}
+	}
+
+	@Override
+	public void onUpBuutonFloorChanged(long itemId, int upButtonFloor) {
+
 	}
 
 	@Override
@@ -188,23 +176,6 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 	private class MyPagerAdapter extends FragmentStatePagerAdapter {
 		MyPagerAdapter(FragmentManager fm) {
 			super(fm);
-		}
-
-		@Override
-		public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-			super.setPrimaryItem(container, position, object);
-			// TODO: 10/10/18 upbt
-//			ArticleDetailFragment fragment = null;
-//			try {
-//				fragment = (ArticleDetailFragment) object;
-//			} catch (Exception e) {
-//				Log.e(TAG, "Não foi possivel criar fragment de object: " + e.getMessage());
-//			}
-			//noinspection ConstantConditions
-//			if (fragment != null) {
-//				mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-//				updateUpButtonPosition();
-//			}
 		}
 
 		@Override

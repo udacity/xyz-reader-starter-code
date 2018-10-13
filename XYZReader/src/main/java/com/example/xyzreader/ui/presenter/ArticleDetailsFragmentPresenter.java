@@ -17,6 +17,7 @@ public class ArticleDetailsFragmentPresenter implements ArticleDetailContract.Pr
 	private Cursor mCursor;
 
 	private long itemId;
+	private static final float PARALLAX_FACTOR = 1.25f;
 
 	public ArticleDetailsFragmentPresenter(Context context, ArticleDetailContract.FragmentView view, long itemId) {
 		this.context = context;
@@ -55,5 +56,16 @@ public class ArticleDetailsFragmentPresenter implements ArticleDetailContract.Pr
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		mCursor = null;
 		view.bindView(null);
+	}
+
+	@Override
+	public void onScroolChanged(int mScrollY) {
+		view.onUpButtonFloorChanged(itemId);
+		view.updateStatusBar();
+	}
+
+	@Override
+	public long getArticleId() {
+		return itemId;
 	}
 }

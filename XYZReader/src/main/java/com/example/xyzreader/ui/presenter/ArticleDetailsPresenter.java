@@ -60,7 +60,7 @@ public class ArticleDetailsPresenter implements ArticleDetailContract.Presenter 
 	public void changeCursorPosition(int position) {
 		if (mCursor != null) {
 			mCursor.moveToPosition(position);
-//			mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID); // TODO: 10/10/18 verificar upbt
+			long mSelectedItemId = getArticleIdByCursor();
 			view.updateUpBt(position);
 		}
 	}
@@ -75,24 +75,24 @@ public class ArticleDetailsPresenter implements ArticleDetailContract.Presenter 
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-//		view.setProgressBarVisibity(PROGRESS_BAR_INVISIBLE);
+		view.setProgressBarVisibity(PROGRESS_BAR_INVISIBLE);
 		mCursor = cursor;
-		view.notifyViewPagerThatDataChanged();
-
+		view.createPagerAdapter();
+		view.bindView(cursor);
 		// Select the start ID
-		if (mStartId > 0) {
-			mCursor.moveToFirst();
-			// TODO: optimize
-			while (!mCursor.isAfterLast()) {
-				if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
-					final int position = mCursor.getPosition();
-					view.setPagerPos(position);
-					break;
-				}
-				mCursor.moveToNext();
-			}
-			mStartId = 0;
-		}
+//		if (mStartId > 0) {
+//			mCursor.moveToFirst();
+//			// TODO: optimize
+//			while (!mCursor.isAfterLast()) {
+//				if (getArticleIdByCursor() == mStartId) {
+//					final int position = mCursor.getPosition();
+////					view.setPagerPos(position);
+//					break;
+//				}
+//				mCursor.moveToNext();
+//			}
+//			mStartId = 0;
+//		}
 	}
 
 	@Override

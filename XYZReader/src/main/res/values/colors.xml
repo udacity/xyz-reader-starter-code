@@ -30,4 +30,7 @@
     <color name="ltgray">#ffe0e0e0</color>
 	<color name="red">#fc2032</color>
 	<color name="blue">#2b35f7</color>
+	<color name="white">#fff</color>
+	<color name="black">#000</color>
+	<color name="image_gradient_end">#7de0e0e0</color>
 </resources>

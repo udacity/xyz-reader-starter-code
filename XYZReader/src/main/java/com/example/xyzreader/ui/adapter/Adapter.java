@@ -1,6 +1,7 @@
 package com.example.xyzreader.ui.adapter;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -8,12 +9,11 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.loader.ArticleLoader;
 import com.example.xyzreader.ui.view.ArticleListActivity;
-import com.example.xyzreader.ui.view.helper.ImageLoaderHelper;
-import com.example.xyzreader.ui.view.xyz.DynamicHeightNetworkImageView;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -88,10 +88,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 							+ "<br/>" + " by "
 							+ mCursor.getString(ArticleLoader.Query.AUTHOR)));
 		}
-		holder.thumbnailView.setImageUrl(
-				mCursor.getString(ArticleLoader.Query.THUMB_URL),
-				ImageLoaderHelper.getInstance(activity).getImageLoader());
-		holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+		String imageURI = mCursor.getString(ArticleLoader.Query.THUMB_URL);
+		holder.thumbnailView.setImageURI(Uri.parse(imageURI));
+//		holder.thumbnailView.seta(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO)); todo
 		holder.itemView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -106,15 +105,15 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 	}
 
 	static class ViewHolder extends RecyclerView.ViewHolder {
-		DynamicHeightNetworkImageView thumbnailView;
+		ImageView thumbnailView;
 		TextView titleView;
 		TextView subtitleView;
 
 		ViewHolder(View view) {
 			super(view);
-			thumbnailView = view.findViewById(R.id.thumbnail);
-			titleView = view.findViewById(R.id.article_title);
-			subtitleView = view.findViewById(R.id.article_subtitle);
+			thumbnailView = view.findViewById(R.id.iv_thumbnail);
+			titleView = view.findViewById(R.id.tv_article_title);
+			subtitleView = view.findViewById(R.id.tv_article_subtitle);
 		}
 	}
 

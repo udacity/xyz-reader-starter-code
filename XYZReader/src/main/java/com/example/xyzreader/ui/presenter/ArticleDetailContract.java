@@ -17,6 +17,10 @@ public interface ArticleDetailContract {
 		void setPagerPos(int position);
 
 		void startShareView(android.view.View view, Cursor cursor);
+
+		void createPagerAdapter();
+
+		void bindView(Cursor cursor);
 	}
 
 	interface FragmentView {
@@ -26,14 +30,25 @@ public interface ArticleDetailContract {
 		void bindView(Cursor mCursor);
 
 		void setProgressBarVisibility(boolean visible);
+
+		int getUpButtonFloor();
+
+		void onUpButtonFloorChanged(long itemId);
+
+		void updateStatusBar();
 	}
 
 	interface FragmentListener {
 		void shareArticle(android.view.View v);
+
+		void onUpBuutonFloorChanged(long itemId, int upButtonFloor);
 	}
 
 	interface PresenterFragment extends LoaderManager.LoaderCallbacks<Cursor> {
 
+		void onScroolChanged(int mScrollY);
+
+		long getArticleId();
 	}
 
 	interface Presenter extends LoaderManager.LoaderCallbacks<Cursor> {

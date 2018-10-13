@@ -8,5 +8,7 @@
     <string name="action_share">Share</string>
 
     <string name="up">Up</string>
+	<string name="article_image_content_discription">imagem de artigo</string>
+	<string name="loading_info">Carregando…</string>
 
 </resources>

@@ -23,12 +23,6 @@
 		<item name="colorAccent">@color/theme_accent</item>
 	</style>
 
-	<style name="Theme.App.ActionBar">
-		<item name="android:background">@color/theme_primary</item>
-		<item name="android:layout_height">@dimen/ab_height</item>
-		<item name="android:padding">@dimen/ab_padding</item>
-	</style>
-
 	<style name="Theme.App.LogoAB">
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_marginStart">@dimen/activity_margin</item>
@@ -37,4 +31,21 @@
 	<style name="Theme.App.Dark">
 		<!--<item name="android:statusBarColor">@android:color/transparent</item>-->
     </style>
+
+	<style name="Theme.App.toobar">
+		<item name="android:layout_height">@dimen/ab_height</item>
+		<item name="android:background">@color/theme_primary</item>
+		<item name="android:padding">@dimen/ab_padding</item>
+		<item name="android:layout_margin">@dimen/ab_margin</item>
+		<item name="android:textColor">@color/white</item>
+	</style>
+
+	<style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+	<style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+	<style name="Theme.App.progressBar">
+		<item name="android:layout_margin">@dimen/min_margin</item>
+	</style>
+
 </resources>

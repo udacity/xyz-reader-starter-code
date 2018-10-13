@@ -31,4 +31,14 @@ public final class ActivityHelper {
 
 		snackbar.show();
 	}
+
+	public static void configureHomeButton(AppCompatActivity activity) {
+//		Objects.requireNonNull(activity.getSupportActionBar()).setHomeButtonEnabled(true);
+		assert activity.getSupportActionBar() != null;
+		activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+		activity.getSupportActionBar().setDisplayUseLogoEnabled(false);
+		activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
+		activity.getSupportActionBar().setHomeAsUpIndicator(activity.getResources().getDrawable(R.drawable.ic_arrow_back));
+	}
 }
