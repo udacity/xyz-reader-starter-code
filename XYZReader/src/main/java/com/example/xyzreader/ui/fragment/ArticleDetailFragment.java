@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
@@ -53,8 +52,6 @@ public class ArticleDetailFragment extends Fragment implements
 	TextView authorTV;
 	@BindView(R.id.tv_article_body)
 	TextView bodyTV;
-	@BindView(R.id.fab_share)
-	FloatingActionButton shareFAB;
 
 	private ArticleDetailContract.PresenterFragment presenter;
 	private ArticleDetailContract.FragmentListener listener;
@@ -123,12 +120,6 @@ public class ArticleDetailFragment extends Fragment implements
 		rootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
 		ButterKnife.bind(this, rootView);
 
-		shareFAB.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				listener.shareArticle(view);
-			}
-		});
 		bindView(null);
 
 		return rootView;
@@ -161,8 +152,8 @@ public class ArticleDetailFragment extends Fragment implements
 		bodyTV.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
 		if (mCursor != null) {
-			rootView.setAlpha(0);
-			rootView.animate().alpha(1);
+//			rootView.setAlpha(0);
+//			rootView.animate().alpha(1);
 			Date publishedDate = parsePublishedDate(mCursor);
 			if (!publishedDate.before(START_OF_EPOCH.getTime())) {
 				dateTV.setText(DateUtils.getRelativeTimeSpanString(

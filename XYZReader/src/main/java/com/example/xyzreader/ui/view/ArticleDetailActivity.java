@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -52,6 +53,8 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 	ViewPager articleVP;
 	@BindView(R.id.progress_bar)
 	ProgressBar progressBar;
+	@BindView(R.id.fab_share)
+	FloatingActionButton shareFAB;
 
 	@Override
 	public void createPagerAdapter() {
@@ -79,7 +82,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 		}
 
 		ActivityHelper.configureActionBar(this, toobar);
-//		ActivityHelper.configureHomeButton(this);
+		ActivityHelper.configureHomeButton(this);
 	}
 
 	private void setFullScreenLoliPop() {
@@ -122,7 +125,15 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 						articleIV.setImageDrawable(getResources().getDrawable(R.drawable.empty_detail));
 					}
 				});
-		toobar.setTitle(title);
+		collapsingToolbarLayout.setTitle(title);
+		collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(R.color.white));
+		collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(R.color.white));
+		shareFAB.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				presenter.shareArticle(view);
+			}
+		});
 	}
 
 	@Override

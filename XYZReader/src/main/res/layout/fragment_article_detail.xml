@@ -1,73 +1,63 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				xmlns:app="http://schemas.android.com/apk/res-auto"
-				xmlns:tools="http://schemas.android.com/tools"
-				android:id="@+id/root_layout"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+												 xmlns:app="http://schemas.android.com/apk/res-auto"
+												 xmlns:tools="http://schemas.android.com/tools"
+												 android:id="@+id/fragment_root_layout"
+												 android:layout_width="match_parent"
+												 android:layout_height="match_parent"
 		>
 
-	<ProgressBar
-			android:id="@+id/pb_details_fragment"
-			style="@style/ArticleDetails.progressBar"
-			android:layout_alignParentTop="true"
-			android:layout_alignParentStart="true"
-			android:layout_alignParentEnd="true"
-			/>
-
-	<!--<android.support.v4.widget.NestedScrollView-->
-	<!--android:id="@+id/sv_body"-->
-	<!--android:layout_width="match_parent"-->
-	<!--android:layout_height="match_parent"-->
-	<!--android:layout_alignParentTop="true"-->
-	<!--&gt;-->
-	<RelativeLayout
+	<android.support.v4.widget.NestedScrollView
+			android:id="@+id/sv_body"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			style="@style/ArticleDetails.bodyContainer"
-			app:elevation="2dp"
+			android:layout_height="match_parent"
 			>
 
-		<TextView
-				android:id="@+id/tv_article_date"
-				style="@style/ArticleDetails.info"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentStart="true"
-				android:layout_alignParentTop="true"
-				tools:text="12/12/12 Teste de data grande"
-				/>
-
-		<TextView
-				android:id="@+id/tv_article_author"
-				style="@style/ArticleDetails.info"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_toEndOf="@+id/tv_article_date"
-				android:gravity="end"
-				android:layout_alignParentEnd="true"
-				android:layout_alignParentTop="true"
-				android:layout_alignBaseline="@+id/tv_article_date"
-				tools:text="by Alex Ferreira"
-				/>
-
-		<TextView
-				android:id="@+id/tv_article_body"
-				style="@style/ArticleDetails.body"
+		<RelativeLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@+id/tv_article_date"
-				/>
-	</RelativeLayout>
-	<!--</android.support.v4.widget.NestedScrollView>-->
+				style="@style/ArticleDetails.bodyContainer"
+				app:elevation="2dp"
+				>
 
-	<android.support.design.widget.FloatingActionButton
-			android:id="@+id/fab_share"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			style="@style/ArticleDetails.fab"
-			android:layout_alignParentBottom="true"
-			android:layout_alignParentEnd="true"
-			android:src="@drawable/ic_share"
-			/>
+			<ProgressBar
+					android:id="@+id/pb_details_fragment"
+					style="@style/ArticleDetails.progressBar"
+					android:layout_alignParentTop="true"
+					android:layout_alignParentStart="true"
+					android:layout_alignParentEnd="true"
+					/>
 
-</RelativeLayout>
+			<TextView
+					android:id="@+id/tv_article_date"
+					style="@style/ArticleDetails.info"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentStart="true"
+					android:layout_alignParentTop="true"
+					tools:text="12/12/12 Teste de data grande"
+					/>
+
+			<TextView
+					android:id="@+id/tv_article_author"
+					style="@style/ArticleDetails.info"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_toEndOf="@+id/tv_article_date"
+					android:gravity="end"
+					android:layout_alignParentEnd="true"
+					android:layout_alignParentTop="true"
+					android:layout_alignBaseline="@+id/tv_article_date"
+					tools:text="by Alex Ferreira"
+					/>
+
+			<TextView
+					android:id="@+id/tv_article_body"
+					style="@style/ArticleDetails.body"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_below="@+id/tv_article_date"
+					/>
+		</RelativeLayout>
+	</android.support.v4.widget.NestedScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

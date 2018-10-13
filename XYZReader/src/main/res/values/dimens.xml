@@ -9,7 +9,7 @@
 	<!-- detail -->
 	<dimen name="detail_photo_height">250dp</dimen>
 	<dimen name="detail_title_height">50dp</dimen>
-	<dimen name="detail_title_gradient_height">100dp</dimen>
+	<dimen name="detail_title_gradient_height">150dp</dimen>
 	<dimen name="detail_title_text_size">24sp</dimen>
 	<dimen name="detail_info_text_size">12sp</dimen>
 	<dimen name="detail_body_text_size">22sp</dimen>
