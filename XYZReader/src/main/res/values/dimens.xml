@@ -3,7 +3,8 @@
 	<!-- Article List -->
 	<dimen name="article_title_size">16sp</dimen>
 	<dimen name="article_subtitle_size">12sp</dimen>
-	<dimen name="article_image_width">100dp</dimen>
+	<dimen name="article_thumb_width">100dp</dimen>
+	<dimen name="article_card_height">100dp</dimen>
 	<item name="article_title_max_line" format="integer" type="integer">2</item>
 
 	<!-- detail -->

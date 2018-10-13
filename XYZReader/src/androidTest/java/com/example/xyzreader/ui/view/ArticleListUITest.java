@@ -23,16 +23,16 @@ public class ArticleListUITest {
 	@Test
 	public void showList_onStart() {
 		onView(isRoot()).check(matches(isDisplayed()));
-		onView(withId(R.id.recycler_view)).check(matches(isDisplayed()));
-		onView(withId(R.id.recycler_view)).check(matches(hasDescendant(withId(R.id.tv_article_title))));
+		onView(withId(R.id.rv_article)).check(matches(isDisplayed()));
+		onView(withId(R.id.rv_article)).check(matches(hasDescendant(withId(R.id.tv_article_title))));
 	}
 
 	@Test
 	public void showArticleDetailsView_onSelectArticle() {
 		onView(isRoot()).check(matches(isDisplayed()));
-		onView(withId(R.id.recycler_view)).check(matches(isDisplayed()));
+		onView(withId(R.id.rv_article)).check(matches(isDisplayed()));
 		onIdle();
-		onView(withId(R.id.recycler_view)).perform(RecyclerViewActions.actionOnItemAtPosition(
+		onView(withId(R.id.rv_article)).perform(RecyclerViewActions.actionOnItemAtPosition(
 				1, ViewActions.click()
 		));
 		onView(withId(R.id.vp_article)).check(matches(isDisplayed()));

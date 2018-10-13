@@ -5,9 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -16,12 +13,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
-import com.example.xyzreader.data.loader.ArticleLoader;
 import com.example.xyzreader.data.model.Article;
-import com.example.xyzreader.ui.adapter.Adapter;
+import com.example.xyzreader.ui.adapter.ArticleAdapter;
 import com.example.xyzreader.ui.presenter.ArticleListContract;
 import com.example.xyzreader.ui.presenter.ArticleListPresenter;
 import com.example.xyzreader.ui.view.helper.ActivityHelper;
@@ -32,17 +30,22 @@ import com.example.xyzreader.ui.view.helper.ActivityHelper;
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
  */
-public class ArticleListActivity extends AppCompatActivity implements
-		LoaderManager.LoaderCallbacks<Cursor>, ArticleListContract.View, Adapter.AdapterListener {
+public class ArticleListActivity extends AppCompatActivity implements ArticleListContract.View, ArticleAdapter.AdapterListener {
 	@SuppressWarnings("unused")
 	private static final String TAG = ArticleListActivity.class.toString();
 
-	private SwipeRefreshLayout mSwipeRefreshLayout;
-	private RecyclerView mRecyclerView;
+	@BindView(R.id.swipe_refresh_layout)
+	SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.rv_article)
+	RecyclerView articleRV;
+	@BindView(R.id.root_view)
+	View rootLayout;
+	@BindView(R.id.progress_bar)
+	ProgressBar progressBar;
+	@BindView(R.id.toolbar)
+	Toolbar mToolbar;
 
 	private boolean mIsRefreshing = false;
-	private View rootLayout;
-	private ProgressBar progressBar;
 
 	private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
 		@Override
@@ -60,17 +63,13 @@ public class ArticleListActivity extends AppCompatActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_article_list);
-
-		Toolbar mToolbar = findViewById(R.id.toolbar);
-		rootLayout = findViewById(R.id.main_root);
-		progressBar = findViewById(R.id.pb_details_fragment);
-		mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-		mRecyclerView = findViewById(R.id.recycler_view);
+		ButterKnife.bind(this);
 
 		ActivityHelper.configureActionBar(this, mToolbar);
 		presenter = new ArticleListPresenter(this, this);
+
 		//noinspection deprecation
-		getSupportLoaderManager().initLoader(0, null, this);
+		getSupportLoaderManager().initLoader(0, null, presenter);
 
 		if (savedInstanceState == null) {
 			refresh();
@@ -96,23 +95,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 	}
 
 	private void updateRefreshingUI() {
-		mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
-	}
-
-	@NonNull
-	@Override
-	public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-		return ArticleLoader.newAllArticlesInstance(this);
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
-		presenter.onLoaderFinish(cursorLoader, cursor);
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-		mRecyclerView.setAdapter(null);
+		swipeRefreshLayout.setRefreshing(mIsRefreshing);
 	}
 
 	@Override
@@ -143,8 +126,8 @@ public class ArticleListActivity extends AppCompatActivity implements
 
 	@Override
 	public void setArticleListPositionTo(int position) {
-		if (mRecyclerView.getItemDecorationCount() > position) {
-			mRecyclerView.setVerticalScrollbarPosition(position);
+		if (articleRV.getItemDecorationCount() > position) {
+			articleRV.setVerticalScrollbarPosition(position);
 		} else {
 			Log.w(TAG, "Tentando fazer scrool em RV sem o total de itens no adapter: " + position);
 		}
@@ -152,13 +135,18 @@ public class ArticleListActivity extends AppCompatActivity implements
 
 	@Override
 	public void createAdapter(Cursor cursor) {
-		Adapter adapter = new Adapter(this, cursor, this);
-		adapter.setHasStableIds(true);
-		mRecyclerView.setAdapter(adapter);
+		ArticleAdapter articleAdapter = new ArticleAdapter(this, cursor, this);
+		articleAdapter.setHasStableIds(true);
+		articleRV.setAdapter(articleAdapter);
 
 		int columnCount = getResources().getInteger(R.integer.list_column_count);
 		StaggeredGridLayoutManager sglm = new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
-		mRecyclerView.setLayoutManager(sglm);
+		articleRV.setLayoutManager(sglm);
+	}
+
+	@Override
+	public void destroyList() {
+		articleRV.setAdapter(null);
 	}
 
 	@Override
@@ -170,7 +158,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (presenter != null) {
-			presenter.savePositionState(outState, mRecyclerView.getVerticalScrollbarPosition());
+			presenter.savePositionState(outState, articleRV.getVerticalScrollbarPosition());
 		}
 	}
 }

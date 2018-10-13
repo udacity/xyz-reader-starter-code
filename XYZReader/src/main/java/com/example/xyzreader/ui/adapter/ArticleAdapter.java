@@ -1,7 +1,7 @@
 package com.example.xyzreader.ui.adapter;
 
 import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -11,9 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.loader.ArticleLoader;
 import com.example.xyzreader.ui.view.ArticleListActivity;
+import com.example.xyzreader.ui.view.helper.ImageLoaderHelper;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -22,8 +25,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
-	private static final String TAG = Adapter.class.toString();
+public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHolder> {
+	private static final String TAG = ArticleAdapter.class.toString();
 
 	private ArticleListActivity activity;
 	private Cursor mCursor;
@@ -34,7 +37,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 	// Most time functions can only handle 1902 - 2037
 	private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
 
-	public Adapter(ArticleListActivity activity, Cursor cursor, AdapterListener listener) {
+	public ArticleAdapter(ArticleListActivity activity, Cursor cursor, AdapterListener listener) {
 		this.activity = activity;
 		mCursor = cursor;
 		this.listener = listener;
@@ -89,8 +92,21 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 							+ mCursor.getString(ArticleLoader.Query.AUTHOR)));
 		}
 		String imageURI = mCursor.getString(ArticleLoader.Query.THUMB_URL);
-		holder.thumbnailView.setImageURI(Uri.parse(imageURI));
-//		holder.thumbnailView.seta(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO)); todo
+		ImageLoaderHelper.getInstance(activity).getImageLoader()
+				.get(imageURI, new ImageLoader.ImageListener() {
+					@Override
+					public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+						Bitmap bitmap = imageContainer.getBitmap();
+						if (bitmap != null) {
+							holder.thumbnailView.setImageBitmap(bitmap);
+						}
+					}
+
+					@Override
+					public void onErrorResponse(VolleyError volleyError) {
+						holder.thumbnailView.setImageDrawable(activity.getResources().getDrawable(R.drawable.empty_detail));
+					}
+				});
 		holder.itemView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

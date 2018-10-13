@@ -46,6 +46,7 @@
 
 	<style name="Theme.App.progressBar">
 		<item name="android:layout_margin">@dimen/min_margin</item>
+		<item name="android:layout_gravity">center_horizontal</item>
 	</style>
 
 </resources>

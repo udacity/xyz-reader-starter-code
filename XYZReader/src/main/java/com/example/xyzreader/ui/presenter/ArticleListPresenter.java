@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.Loader;
 import com.example.xyzreader.data.UpdaterService;
+import com.example.xyzreader.data.loader.ArticleLoader;
 import com.example.xyzreader.data.model.Article;
 
 public class ArticleListPresenter implements ArticleListContract.Presenter {
@@ -43,12 +45,24 @@ public class ArticleListPresenter implements ArticleListContract.Presenter {
 		}
 	}
 
+
+	@NonNull
 	@Override
-	public void onLoaderFinish(Loader<Cursor> cursorLoader, Cursor cursor) {
+	public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+		return ArticleLoader.newAllArticlesInstance(context);
+	}
+
+	@Override
+	public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
 		view.createAdapter(cursor);
 		if (savedPosition > 0) {
 			view.setArticleListPositionTo(savedPosition);
 		}
+	}
+
+	@Override
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+		view.destroyList();
 	}
 
 	@Override
