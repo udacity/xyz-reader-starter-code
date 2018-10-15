@@ -55,6 +55,7 @@ public class ArticleListPresenter implements ArticleListContract.Presenter {
 	public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
 		view.createAdapter(cursor);
 		view.setRefreshState(false);
+		view.setProgressBarVisibity(false);
 		if (savedPosition > 0) {
 			view.setArticleListPositionTo(savedPosition);
 		}
@@ -73,7 +74,6 @@ public class ArticleListPresenter implements ArticleListContract.Presenter {
 	@Override
 	public void onStartLoad() {
 		view.setProgressBarVisibity(true);
-		view.setRefreshState(true);
 	}
 
 	@Override
