@@ -150,6 +150,12 @@ public class ArticleListActivity extends AppCompatActivity implements ArticleLis
 	}
 
 	@Override
+	public void setRefreshState(boolean refreshing) {
+		mIsRefreshing = refreshing;
+		updateRefreshingUI();
+	}
+
+	@Override
 	public void selectArticle(int position, Long id) {
 		presenter.selectArticle(position, id);
 	}

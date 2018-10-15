@@ -3,6 +3,7 @@ package com.example.xyzreader.ui.presenter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
+import com.example.xyzreader.data.loader.ArticleLoader;
 import com.example.xyzreader.ui.view.BaseView;
 
 public interface ArticleDetailContract {
@@ -18,9 +19,11 @@ public interface ArticleDetailContract {
 
 		void startShareView(android.view.View view, Cursor cursor);
 
-		void createPagerAdapter();
+		void createPagerAdapter(Cursor cursor);
 
 		void bindView(Cursor cursor);
+
+		void swapCursor(Cursor cursor);
 	}
 
 	interface FragmentView {
@@ -44,27 +47,25 @@ public interface ArticleDetailContract {
 		void onUpBuutonFloorChanged(long itemId, int upButtonFloor);
 	}
 
-	interface PresenterFragment extends LoaderManager.LoaderCallbacks<Cursor> {
+	interface PresenterFragment extends LoaderManager.LoaderCallbacks<Cursor>, ArticleLoader.LoaderListeners {
 
 		void onScroolChanged(int mScrollY);
 
 		long getArticleId();
 	}
 
-	interface Presenter extends LoaderManager.LoaderCallbacks<Cursor> {
+	interface Presenter extends LoaderManager.LoaderCallbacks<Cursor>, ArticleLoader.LoaderListeners {
 
 		void restoreSavedState(Bundle savedInstanceState);
 
 		void savePositionState(Bundle outState, int verticalScrollbarPosition);
 
-		void changeCursorPosition(int position);
-
 		void setStartId(long mStartId);
 
 		long getArticleIdByCursor();
 
-		int getTotalInCursor();
-
 		void shareArticle(android.view.View view);
+
+		boolean onPageChange(int position);
 	}
 }

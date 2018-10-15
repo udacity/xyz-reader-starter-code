@@ -84,6 +84,7 @@ public class ArticleDetailFragment extends Fragment implements
 		isCard = getResources().getBoolean(R.bool.detail_is_card);
 		if (getArguments() != null && getArguments().containsKey(ARG_ITEM_ID)) {
 			long mItemId = getArguments().getLong(ARG_ITEM_ID);
+			Log.d(TAG, "Criando fragment: " + mItemId);
 			presenter = new ArticleDetailsFragmentPresenter(requireContext(), this, mItemId);
 		} else {
 			throw new IllegalStateException("Não foi passado itemId");
@@ -101,8 +102,9 @@ public class ArticleDetailFragment extends Fragment implements
 			throw new IllegalStateException("Activity que utilizar fragment deve implementar listener", e);
 		}
 
+		Log.d(TAG, "Iniciando loader no frag com id: " + presenter.getArticleId());
 		// noinspection deprecation
-		requireActivity().getSupportLoaderManager().initLoader(Integer.parseInt(String.valueOf(presenter.getArticleId())), null, presenter);
+		requireActivity().getSupportLoaderManager().initLoader(ArticleDetailActivity.ARTICLE_BY_ID_FRAG_LOADER_ID + Integer.parseInt(String.valueOf(presenter.getArticleId())), null, presenter);
 	}
 
 	@Override
@@ -119,8 +121,8 @@ public class ArticleDetailFragment extends Fragment implements
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		rootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
 		ButterKnife.bind(this, rootView);
-
 		bindView(null);
+		Log.d(TAG, "Criando view para fragment com id: " + presenter.getArticleId());
 
 		return rootView;
 	}
@@ -147,14 +149,16 @@ public class ArticleDetailFragment extends Fragment implements
 	}
 
 	@Override
-	public void bindView(Cursor mCursor) {
+	public void bindView(Cursor cursor) {
 		dateTV.setMovementMethod(new LinkMovementMethod());
 		bodyTV.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
-		if (mCursor != null) {
+		if (cursor != null) {
+			Log.d(TAG, "Iniciando bind de id: " + presenter.getArticleId());
 //			rootView.setAlpha(0);
 //			rootView.animate().alpha(1);
-			Date publishedDate = parsePublishedDate(mCursor);
+			setProgressBarVisibility(false);
+			Date publishedDate = parsePublishedDate(cursor);
 			if (!publishedDate.before(START_OF_EPOCH.getTime())) {
 				dateTV.setText(DateUtils.getRelativeTimeSpanString(
 						publishedDate.getTime(),
@@ -163,19 +167,20 @@ public class ArticleDetailFragment extends Fragment implements
 
 			} else { // If date is before 1902, just show the string
 				dateTV.setText(outputFormat.format(publishedDate));
-
 			}
-			String authorName = mCursor.getString(ArticleLoader.Query.AUTHOR);
+			String authorName = cursor.getString(ArticleLoader.Query.AUTHOR);
 			String authorText = String.format("by %s", authorName);
 			authorTV.setText(authorText);
-			String articleBody = mCursor.getString(ArticleLoader.Query.BODY);
+			String articleBody = cursor.getString(ArticleLoader.Query.BODY);
 			bodyTV.setText(Html.fromHtml(articleBody.replaceAll("(\r\n|\n)", "<br />")));
 		} else {
+			Log.d(TAG, "Iniciando bind null");
 			setProgressBarVisibility(true);
 			dateTV.setText(getString(R.string.loading_info));
 			authorTV.setText(getString(R.string.loading_info));
 			bodyTV.setText(getString(R.string.loading_info));
 		}
+		Log.d(TAG, "Fim bind de id: " + presenter.getArticleId());
 	}
 
 	@Override

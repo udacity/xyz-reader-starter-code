@@ -83,6 +83,18 @@
 			app:layout_behavior="@string/appbar_scrolling_view_behavior"
 			/>
 
+	<ProgressBar
+			android:id="@+id/progress_bar"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			style="@style/ArticleDetails.progressBar"
+			android:layout_gravity="bottom|center_horizontal"
+			android:indeterminate="true"
+			app:layout_anchor="@id/vp_article"
+			app:layout_anchorGravity="top|center_horizontal"
+			tools:visibility="visible"
+			/>
+
 	<android.support.design.widget.FloatingActionButton
 			android:id="@+id/fab_share"
 			android:layout_width="wrap_content"
@@ -100,15 +112,5 @@
 
 	<!---->
 	<!--</android.support.v4.widget.NestedScrollView>-->
-
-	<ProgressBar
-			android:id="@+id/progress_bar"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			style="@style/ArticleDetails.progressBar"
-			android:layout_gravity="top|center_horizontal"
-			android:indeterminate="true"
-			tools:visibility="visible"
-			/>
 
 </android.support.design.widget.CoordinatorLayout>

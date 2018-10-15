@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import com.example.xyzreader.data.loader.ArticleLoader;
 
 public class ArticleDetailsFragmentPresenter implements ArticleDetailContract.PresenterFragment {
@@ -15,9 +14,7 @@ public class ArticleDetailsFragmentPresenter implements ArticleDetailContract.Pr
 	private Context context;
 	private ArticleDetailContract.FragmentView view;
 	private Cursor mCursor;
-
 	private long itemId;
-	private static final float PARALLAX_FACTOR = 1.25f;
 
 	public ArticleDetailsFragmentPresenter(Context context, ArticleDetailContract.FragmentView view, long itemId) {
 		this.context = context;
@@ -28,13 +25,11 @@ public class ArticleDetailsFragmentPresenter implements ArticleDetailContract.Pr
 	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
-		view.setProgressBarVisibility(true);
-		return ArticleLoader.newInstanceForItemId(context, itemId);
+		return ArticleLoader.newInstanceForItemId(context, itemId, this);
 	}
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-		view.setProgressBarVisibility(false);
 		if (!view.isFragmentAdded()) {
 			if (cursor != null) {
 				cursor.close();
@@ -43,29 +38,33 @@ public class ArticleDetailsFragmentPresenter implements ArticleDetailContract.Pr
 		}
 
 		mCursor = cursor;
-		if (mCursor != null && !mCursor.moveToFirst()) {
-			Log.e(TAG, "Error reading item detail cursor");
-			mCursor.close();
-			mCursor = null;
-		}
-
+		cursor.moveToFirst();
 		view.bindView(mCursor);
 	}
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+		mCursor.close();
 		mCursor = null;
 		view.bindView(null);
 	}
 
 	@Override
 	public void onScroolChanged(int mScrollY) {
-		view.onUpButtonFloorChanged(itemId);
-		view.updateStatusBar();
 	}
 
 	@Override
 	public long getArticleId() {
 		return itemId;
+	}
+
+	@Override
+	public void onStartLoad() {
+		view.setProgressBarVisibility(true);
+	}
+
+	@Override
+	public void onFinishLoad() {
+		view.setProgressBarVisibility(false);
 	}
 }

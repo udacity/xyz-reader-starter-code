@@ -26,7 +26,6 @@ public class ArticleListPresenter implements ArticleListContract.Presenter {
 
 	@Override
 	public void loadArticleList(BroadcastReceiver mRefreshingReceiver) {
-		view.setProgressBarVisibity(true);
 		context.registerReceiver(mRefreshingReceiver, new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
 	}
 
@@ -49,12 +48,13 @@ public class ArticleListPresenter implements ArticleListContract.Presenter {
 	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-		return ArticleLoader.newAllArticlesInstance(context);
+		return ArticleLoader.newAllArticlesInstance(context, this);
 	}
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
 		view.createAdapter(cursor);
+		view.setRefreshState(false);
 		if (savedPosition > 0) {
 			view.setArticleListPositionTo(savedPosition);
 		}
@@ -68,5 +68,16 @@ public class ArticleListPresenter implements ArticleListContract.Presenter {
 	@Override
 	public void savePositionState(Bundle outState, int verticalScrollbarPosition) {
 		outState.putInt(SAVED_POSITION_KEY, verticalScrollbarPosition);
+	}
+
+	@Override
+	public void onStartLoad() {
+		view.setProgressBarVisibity(true);
+		view.setRefreshState(true);
+	}
+
+	@Override
+	public void onFinishLoad() {
+		view.setProgressBarVisibity(false);
 	}
 }

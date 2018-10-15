@@ -13,6 +13,7 @@ import android.support.v4.app.ShareCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -35,6 +36,9 @@ import com.example.xyzreader.ui.view.helper.ImageLoaderHelper;
 public class ArticleDetailActivity extends AppCompatActivity implements ArticleDetailContract.View {
 
 	private static final String TAG = ArticleDetailActivity.class.getSimpleName();
+	public static final int ARTICLE_BY_ID_LOADER_ID = 0;
+	public static final int ARTICLE_BY_ID_FRAG_LOADER_ID = 1;
+	public static final int ALL_ARTICLES_LOADER_ID = 2;
 
 	private MyPagerAdapter mPagerAdapter;
 	private ArticleDetailContract.Presenter presenter;
@@ -57,9 +61,14 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 	FloatingActionButton shareFAB;
 
 	@Override
-	public void createPagerAdapter() {
-		mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+	public void createPagerAdapter(Cursor cursor) {
+		mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), cursor);
 		articleVP.setAdapter(mPagerAdapter);
+	}
+
+	@Override
+	public void swapCursor(Cursor cursor) {
+		mPagerAdapter.swapCursor(cursor);
 	}
 
 	@Override
@@ -83,6 +92,17 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 
 		ActivityHelper.configureActionBar(this, toobar);
 		ActivityHelper.configureHomeButton(this);
+		collapsingToolbarLayout.setTitle(getResources().getString(R.string.loading_info));
+		articleVP.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				if (presenter.onPageChange(position)) {
+					super.onPageSelected(position);
+				} else {
+					Log.w(TAG, "Erro ao selecionar uma pagina que não está no cursor ou não há cursor válido");
+				}
+			}
+		});
 	}
 
 	private void setFullScreenLoliPop() {
@@ -95,7 +115,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 	protected void onStart() {
 		super.onStart();
 		//noinspection deprecation
-		getSupportLoaderManager().initLoader(0, null, presenter);
+		getSupportLoaderManager().initLoader(ALL_ARTICLES_LOADER_ID, null, presenter);
 	}
 
 	@Override
@@ -109,8 +129,8 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 	@Override
 	public void bindView(Cursor cursor) {
 		String title = cursor.getString(cursor.getColumnIndex(ItemsContract.Items.TITLE));
-//		titleTV.setText(title);
-		ImageLoaderHelper.getInstance(this).getImageLoader()
+		ImageLoaderHelper.getInstance(this)
+				.getImageLoader()
 				.get(cursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
 					@Override
 					public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
@@ -143,10 +163,6 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 
 	@Override
 	public void updateUpBt(int position) {
-		updateUpButtonPosition();
-	}
-
-	private void updateUpButtonPosition() {
 
 	}
 
@@ -185,20 +201,30 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 	}
 
 	private class MyPagerAdapter extends FragmentStatePagerAdapter {
-		MyPagerAdapter(FragmentManager fm) {
+		private Cursor cursor;
+
+		MyPagerAdapter(FragmentManager fm, Cursor cursor) {
 			super(fm);
+			this.cursor = cursor;
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			presenter.changeCursorPosition(position);
+			cursor.moveToPosition(position);
+			Log.d(TAG, "Criando fragment no adapter: " + position);
 
-			return ArticleDetailFragment.newInstance(presenter.getArticleIdByCursor());
+			return ArticleDetailFragment.newInstance(cursor.getLong(cursor.getColumnIndex(ItemsContract.Items._ID)));
 		}
 
 		@Override
 		public int getCount() {
-			return presenter.getTotalInCursor();
+			return cursor.getCount();
+		}
+
+		@SuppressWarnings("WeakerAccess")
+		public void swapCursor(Cursor cursor) {
+			this.cursor.close();
+			this.cursor = cursor;
 		}
 	}
 }
