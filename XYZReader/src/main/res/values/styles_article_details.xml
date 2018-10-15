@@ -55,8 +55,8 @@
 	</style>
 
 	<style name="ArticleDetails.info" parent="Theme.App">
-		<!--<item name="android:padding">@dimen/min_padding</item>-->
-		<!--<item name="android:layout_margin">@dimen/min_margin</item>-->
+		<item name="android:padding">@dimen/min_padding</item>
+		<item name="android:layout_margin">@dimen/min_margin</item>
 		<item name="android:fontFamily">sans-serif</item>
 		<item name="android:textStyle">bold</item>
 		<item name="android:textColor">@color/theme_secundary_dark</item>
@@ -68,14 +68,18 @@
 	</style>
 
 	<style name="ArticleDetails.body" parent="Theme.App">
-		<!--<item name="android:padding">@dimen/min_padding</item>-->
-		<!--<item name="android:layout_margin">@dimen/min_margin</item>-->
+		<item name="android:padding">@dimen/min_padding</item>
+		<item name="android:layout_margin">@dimen/min_margin</item>
 		<item name="android:fontFamily">sans-serif</item>
 		<item name="android:textStyle">normal</item>
 		<item name="android:textColor">@color/texto_light</item>
 		<item name="android:textSize">@dimen/detail_body_text_size</item>
 		<item name="android:textColorLink">@color/theme_accent</item>
-		<!--<item name="android:lineSpacingMultiplier">@fraction/detail_body_line_spacing_multiplier</item>-->
+		<item name="android:lineSpacingMultiplier">@fraction/detail_body_line_spacing_multiplier</item>
+	</style>
+
+	<style name="ArticleDetails.cardView">
+		<item name="android:background">@color/theme_primary</item>
 	</style>
 
 

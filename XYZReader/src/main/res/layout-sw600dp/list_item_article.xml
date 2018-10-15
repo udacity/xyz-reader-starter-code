@@ -15,20 +15,19 @@
 		<ImageView
 				android:id="@+id/iv_thumbnail"
 				style="@style/ArticleList.articleImage"
+				android:layout_width="@dimen/article_thumb_width"
+				android:layout_height="@dimen/article_thumb_width"
 				android:layout_alignParentStart="true"
+				android:layout_alignParentEnd="true"
 				android:layout_alignParentTop="true"
-				android:maxWidth="@dimen/max_width"
-				android:maxHeight="@dimen/max_height"
 				android:contentDescription="@string/article_image_content_discription"
 				/>
 
 		<TextView
 				android:id="@+id/tv_article_title"
-				android:layout_alignParentTop="true"
-				android:layout_toEndOf="@+id/iv_thumbnail"
+				android:layout_below="@+id/iv_thumbnail"
 				android:layout_alignParentEnd="true"
-				android:maxWidth="@dimen/max_width"
-				android:layout_marginStart="@dimen/key_line1"
+				android:layout_alignParentStart="true"
 				tools:text="Titulo"
 				style="@style/ArticleList.articleTitle"
 				/>
@@ -37,7 +36,8 @@
 				android:id="@+id/tv_article_subtitle"
 				style="@style/ArticleList.articleSubTitle"
 				android:layout_below="@+id/tv_article_title"
-				android:layout_toEndOf="@+id/iv_thumbnail"
+				android:layout_alignParentStart="true"
+				android:layout_alignParentEnd="true"
 				tools:text="SubTitulo"
 				/>
 	</RelativeLayout>

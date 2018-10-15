@@ -19,6 +19,7 @@
 	<style name="ArticleList.cardView">
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_margin">@dimen/min_margin</item>
+		<item name="android:maxWidth">@dimen/max_width</item>
 		<item name="android:clickable">true</item>
 		<item name="android:focusable">true</item>
 		<item name="android:foreground">?selectableItemBackground</item>
@@ -27,6 +28,8 @@
 	<style name="ArticleList.articleImage">
 		<item name="android:layout_width">@dimen/article_thumb_width</item>
 		<item name="android:layout_height">wrap_content</item>
+		<item name="android:maxWidth">@dimen/article_thumb_max_width</item>
+		<item name="android:maxHeight">@dimen/article_thumb_max_height</item>
 		<item name="android:scaleType">centerCrop</item>
 		<item name="android:layout_margin">@dimen/min_margin</item>
 		<item name="android:padding">@dimen/min_padding</item>
@@ -37,9 +40,11 @@
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_margin">@dimen/min_margin</item>
+		<item name="android:layout_marginStart">@dimen/key_line2</item>
 		<item name="android:textColor">@color/theme_primary</item>
 		<item name="android:textSize">@dimen/article_title_size</item>
 		<item name="android:maxLines">@integer/article_title_max_line</item>
+		<item name="android:maxWidth">@dimen/max_width</item>
 		<item name="android:ellipsize">end</item>
 	</style>
 

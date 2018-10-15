@@ -25,7 +25,7 @@
 
 	<style name="Theme.App.LogoAB">
 		<item name="android:layout_height">wrap_content</item>
-		<item name="android:layout_marginStart">@dimen/activity_margin</item>
+		<item name="android:layout_marginStart">@dimen/min_margin</item>
 	</style>
 
 	<style name="Theme.App.Dark">
