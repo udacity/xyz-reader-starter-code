@@ -19,14 +19,6 @@
 				app:elevation="2dp"
 				>
 
-			<ProgressBar
-					android:id="@+id/pb_details_fragment"
-					style="@style/ArticleDetails.progressBar"
-					android:layout_alignParentTop="true"
-					android:layout_alignParentStart="true"
-					android:layout_alignParentEnd="true"
-					/>
-
 			<TextView
 					android:id="@+id/tv_article_date"
 					style="@style/ArticleDetails.info"
@@ -42,6 +34,7 @@
 					style="@style/ArticleDetails.info"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
+					android:ellipsize="start"
 					android:layout_toEndOf="@+id/tv_article_date"
 					android:gravity="end"
 					android:layout_alignParentEnd="true"
@@ -55,6 +48,14 @@
 					style="@style/ArticleDetails.body"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:layout_below="@+id/tv_article_date"
+					/>
+
+			<ProgressBar
+					android:id="@+id/pb_details_fragment"
+					style="@style/ArticleDetails.progressBar"
+					android:layout_alignParentStart="true"
+					android:layout_alignParentEnd="true"
 					android:layout_below="@+id/tv_article_date"
 					/>
 		</RelativeLayout>

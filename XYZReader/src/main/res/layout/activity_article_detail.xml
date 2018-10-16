@@ -80,8 +80,8 @@
 			style="@style/ArticleDetails.progressBar"
 			android:layout_gravity="bottom|center_horizontal"
 			android:indeterminate="true"
-			app:layout_anchor="@id/vp_article"
-			app:layout_anchorGravity="top|center_horizontal"
+			app:layout_anchor="@id/collapsingBar"
+			app:layout_anchorGravity="bottom|center_horizontal"
 			tools:visibility="visible"
 			/>
 
