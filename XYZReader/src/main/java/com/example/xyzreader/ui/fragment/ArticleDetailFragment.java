@@ -79,7 +79,7 @@ public class ArticleDetailFragment extends Fragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
+		setRetainInstance(false);
 
 		isCard = getResources().getBoolean(R.bool.detail_is_card);
 		if (getArguments() != null && getArguments().containsKey(ARG_ITEM_ID)) {

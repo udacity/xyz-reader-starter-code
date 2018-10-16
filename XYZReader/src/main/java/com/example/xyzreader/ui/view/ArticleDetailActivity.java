@@ -64,11 +64,13 @@ public class ArticleDetailActivity extends AppCompatActivity implements ArticleD
 	public void createPagerAdapter(Cursor cursor) {
 		mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), cursor);
 		articleVP.setAdapter(mPagerAdapter);
+		articleVP.setSaveEnabled(false);
 	}
 
 	@Override
 	public void swapCursor(Cursor cursor) {
 		mPagerAdapter.swapCursor(cursor);
+		articleVP.setAdapter(null);
 	}
 
 	@Override

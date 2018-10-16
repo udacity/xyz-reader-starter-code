@@ -70,6 +70,12 @@ public class ArticleListActivity extends AppCompatActivity implements ArticleLis
 
 		//noinspection deprecation
 		getSupportLoaderManager().initLoader(0, null, presenter);
+		swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				refresh();
+			}
+		});
 
 		if (savedInstanceState == null) {
 			refresh();
