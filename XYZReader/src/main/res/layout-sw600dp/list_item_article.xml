@@ -1,0 +1,45 @@
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+									xmlns:tools="http://schemas.android.com/tools"
+									xmlns:app="http://schemas.android.com/apk/res-auto"
+									android:layout_width="wrap_content"
+									android:layout_height="@dimen/article_card_height"
+									app:cardElevation="@dimen/aticle_card_elevation"
+									style="@style/ArticleList.cardView"
+		>
+
+	<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			>
+
+		<ImageView
+				android:id="@+id/iv_thumbnail"
+				style="@style/ArticleList.articleImage"
+				android:layout_width="@dimen/article_thumb_width"
+				android:layout_height="@dimen/article_thumb_width"
+				android:layout_alignParentStart="true"
+				android:layout_alignParentEnd="true"
+				android:layout_alignParentTop="true"
+				android:contentDescription="@string/article_image_content_discription"
+				/>
+
+		<TextView
+				android:id="@+id/tv_article_title"
+				android:layout_below="@+id/iv_thumbnail"
+				android:layout_alignParentEnd="true"
+				android:layout_alignParentStart="true"
+				tools:text="Titulo"
+				style="@style/ArticleList.articleTitle"
+				/>
+
+		<TextView
+				android:id="@+id/tv_article_subtitle"
+				style="@style/ArticleList.articleSubTitle"
+				android:layout_below="@+id/tv_article_title"
+				android:layout_alignParentStart="true"
+				android:layout_alignParentEnd="true"
+				tools:text="SubTitulo"
+				/>
+	</RelativeLayout>
+
+</android.support.v7.widget.CardView>

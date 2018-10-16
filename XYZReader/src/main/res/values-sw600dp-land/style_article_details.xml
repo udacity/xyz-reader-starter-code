@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<style name="ArticleDetails.cardView">
+		<item name="android:maxWidth">@dimen/article_detail_card_max_width</item>
+		<item name="android:gravity">center_horizontal</item>
+		<item name="android:layout_marginBottom">50dp</item>
+		<item name="android:paddingBottom">50dp</item>
+	</style>
+
+	<style name="ArticleDetails.viewPager" parent="Theme.App">
+		<item name="android:layout_marginStart">50dp</item>
+		<item name="android:layout_marginEnd">50dp</item>
+		<item name="android:paddingStart">50dp</item>
+		<item name="android:paddingEnd">50dp</item>
+		<item name="android:paddingBottom">50dp</item>
+		<item name="android:maxWidth">600dp</item>
+	</style>
+</resources>

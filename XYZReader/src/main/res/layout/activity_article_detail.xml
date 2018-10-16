@@ -1,25 +1,97 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+												 xmlns:app="http://schemas.android.com/apk/res-auto"
+												 xmlns:tools="http://schemas.android.com/tools"
+												 android:layout_width="match_parent"
+												 android:layout_height="match_parent"
+												 android:fitsSystemWindows="true"
+												 android:id="@+id/root_view"
+		>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+	<android.support.design.widget.AppBarLayout
+			android:id="@+id/appBar"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/detail_photo_height"
+			android:fitsSystemWindows="true"
+			android:layout_margin="0dp"
+			>
 
-    <FrameLayout
-        android:id="@+id/up_container"
-        android:background="@android:color/transparent"
-        android:layout_width="match_parent"
-        android:layout_height="?actionBarSize">
+		<android.support.design.widget.CollapsingToolbarLayout
+				android:id="@+id/collapsingBar"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				app:contentScrim="@color/theme_primary"
+				android:fitsSystemWindows="true"
+				app:layout_scrollFlags="scroll|exitUntilCollapsed"
+				>
 
-        <ImageButton
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:id="@+id/action_up"
-            android:layout_width="56dp"
-            android:layout_height="?actionBarSize"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="@string/up"
-            android:src="@drawable/ic_arrow_back" />
-    </FrameLayout>
-</FrameLayout>
+			<FrameLayout
+					android:id="@+id/photo_container"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/detail_photo_height"
+					app:layout_collapseMode="parallax"
+			>
+
+				<ImageView
+						android:id="@+id/iv_article"
+						style="@style/ArticleDetails.image"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/detail_photo_height"
+						tools:src="@drawable/logo"
+						app:layout_collapseMode="parallax"
+						android:contentDescription="@string/article_image_content_discription"
+						/>
+
+				<View
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/detail_title_gradient_height"
+						android:layout_gravity="bottom|center"
+						android:background="@drawable/photo_background_protection"
+						/>
+
+			</FrameLayout>
+
+			<android.support.v7.widget.Toolbar
+					android:id="@+id/toolbar"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/ab_height"
+					app:elevation="@dimen/ab_elevation"
+					app:layout_collapseMode="pin"
+					app:titleTextColor="@color/white"
+					>
+
+			</android.support.v7.widget.Toolbar>
+
+		</android.support.design.widget.CollapsingToolbarLayout>
+
+	</android.support.design.widget.AppBarLayout>
+
+	<android.support.v4.view.ViewPager
+			android:id="@+id/vp_article"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			style="@style/ArticleDetails.viewPager"
+			app:layout_behavior="@string/appbar_scrolling_view_behavior"
+			/>
+
+	<ProgressBar
+			android:id="@+id/progress_bar"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			style="@style/ArticleDetails.progressBar"
+			android:layout_gravity="bottom|center_horizontal"
+			android:indeterminate="true"
+			app:layout_anchor="@id/collapsingBar"
+			app:layout_anchorGravity="bottom|center_horizontal"
+			tools:visibility="visible"
+			/>
+
+	<android.support.design.widget.FloatingActionButton
+			android:id="@+id/fab_share"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			style="@style/ArticleDetails.fab"
+			android:src="@drawable/ic_share"
+			app:layout_anchorGravity="bottom|end"
+			/>
+
+</android.support.design.widget.CoordinatorLayout>

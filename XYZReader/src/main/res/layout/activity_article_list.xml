@@ -1,49 +1,58 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+												 xmlns:app="http://schemas.android.com/apk/res-auto"
+												 android:layout_width="match_parent"
+												 android:layout_height="match_parent"
+												 android:id="@+id/root_view"
+		>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+	<android.support.design.widget.AppBarLayout
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/ab_height"
+			>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:scrollbarStyle="outsideOverlay"
-            android:paddingTop="116dp"
-            android:paddingLeft="@dimen/list_side_margin"
-            android:paddingRight="@dimen/list_side_margin"
-            android:paddingBottom="28dp" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+		<android.support.v7.widget.Toolbar
+				android:id="@+id/toolbar"
+				style="@style/Theme.App.toobar"
+				android:layout_width="match_parent"
+				app:elevation="@dimen/ab_elevation"
+				app:layout_scrollFlags="scroll|enterAlways"
+				>
 
-    <FrameLayout
-        android:id="@+id/toolbar_container"
-        android:layout_width="match_parent"
-        android:layout_height="112dp"
-        android:background="?colorPrimary"
-        android:elevation="8dp">
+			<ImageView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					style="@style/Theme.App.LogoAB"
+					android:src="@drawable/logo"
+					android:contentDescription="@string/app_name"
+					/>
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:layout_marginLeft="@dimen/list_toolbar_side_margin"
-            android:layout_marginRight="@dimen/list_toolbar_side_margin"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            android:layout_gravity="bottom">
+		</android.support.v7.widget.Toolbar>
+	</android.support.design.widget.AppBarLayout>
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/logo"
-                android:contentDescription="@string/app_name" />
+	<android.support.v4.widget.SwipeRefreshLayout
+			android:id="@+id/swipe_refresh_layout"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			style="@style/ArticleList.refreshLayout"
+			app:layout_behavior="@string/appbar_scrolling_view_behavior"
+			>
 
-        </android.support.v7.widget.Toolbar>
-    </FrameLayout>
+		<android.support.v7.widget.RecyclerView
+				android:id="@+id/rv_article"
+				style="@style/ArticleList.recyclerView"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				/>
 
-</FrameLayout>
+	</android.support.v4.widget.SwipeRefreshLayout>
+
+	<ProgressBar
+			android:id="@+id/progress_bar"
+			style="@style/Theme.App.progressBar"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			app:layout_anchor="@id/rv_article"
+			app:layout_anchorGravity="top|center_horizontal"
+			/>
+
+</android.support.design.widget.CoordinatorLayout>

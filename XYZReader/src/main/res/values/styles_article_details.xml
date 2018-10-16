@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<style name="ArticleDetails" parent="Theme.App">
+
+	</style>
+
+	<style name="ArticleDetails.image" parent="Theme.App">
+		<item name="android:layout_margin">0dp</item>
+		<item name="android:padding">0dp</item>
+		<item name="android:layout_gravity">center_horizontal|center_vertical</item>
+		<item name="android:scaleType">centerCrop</item>
+		<item name="android:background">@color/theme_primary</item>
+	</style>
+
+	<style name="ArticleDetails.progressBar" parent="Theme.App">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<!--<item name="android:layout_marginTop">100dp</item>-->
+		<!--<item name="android:padding">@dimen/min_padding</item>-->
+		<item name="android:layout_gravity">center|center_horizontal</item>
+	</style>
+
+	<style name="ArticleDetails.viewPager" parent="Theme.App">
+		<item name="android:layout_margin">0dp</item>
+		<item name="android:padding">0dp</item>
+	</style>
+
+	<style name="ArticleDetails.fab" parent="Theme.App">
+		<item name="android:padding">@dimen/fab_padding</item>
+		<item name="android:layout_marginEnd">@dimen/fab_margin</item>
+		<item name="android:layout_marginBottom">@dimen/fab_margin</item>
+		<item name="android:layout_gravity">bottom|end</item>
+		<!--android:stateListAnimator="@anim/fab_state_list_anim"-->
+		<!--android:layout_gravity="bottom|end"-->
+	</style>
+
+	<style name="ArticleDetails.title" parent="Theme.App">
+		<item name="android:padding">@dimen/min_padding</item>
+		<item name="android:layout_margin">@dimen/min_margin</item>
+		<item name="android:layout_gravity">bottom|center</item>
+		<item name="android:fontFamily">sans-serif</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textColor">@color/white</item>
+		<item name="android:textSize">@dimen/detail_title_text_size</item>
+		<item name="android:maxLines">1</item>
+	</style>
+
+	<style name="ArticleDetails.bodyContainer" parent="Theme.App">
+		<item name="android:paddingEnd">@dimen/detail_body_container_padding</item>
+		<item name="android:paddingStart">@dimen/detail_body_container_padding</item>
+		<item name="android:layout_marginEnd">@dimen/detail_body_container_margin</item>
+		<item name="android:layout_marginStart">@dimen/detail_body_container_margin</item>
+		<item name="android:layout_marginTop">0dp</item>
+	</style>
+
+	<style name="ArticleDetails.info" parent="Theme.App">
+		<item name="android:padding">@dimen/min_padding</item>
+		<item name="android:layout_margin">@dimen/min_margin</item>
+		<item name="android:fontFamily">sans-serif</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textColor">@color/theme_secundary_dark</item>
+		<item name="android:textSize">@dimen/detail_info_text_size</item>
+		<item name="android:textColorLink">@color/theme_accent</item>
+		<item name="android:maxLines">1</item>
+		<item name="android:maxWidth">100dp</item>
+		<item name="android:ellipsize">end</item>
+	</style>
+
+	<style name="ArticleDetails.body" parent="Theme.App">
+		<item name="android:padding">@dimen/min_padding</item>
+		<item name="android:layout_margin">@dimen/min_margin</item>
+		<item name="android:fontFamily">sans-serif</item>
+		<item name="android:textStyle">normal</item>
+		<item name="android:textColor">@color/texto_light</item>
+		<item name="android:textSize">@dimen/detail_body_text_size</item>
+		<item name="android:textColorLink">@color/theme_accent</item>
+		<item name="android:lineSpacingMultiplier">@fraction/detail_body_line_spacing_multiplier</item>
+	</style>
+
+	<style name="ArticleDetails.cardView">
+		<item name="android:background">@color/theme_primary</item>
+	</style>
+
+
+</resources>

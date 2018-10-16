@@ -1,11 +1,48 @@
 <resources>
-    <!-- detail -->
-    <dimen name="detail_title_text_size">32sp</dimen>
-    <dimen name="detail_body_text_size">22sp</dimen>
-    <item name="detail_body_line_spacing_multiplier" format="float" type="fraction">1.25</item>
 
-    <dimen name="fab_elevation">2dp</dimen>
-    <dimen name="fab_press_translation_z">6dp</dimen>
-    <dimen name="fab_margin">24dp</dimen>
+	<!-- Article List -->
+	<dimen name="article_title_size">16sp</dimen>
+	<dimen name="article_subtitle_size">12sp</dimen>
+	<dimen name="article_thumb_width">100dp</dimen>
+	<dimen name="article_card_height">100dp</dimen>
+	<dimen name="article_thumb_max_width">50dp</dimen>
+	<dimen name="article_thumb_max_height">50dp</dimen>
+	<item name="article_title_max_line" format="integer" type="integer">2</item>
+
+	<!-- detail -->
+	<dimen name="detail_photo_height">250dp</dimen>
+	<dimen name="detail_title_height">50dp</dimen>
+	<dimen name="detail_title_gradient_height">150dp</dimen>
+	<dimen name="detail_title_text_size">24sp</dimen>
+	<dimen name="detail_info_text_size">12sp</dimen>
+	<dimen name="detail_body_text_size">22sp</dimen>
+	<item name="detail_body_line_spacing_multiplier" format="float" type="fraction">1.25</item>
+	<dimen name="detail_body_container_padding">8dp</dimen>
+	<dimen name="detail_body_container_margin">16dp</dimen>
+	<dimen name="article_detail_card_max_width">400dp</dimen>
+
+	<dimen name="fab_elevation">8dp</dimen>
+	<dimen name="fab_press_translation_z">6dp</dimen>
+	<dimen name="fab_margin">24dp</dimen>
+	<dimen name="fab_padding">8dp</dimen>
+
+	<!--Action Bar -->
+	<dimen name="ab_margin">0dp</dimen>
+	<dimen name="ab_elevation">4dp</dimen>
+	<dimen name="ab_height">56dp</dimen>
+	<dimen name="ab_padding">4dp</dimen>
+
+	<!-- Comum -->
+	<!-- Key lines sao para indicar onde inicia cada tipo de conteudo -->
+	<dimen name="key_line1">16dp</dimen>
+	<dimen name="key_line2">72dp</dimen>
+	<dimen name="key_line3">100dp</dimen>
+
+	<dimen name="max_height">600dp</dimen>
+	<dimen name="max_width">600dp</dimen>
+	<dimen name="main_content_start">@dimen/key_line2</dimen>
+	<dimen name="min_margin">8dp</dimen>
+	<dimen name="min_padding">8dp</dimen>
+	<dimen name="aticle_card_elevation">2dp</dimen>
 
 </resources>
