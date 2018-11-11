@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <FrameLayout
+    <android.support.design.widget.AppBarLayout
         android:id="@+id/up_container"
         android:background="@android:color/transparent"
         android:layout_width="match_parent"
@@ -21,5 +21,5 @@
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/up"
             android:src="@drawable/ic_arrow_back" />
-    </FrameLayout>
+    </android.support.design.widget.AppBarLayout>
 </FrameLayout>
