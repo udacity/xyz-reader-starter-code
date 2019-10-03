@@ -8,4 +8,7 @@
     <dimen name="fab_press_translation_z">6dp</dimen>
     <dimen name="fab_margin">24dp</dimen>
 
+    <dimen name="main_toolbar_size">112dp</dimen>
+    <dimen name="main_cover_size">224dp</dimen>
+
 </resources>
