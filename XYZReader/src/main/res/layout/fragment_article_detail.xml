@@ -6,87 +6,80 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme" />
+        >
 
         <LinearLayout
-            android:id="@+id/meta_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/theme_primary"
-            android:orientation="vertical"
-            android:paddingLeft="@dimen/detail_inner_horiz_margin"
-            android:paddingTop="@dimen/detail_metabar_vert_padding"
-            android:paddingRight="@dimen/detail_inner_horiz_margin"
-            android:paddingBottom="@dimen/detail_metabar_vert_padding">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/article_title"
-                style="?android:attr/textAppearanceLarge"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
-                android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
-                android:textColor="@color/ltgray"
-                android:textSize="@dimen/detail_title_text_size"
-                android:textStyle="bold"
-                tools:text="@string/app_name" />
-
-            <TextView
-                android:id="@+id/article_byline"
-                style="?android:attr/textAppearanceSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/ltgray"
-                tools:text="@string/app_name" />
-        </LinearLayout>
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="90">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
 
                 <ImageView
                     android:id="@+id/photo_container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/main_cover_size"
 
                     android:contentDescription="@string/cover_description"
                     android:scaleType="centerCrop"
                     android:src="@android:drawable/sym_def_app_icon" />
 
-                <TextView
-                    android:id="@+id/article_body"
-                    style="?android:attr/textAppearanceMedium"
+                <LinearLayout
+                    android:id="@+id/meta_bar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/detail_inner_horiz_margin"
-                    android:layout_marginRight="@dimen/detail_inner_horiz_margin"
-                    android:lineSpacingMultiplier="@dimen/detail_body_line_spacing_multiplier"
-                    android:paddingBottom="@dimen/detail_body_bottom_margin"
-                    android:textColor="@color/text_color"
-                    android:textColorLink="@color/theme_accent"
-                    android:textSize="@dimen/detail_body_text_size"
-                    tools:text="@tools:sample/lorem/random" />
-            </LinearLayout>
-        </ScrollView>
+                    android:layout_gravity="bottom"
+                    android:background="@color/text_color"
+                    android:orientation="vertical"
+                    android:paddingLeft="@dimen/detail_inner_horiz_margin"
+                    android:paddingTop="@dimen/detail_metabar_vert_padding"
+                    android:paddingRight="@dimen/detail_inner_horiz_margin"
+                    android:paddingBottom="@dimen/detail_metabar_vert_padding">
 
-    </LinearLayout>
+                    <TextView
+                        android:id="@+id/article_title"
+                        style="?android:attr/textAppearanceLarge"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-condensed"
+                        android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
+                        android:textColor="@color/ltgray"
+                        android:textSize="@dimen/detail_title_text_size"
+                        android:textStyle="bold"
+                        tools:text="@string/app_name" />
+
+                    <TextView
+                        android:id="@+id/article_byline"
+                        style="?android:attr/textAppearanceSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/ltgray"
+                        tools:text="@string/app_name" />
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/article_body"
+                style="?android:attr/textAppearanceMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/detail_inner_horiz_margin"
+                android:layout_marginRight="@dimen/detail_inner_horiz_margin"
+                android:lineSpacingMultiplier="@dimen/detail_body_line_spacing_multiplier"
+                android:paddingBottom="@dimen/detail_body_bottom_margin"
+                android:textColor="@color/text_color"
+                android:textColorLink="@color/theme_accent"
+                android:textSize="@dimen/detail_body_text_size"
+                tools:text="@tools:sample/lorem/random" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/share_fab"

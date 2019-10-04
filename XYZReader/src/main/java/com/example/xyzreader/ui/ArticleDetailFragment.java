@@ -13,9 +13,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
@@ -184,8 +186,7 @@ public class ArticleDetailFragment extends Fragment implements
                                 + "</font>"));
 
             }
-            String tempText = Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n\r\n|\n\n)", "<br />&emsp;")).toString();
-            tempText.replaceAll("(\r\n|\n)","&emsp;");
+            String tempText = Html.fromHtml("<br />&emsp;" + mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n\r\n|\n\n)", "<br />&emsp;")).toString();
             bodyView.setText(tempText);
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
@@ -193,7 +194,14 @@ public class ArticleDetailFragment extends Fragment implements
                         public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
+                                Palette p = Palette.generate(bitmap, 12);
+                                int mMutedColor = p.getDarkMutedColor(0xFF333333);
+                                int color = Color.argb(100,
+                                        (int) (Color.red(mMutedColor) * 0.9),
+                                        (int) (Color.green(mMutedColor) * 0.9),
+                                        (int) (Color.blue(mMutedColor) * 0.9));
                                 mPhotoView.setImageBitmap(imageContainer.getBitmap());
+                                mRootView.findViewById(R.id.meta_bar).setBackgroundColor(color);
                             }
                         }
 
