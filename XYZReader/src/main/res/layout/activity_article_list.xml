@@ -21,21 +21,24 @@
 
             android:clipChildren="false"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:layout_scrollInterpolator="@android:interpolator/accelerate_decelerate"
+            app:layout_scrollInterpolator="@android:interpolator/linear"
             app:toolbarId="@+id/toolbar">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"></android.support.v7.widget.Toolbar>
+                android:layout_height="?actionBarSize"
+                android:layout_gravity="bottom"></android.support.v7.widget.Toolbar>
 
             <ImageView
                 android:id="@+id/photo_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
 
+                android:layout_gravity="bottom"
                 android:contentDescription="@string/welcome_xyz_reader"
-                android:scaleType="centerInside"
+                android:padding="@dimen/detail_body_top_margin"
+                android:scaleType="center"
                 android:src="@drawable/logo" />
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
