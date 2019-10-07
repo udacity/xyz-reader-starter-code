@@ -15,6 +15,7 @@ import java.util.GregorianCalendar;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -49,9 +50,10 @@ public class ArticleDetailFragment extends Fragment implements
 
     private Cursor mCursor;
     private long mItemId;
-    private View mRootView;
-    private View mPhotoContainerView;
+    private View mRootView, metaBar;
+    private TextView bodyView, byLine, titleLine;
     private ImageView mPhotoView;
+    private CollapsingToolbarLayout collapsedToolbar;
     private int mScrollY;
     private boolean mIsCard = false;
     private int mStatusBarFullOpacityBottom;
@@ -109,7 +111,7 @@ public class ArticleDetailFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
-        mPhotoView = (ImageView) mRootView.findViewById(R.id.photo_container);
+        mPhotoView = (ImageView) mRootView.findViewById(R.id.app_bar_image);
 
         mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,7 +125,13 @@ public class ArticleDetailFragment extends Fragment implements
 
         Toolbar mToolbar = (Toolbar)  mRootView.findViewById(R.id.toolbar);
         ((AppCompatActivity)getActivity()).setSupportActionBar(mToolbar);
-        bindViews();
+        collapsedToolbar = (CollapsingToolbarLayout) mRootView.findViewById(R.id.appbar_layout);
+        bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+        metaBar = (View) mRootView.findViewById(R.id.meta_bar);
+        titleLine = (TextView) mRootView.findViewById(R.id.article_title);
+        byLine = (TextView) mRootView.findViewById(R.id.article_byline);
+        collapsedToolbar.setTitle("loading ...");
+        bodyView.setText("loading ...");
         return mRootView;
     }
 
@@ -152,24 +160,22 @@ public class ArticleDetailFragment extends Fragment implements
         }
     }
 
-    private void bindViews() {
+    private void updateViews() {
         if (mRootView == null) {
             return;
         }
-
-        TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
-        TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
-        bylineView.setMovementMethod(new LinkMovementMethod());
-        TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
-            titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+            collapsedToolbar.setTitle(" ");
+            collapsedToolbar.setCollapsedTitleTextColor(0xFFFFFFFF);
+            titleLine.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
-                bylineView.setText(Html.fromHtml(
+                byLine.setText(Html.fromHtml(
                         DateUtils.getRelativeTimeSpanString(
                                 publishedDate.getTime(),
                                 System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
@@ -180,12 +186,13 @@ public class ArticleDetailFragment extends Fragment implements
 
             } else {
                 // If date is before 1902, just show the string
-                bylineView.setText(Html.fromHtml(
+                byLine.setText(Html.fromHtml(
                         outputFormat.format(publishedDate) + " by <font color='#ffffff'>"
                                 + mCursor.getString(ArticleLoader.Query.AUTHOR)
                                 + "</font>"));
 
             }
+
             String tempText = Html.fromHtml("<br />&emsp;" + mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n\r\n|\n\n)", "<br />&emsp;")).toString();
             bodyView.setText(tempText);
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
@@ -195,13 +202,13 @@ public class ArticleDetailFragment extends Fragment implements
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
                                 Palette p = Palette.generate(bitmap, 12);
-                                int mMutedColor = p.getDarkMutedColor(0xFF333333);
+                                int mMutedColor = p.getDarkVibrantColor(0xFF333333);
                                 int color = Color.argb(100,
                                         (int) (Color.red(mMutedColor) * 0.9),
                                         (int) (Color.green(mMutedColor) * 0.9),
                                         (int) (Color.blue(mMutedColor) * 0.9));
                                 mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                mRootView.findViewById(R.id.meta_bar).setBackgroundColor(color);
+                                metaBar.setBackgroundColor(color);
                             }
                         }
 
@@ -212,9 +219,6 @@ public class ArticleDetailFragment extends Fragment implements
                     });
         } else {
             mRootView.setVisibility(View.GONE);
-            titleView.setText("N/A");
-            bylineView.setText("N/A");
-            bodyView.setText("N/A");
         }
     }
 
@@ -238,23 +242,13 @@ public class ArticleDetailFragment extends Fragment implements
             mCursor.close();
             mCursor = null;
         }
-        bindViews();
+
+        updateViews();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mCursor = null;
-        bindViews();
-    }
-
-    public int getUpButtonFloor() {
-        if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
-            return Integer.MAX_VALUE;
-        }
-
-        // account for parallax
-        return mIsCard
-                ? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
-                : mPhotoView.getHeight() - mScrollY;
+        updateViews();
     }
 }
