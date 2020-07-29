@@ -26,6 +26,8 @@ import android.util.AttributeSet;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
 
+import androidx.annotation.RequiresApi;
+
 import com.example.xyzreader.R;
 
 
@@ -100,6 +102,7 @@ public class DrawInsetsFrameLayout extends FrameLayout {
         mOnInsetsCallback = onInsetsCallback;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
     @Override
     public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         insets = super.onApplyWindowInsets(insets);

@@ -44,6 +44,9 @@
         <provider android:name=".data.ItemsProvider"
             android:authorities="com.example.xyzreader"
             android:exported="false" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
     </application>
 
