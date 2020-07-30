@@ -21,6 +21,10 @@ android {
         targetSdkVersion 29
     }
 
+    buildFeatures {
+        viewBinding true
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -37,4 +41,5 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.8.0'
     implementation files('libs/volley.jar')
     implementation 'com.google.android.material:material:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 }
