@@ -134,7 +134,7 @@ public class ArticleDetailFragment extends Fragment implements
 
     private void updateStatusBar() {
         int color = 0;
-        if (binding.photo != null && mTopInset != 0 && mScrollY > 0) {
+        if (mTopInset != 0 && mScrollY > 0) {
             float f = progress(mScrollY,
                     mStatusBarFullOpacityBottom - mTopInset * 3,
                     mStatusBarFullOpacityBottom - mTopInset);
@@ -261,13 +261,17 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     public int getUpButtonFloor() {
-        if (binding.photo.getHeight() == 0) {
+        try {
+            if (binding.photo.getHeight() == 0) {
+                return Integer.MAX_VALUE;
+            }
+
+            // account for parallax
+            return mIsCard
+                    ? (int) binding.photoContainer.getTranslationY() + binding.photo.getHeight() - mScrollY
+                    : binding.photo.getHeight() - mScrollY;
+        } catch (NullPointerException ignored) {
             return Integer.MAX_VALUE;
         }
-
-        // account for parallax
-        return mIsCard
-                ? (int) binding.photoContainer.getTranslationY() + binding.photo.getHeight() - mScrollY
-                : binding.photo.getHeight() - mScrollY;
     }
 }
