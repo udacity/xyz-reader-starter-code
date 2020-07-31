@@ -22,9 +22,11 @@
                 <!--suppress AndroidLintContentDescription -->
                 <ImageView
                     android:id="@+id/photo"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                     />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:transitionName="@string/transition_name"
+                    tools:targetApi="lollipop" />
 
                 <View
                     android:layout_width="match_parent"
@@ -34,53 +36,54 @@
             </FrameLayout>
 
             <com.example.xyzreader.ui.MaxWidthLinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/detail_card_top_margin"
                 android:maxWidth="@dimen/detail_card_max_width"
                 android:background="#fff"
                 app:elevation="2dp"
-                android:layout_marginTop="@dimen/detail_card_top_margin">
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:id="@+id/meta_bar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#333"
                     android:layout_gravity="bottom"
+                    android:layout_marginBottom="@dimen/detail_metabar_vert_padding"
+                    android:background="@color/secondaryDarkColor"
                     android:orientation="vertical"
                     android:paddingLeft="@dimen/detail_inner_horiz_margin"
-                    android:paddingRight="@dimen/detail_inner_horiz_margin"
+                    android:paddingStart="@dimen/detail_inner_horiz_margin"
                     android:paddingTop="@dimen/detail_metabar_vert_padding"
-                    android:paddingBottom="@dimen/detail_metabar_vert_padding"
-                    android:layout_marginBottom="@dimen/detail_metabar_vert_padding">
+                    android:paddingRight="@dimen/detail_inner_horiz_margin"
+                    android:paddingEnd="@dimen/detail_inner_horiz_margin"
+                    android:paddingBottom="@dimen/detail_metabar_vert_padding">
 
                     <TextView
                         android:id="@+id/article_title"
-                        tools:text="Test title"
                         style="?android:attr/textAppearanceLarge"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
                         android:fontFamily="sans-serif-condensed"
+                        android:lineSpacingMultiplier="0.9"
+                        android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
                         android:textColor="@color/secondaryTextColor"
-                        android:textStyle="bold"
                         android:textSize="@dimen/detail_title_text_size"
-                        android:lineSpacingMultiplier="0.9" />
+                        android:textStyle="bold"
+                        tools:text="Test title" />
 
                     <TextView
                         android:id="@+id/article_byline"
-                        tools:text="pls ignore"
                         style="?android:attr/textAppearanceSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/dark_grey_subtitle" />
+                        android:textColor="@color/dark_grey_subtitle"
+                        tools:text="pls ignore" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/article_body"
-                    tools:text="@string/lorem_ipsum_test"
                     style="?android:attr/textAppearanceMedium"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -91,7 +94,8 @@
                     android:paddingBottom="@dimen/detail_body_bottom_margin"
                     android:textColor="@color/primaryTextColor"
                     android:textColorLink="@color/theme_accent"
-                    android:textSize="@dimen/detail_body_text_size" />
+                    android:textSize="@dimen/detail_body_text_size"
+                    tools:text="@string/lorem_ipsum_test" />
 
             </com.example.xyzreader.ui.MaxWidthLinearLayout>
         </FrameLayout>
@@ -99,15 +103,15 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/share_fab"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin"
         android:contentDescription="@string/action_share"
         android:src="@drawable/ic_share"
         android:stateListAnimator="@anim/fab_state_list_anim"
         app:backgroundTint="@color/secondaryLightColor"
-        app:elevation="@dimen/fab_elevation" />
+        app:elevation="@dimen/fab_elevation"
+        app:useCompatPadding="true"
+        tools:targetApi="lollipop" />
 
 </com.example.xyzreader.ui.DrawInsetsFrameLayout>

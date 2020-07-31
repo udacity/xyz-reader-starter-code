@@ -1,5 +1,4 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -19,9 +18,11 @@
         <!--suppress AndroidLintContentDescription -->
         <com.example.xyzreader.ui.DynamicHeightNetworkImageView
             android:id="@+id/thumbnail"
+            android:transitionName="@string/transition_name"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:background="@color/photo_placeholder" />
+            android:background="@color/photo_placeholder"
+            tools:targetApi="lollipop" />
 
         <TextView
             android:id="@+id/article_title"

@@ -15,12 +15,16 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.Bacon" parent="@style/Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/primaryColor</item>
 
     </style>
 
+    <style name="action_bar_style">
+        <item name="android:background">@color/primaryColor</item>
+    </style>
 
 
 </resources>

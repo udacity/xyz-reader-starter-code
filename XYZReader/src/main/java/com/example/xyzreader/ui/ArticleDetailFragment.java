@@ -261,17 +261,13 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     public int getUpButtonFloor() {
-        try {
-            if (binding.photo.getHeight() == 0) {
-                return Integer.MAX_VALUE;
-            }
-
-            // account for parallax
-            return mIsCard
-                    ? (int) binding.photoContainer.getTranslationY() + binding.photo.getHeight() - mScrollY
-                    : binding.photo.getHeight() - mScrollY;
-        } catch (NullPointerException ignored) {
+        if (binding == null || binding.photo.getHeight() == 0) {
             return Integer.MAX_VALUE;
         }
+
+        // account for parallax
+        return mIsCard
+                ? (int) binding.photoContainer.getTranslationY() + binding.photo.getHeight() - mScrollY
+                : binding.photo.getHeight() - mScrollY;
     }
 }
